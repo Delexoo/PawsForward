@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Donate · PawsForward</title>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var code = String(params.get("c") || params.get("ref") || "").trim();
+      if (!code && location.hash) code = String(location.hash.replace(/^#/, "")).trim();
+      if (!code) {
+        location.replace("donate.html");
+        return;
+      }
+      location.replace("donate.html?ref=" + encodeURIComponent(code));
+    })();
+  </script>
+</head>
+<body>
+  <p><a id="go" href="donate.html">Continue to donate</a></p>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var code = String(params.get("c") || params.get("ref") || "").trim();
+      if (!code && location.hash) code = String(location.hash.replace(/^#/, "")).trim();
+      var a = document.getElementById("go");
+      if (a && code) a.href = "donate.html?ref=" + encodeURIComponent(code);
+    })();
+  </script>
+</body>
+</html>

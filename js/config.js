@@ -7,7 +7,7 @@ window.SITE_CONFIG = {
   /** 4-digit operator PIN (session unlock). Change before sharing the site. */
   sitePin: "4821",
   /** Bump when shipping UI so GitHub Pages clients skip stale JS/CSS. */
-  assetVersion: "20261103y",
+  assetVersion: "20261103z",
   contactEmail: "hello@pawsforward.org",
   privacyEmail: "privacy@pawsforward.org",
   siteOrigin: "https://delexoo.github.io/PawsForward",

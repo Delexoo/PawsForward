@@ -3,6 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      // Short QR links: /PawsForward/r/<referral_code> → donate checkout
+      var match = location.pathname.match(/\/r\/([^\/?#]+)\/?$/);
+      if (!match) return;
+      var code = decodeURIComponent(match[1] || "").trim();
+      if (!code) return;
+      var base = location.pathname.replace(/\/r\/[^\/]+\/?$/, "/");
+      location.replace(base + "donate.html?ref=" + encodeURIComponent(code));
+    })();
+  </script>
   <meta name="theme-color" content="#0f172a">
   <meta name="robots" content="noindex">
   <meta name="description" content="This PawsForward page was not found.">
@@ -10,12 +21,12 @@
   <title>Page not found · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="stylesheet" href="css/fonts.css?v=20261103y">
-  <script src="js/theme.js?v=20261103y"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261103y">
-  <link rel="stylesheet" href="css/paws.css?v=20261103y">
-  <script src="js/config.js?v=20261103y"></script>
-  <script src="js/canonical.js?v=20261103y"></script>
+  <link rel="stylesheet" href="css/fonts.css?v=20261103z">
+  <script src="js/theme.js?v=20261103z"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261103z">
+  <link rel="stylesheet" href="css/paws.css?v=20261103z">
+  <script src="js/config.js?v=20261103z"></script>
+  <script src="js/canonical.js?v=20261103z"></script>
 </head>
 <body data-page="404" data-public="1">
   <div id="page-body" class="donate-shell">
