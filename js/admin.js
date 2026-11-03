@@ -34,8 +34,8 @@
     empAvatarReset: document.getElementById("emp-avatar-reset"),
     btnNew: document.getElementById("btn-new-employee"),
     btnRefresh: document.getElementById("btn-refresh"),
-    inboxFold: document.getElementById("inbox-fold"),
     inboxCountHint: document.getElementById("inbox-count-hint"),
+    dock: document.querySelector(".pf-dock"),
     errFirst: document.getElementById("err-emp-first"),
     errLast: document.getElementById("err-emp-last"),
     errPhone: document.getElementById("err-emp-phone"),
@@ -81,6 +81,39 @@
   let editingEmployeeId = null;
   let pendingAvatarFile = null;
   let pendingAvatarReset = false;
+  const ADMIN_PAGE_KEY = "pf_admin_page_v1";
+
+  function setAdminPage(pageId) {
+    const next = ["employees", "activity", "inbox"].includes(pageId) ? pageId : "employees";
+    document.querySelectorAll(".pf-admin-page").forEach((panel) => {
+      const active = panel.getAttribute("data-admin-page") === next;
+      panel.classList.toggle("is-active", active);
+      panel.hidden = !active;
+    });
+    document.querySelectorAll("[data-admin-nav]").forEach((btn) => {
+      const active = btn.getAttribute("data-admin-nav") === next;
+      btn.classList.toggle("is-active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    try {
+      sessionStorage.setItem(ADMIN_PAGE_KEY, next);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function wireAdminNav() {
+    document.querySelectorAll("[data-admin-nav]").forEach((btn) => {
+      btn.addEventListener("click", () => setAdminPage(btn.getAttribute("data-admin-nav")));
+    });
+    let initial = "employees";
+    try {
+      initial = sessionStorage.getItem(ADMIN_PAGE_KEY) || "employees";
+    } catch {
+      /* ignore */
+    }
+    setAdminPage(initial);
+  }
 
   function avatarUrl(emp) {
     const url = String(emp?.avatar_url || "").trim();
@@ -983,6 +1016,7 @@
 
   function wireDialogs() {
     wireDialogBackdropClose();
+    wireAdminNav();
     els.btnNew?.addEventListener("click", openNewEmployee);
     els.btnRefresh?.addEventListener("click", () => loadDashboard({ skipCachePaint: true }));
     els.visitsClose?.addEventListener("click", () => els.visitsDialog?.close());

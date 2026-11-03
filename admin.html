@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261103l">
-  <link rel="stylesheet" href="css/fonts.css?v=20261103l">
-  <script src="js/theme.js?v=20261103l"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261103l">
-  <link rel="stylesheet" href="css/paws.css?v=20261103l">
+  <link rel="manifest" href="manifest.webmanifest?v=20261103m">
+  <link rel="stylesheet" href="css/fonts.css?v=20261103m">
+  <script src="js/theme.js?v=20261103m"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261103m">
+  <link rel="stylesheet" href="css/paws.css?v=20261103m">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261103l"></script>
-  <script src="js/pin-lock.js?v=20261103l"></script>
+  <script src="js/config.js?v=20261103m"></script>
+  <script src="js/pin-lock.js?v=20261103m"></script>
   <script>
     (function () {
       try {
@@ -39,20 +39,6 @@
   <a class="skip-link" href="#page-body">Skip to content</a>
   <div id="shell"></div>
   <div id="page-body" class="dashboard-redesign owner-console-page pf-admin-minimal">
-    <header class="pf-admin-topbar">
-      <div class="pf-admin-brand">
-        <img class="pf-admin-logo" src="doc/brand-mark.png" width="32" height="32" alt="">
-        <div class="pf-admin-brand-copy">
-          <p class="pf-admin-eyebrow">PawsForward</p>
-          <h1>Dashboard</h1>
-        </div>
-      </div>
-      <div class="pf-admin-toolbar">
-        <button type="button" class="pf-tool-btn" id="btn-install" title="Install or add to home screen">Install</button>
-        <button type="button" class="pf-tool-btn" id="btn-refresh">Refresh</button>
-      </div>
-    </header>
-
     <div id="status-banner" class="status-banner" hidden role="status"></div>
 
     <div id="dashboard-skeleton" class="dashboard-skeleton" hidden>
@@ -66,7 +52,7 @@
     </div>
 
     <div id="dashboard-content" class="pf-admin-stack">
-      <section class="pf-mini-panel" id="employees" aria-labelledby="employees-heading">
+      <section class="pf-mini-panel pf-admin-page is-active" id="employees" data-admin-page="employees" aria-labelledby="employees-heading">
         <div class="pf-section-head pf-section-head--compact">
           <h2 class="pf-mini-heading" id="employees-heading">Employees</h2>
           <button type="button" class="pf-tool-btn pf-tool-btn--primary" id="btn-new-employee">Add employee</button>
@@ -78,7 +64,7 @@
         </div>
       </section>
 
-      <section class="pf-mini-panel" id="overview" aria-labelledby="overview-heading">
+      <section class="pf-mini-panel pf-admin-page" id="overview" data-admin-page="activity" aria-labelledby="overview-heading" hidden>
         <h2 class="pf-mini-heading" id="overview-heading">Activity</h2>
         <dl class="pf-stat-strip" id="stats-grid" aria-label="Organization totals">
           <div class="pf-stat">
@@ -112,22 +98,33 @@
         </div>
       </section>
 
-      <section class="pf-mini-panel pf-inbox-panel" id="donations" aria-labelledby="donations-heading">
-        <details class="pf-inbox-fold" id="inbox-fold">
-          <summary class="pf-inbox-summary">
-            <h2 class="pf-mini-heading" id="donations-heading">Inbox</h2>
-            <span class="pf-inbox-hint" id="inbox-count-hint">Closed</span>
-          </summary>
-          <div class="pf-inbox-body">
-            <ul class="pf-donation-list" id="donations-feed"></ul>
-            <div class="dash-empty" id="donations-empty" hidden>
-              <p class="dash-empty-title">Inbox is empty</p>
-              <p class="dash-empty-desc">Attributed gifts show up here.</p>
-            </div>
-          </div>
-        </details>
+      <section class="pf-mini-panel pf-admin-page" id="donations" data-admin-page="inbox" aria-labelledby="donations-heading" hidden>
+        <div class="pf-section-head pf-section-head--compact">
+          <h2 class="pf-mini-heading" id="donations-heading">Inbox</h2>
+          <span class="pf-inbox-hint" id="inbox-count-hint">Empty</span>
+        </div>
+        <ul class="pf-donation-list" id="donations-feed"></ul>
+        <div class="dash-empty" id="donations-empty" hidden>
+          <p class="dash-empty-title">Inbox is empty</p>
+          <p class="dash-empty-desc">Attributed gifts show up here.</p>
+        </div>
       </section>
     </div>
+
+    <nav class="pf-dock" aria-label="PawsForward admin">
+      <div class="pf-dock-brand" aria-hidden="true">
+        <img class="pf-admin-logo" src="doc/brand-mark.png" width="32" height="32" alt="">
+      </div>
+      <div class="pf-dock-tabs" role="tablist" aria-label="Dashboard pages">
+        <button type="button" class="pf-dock-tab is-active" role="tab" aria-selected="true" data-admin-nav="employees">Employees</button>
+        <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="activity">Activity</button>
+        <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="inbox">Inbox</button>
+      </div>
+      <div class="pf-dock-tools">
+        <button type="button" class="pf-dock-tool" id="btn-install" title="Install or add to home screen">Install</button>
+        <button type="button" class="pf-dock-tool" id="btn-refresh" title="Refresh">Refresh</button>
+      </div>
+    </nav>
   </div>
 
   <dialog class="site-leave-dialog pf-dialog" id="employee-dialog" aria-labelledby="employee-dialog-title">
@@ -275,14 +272,14 @@
     </div>
   </dialog>
 
-  <script src="js/icons.js?v=20261103l"></script>
-  <script src="js/shell.js?v=20261103l"></script>
-  <script src="js/vendor/supabase.js?v=20261103l"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261103l"></script>
-  <script src="js/supabase-client.js?v=20261103l"></script>
-  <script src="js/ui-select.js?v=20261103l"></script>
-  <script src="js/qr.js?v=20261103l"></script>
-  <script src="js/pwa-install.js?v=20261103l"></script>
-  <script src="js/admin.js?v=20261103l"></script>
+  <script src="js/icons.js?v=20261103m"></script>
+  <script src="js/shell.js?v=20261103m"></script>
+  <script src="js/vendor/supabase.js?v=20261103m"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261103m"></script>
+  <script src="js/supabase-client.js?v=20261103m"></script>
+  <script src="js/ui-select.js?v=20261103m"></script>
+  <script src="js/qr.js?v=20261103m"></script>
+  <script src="js/pwa-install.js?v=20261103m"></script>
+  <script src="js/admin.js?v=20261103m"></script>
 </body>
 </html>
