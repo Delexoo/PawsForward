@@ -8,6 +8,8 @@ const cors = {
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
 };
 
+const DONATE_PRICE_META = "pawsforward_donate_custom";
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -28,6 +30,29 @@ async function stripeSecret(supabase: ReturnType<typeof adminClient>) {
   const { data, error } = await supabase.rpc("app_secret", { p_key: "stripe_secret_key" });
   if (error) throw error;
   return data as string | null;
+}
+
+/** Reusable pay-what-you-want Price (custom_unit_amount is not valid on Checkout price_data). */
+async function ensureCustomDonatePrice(stripe: Stripe) {
+  const listed = await stripe.prices.list({ active: true, limit: 100 });
+  const existing = listed.data.find((p) => p.metadata?.[DONATE_PRICE_META] === "1");
+  if (existing?.id) return existing.id;
+
+  const product = await stripe.products.create({
+    name: "PawsForward donation",
+    metadata: { pawsforward: "donate" },
+  });
+  const price = await stripe.prices.create({
+    currency: "usd",
+    product: product.id,
+    custom_unit_amount: {
+      enabled: true,
+      minimum: 100,
+      preset: 2500,
+    },
+    metadata: { [DONATE_PRICE_META]: "1" },
+  });
+  return price.id;
 }
 
 async function buildCheckout(input: {
@@ -61,39 +86,30 @@ async function buildCheckout(input: {
     throw new Error("Enter at least $1.");
   }
 
-  const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+  const stripe = new Stripe(stripeKey, { apiVersion: "2024-06-20" });
   const employeeName = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "PawsForward";
   const donorLabel = String(input.donorLabel || "").trim();
   const siteOrigin = input.siteOrigin.replace(/\/$/, "");
 
-  const priceData: Record<string, unknown> = {
-    currency: "usd",
-    product_data: {
-      name: "PawsForward donation",
-      description: `Donation attributed to ${employeeName}`,
-    },
-  };
-
+  const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = { quantity: 1 };
   if (useCustom) {
-    priceData.custom_unit_amount = {
-      enabled: true,
-      minimum: 100,
-      preset: 2500,
-    };
+    lineItem.price = await ensureCustomDonatePrice(stripe);
   } else {
-    priceData.unit_amount = Math.round(amount * 100);
+    lineItem.price_data = {
+      currency: "usd",
+      unit_amount: Math.round(amount * 100),
+      product_data: {
+        name: "PawsForward donation",
+        description: `Donation attributed to ${employeeName}`,
+      },
+    };
   }
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     submit_type: "donate",
     client_reference_id: referralCode.slice(0, 200),
-    line_items: [
-      {
-        quantity: 1,
-        price_data: priceData as Stripe.Checkout.SessionCreateParams.LineItem.PriceData,
-      },
-    ],
+    line_items: [lineItem],
     metadata: {
       referral_code: referralCode,
       employee_id: String(emp.id),
@@ -101,6 +117,7 @@ async function buildCheckout(input: {
       source: "employee_qr",
     },
     payment_intent_data: {
+      description: `PawsForward donation · ${employeeName}`,
       metadata: {
         referral_code: referralCode,
         employee_id: String(emp.id),
