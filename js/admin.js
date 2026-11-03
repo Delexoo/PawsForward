@@ -316,7 +316,7 @@
         <div class="pf-employee-actions">
           <div class="pf-emp-menu">
             <button type="button" class="btn secondary btn-sm pf-emp-menu-toggle" data-action="menu" aria-expanded="false" aria-haspopup="menu">Edit</button>
-            <div class="pf-emp-menu-panel" role="menu" hidden>
+            <div class="pf-emp-menu-panel" role="menu">
               <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="edit">Edit details</button>
               <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="copy-link">Copy code</button>
               <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="dupe">Duplicate</button>
@@ -334,22 +334,17 @@
       const menuPanel = li.querySelector(".pf-emp-menu-panel");
 
       function closeMenu() {
-        if (!menuPanel || menuPanel.hidden) return;
-        menuPanel.hidden = true;
+        if (!menu?.classList.contains("is-open")) return;
         menuToggle?.setAttribute("aria-expanded", "false");
-        menu?.classList.remove("is-open");
+        menu.classList.remove("is-open");
       }
 
       function openMenu() {
         document.querySelectorAll(".pf-emp-menu.is-open").forEach((el) => {
           if (el === menu) return;
           el.classList.remove("is-open");
-          const panel = el.querySelector(".pf-emp-menu-panel");
-          const toggle = el.querySelector(".pf-emp-menu-toggle");
-          if (panel) panel.hidden = true;
-          toggle?.setAttribute("aria-expanded", "false");
+          el.querySelector(".pf-emp-menu-toggle")?.setAttribute("aria-expanded", "false");
         });
-        menuPanel.hidden = false;
         menuToggle.setAttribute("aria-expanded", "true");
         menu.classList.add("is-open");
       }
@@ -386,8 +381,8 @@
       });
       menuToggle.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (menuPanel.hidden) openMenu();
-        else closeMenu();
+        if (menu.classList.contains("is-open")) closeMenu();
+        else openMenu();
       });
       li.querySelector('[data-action="edit"]').addEventListener("click", () => {
         closeMenu();
@@ -824,20 +819,14 @@
       if (e.target.closest(".pf-emp-menu")) return;
       document.querySelectorAll(".pf-emp-menu.is-open").forEach((el) => {
         el.classList.remove("is-open");
-        const panel = el.querySelector(".pf-emp-menu-panel");
-        const toggle = el.querySelector(".pf-emp-menu-toggle");
-        if (panel) panel.hidden = true;
-        toggle?.setAttribute("aria-expanded", "false");
+        el.querySelector(".pf-emp-menu-toggle")?.setAttribute("aria-expanded", "false");
       });
     });
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
       document.querySelectorAll(".pf-emp-menu.is-open").forEach((el) => {
         el.classList.remove("is-open");
-        const panel = el.querySelector(".pf-emp-menu-panel");
-        const toggle = el.querySelector(".pf-emp-menu-toggle");
-        if (panel) panel.hidden = true;
-        toggle?.setAttribute("aria-expanded", "false");
+        el.querySelector(".pf-emp-menu-toggle")?.setAttribute("aria-expanded", "false");
       });
     });
 
