@@ -19,8 +19,15 @@
     geoEmpty: document.getElementById("geo-empty"),
     employeeDialog: document.getElementById("employee-dialog"),
     employeeForm: document.getElementById("employee-form"),
+    employeeTitle: document.getElementById("employee-dialog-title"),
+    employeeLead: document.getElementById("employee-dialog-lead"),
     employeeCancel: document.getElementById("employee-cancel"),
     employeeSubmit: document.getElementById("employee-submit"),
+    empId: document.getElementById("emp-id"),
+    empFirst: document.getElementById("emp-first"),
+    empLast: document.getElementById("emp-last"),
+    empPhone: document.getElementById("emp-phone"),
+    empPayment: document.getElementById("emp-payment"),
     btnNew: document.getElementById("btn-new-employee"),
     btnNewSecondary: document.getElementById("btn-new-employee-secondary"),
     btnRefresh: document.getElementById("btn-refresh"),
@@ -40,6 +47,7 @@
 
   let currentQr = { url: "", name: "" };
   let latestEmployees = [];
+  let editingEmployeeId = null;
 
   function money(n) {
     return new Intl.NumberFormat("en-US", {
@@ -230,10 +238,16 @@
           <span class="pf-employee-meta">${stats.count} gifts · ${money(stats.raised)} raised · ${money(owed)} owed</span>
         </div>
         <div class="pf-employee-actions">
+          <button type="button" class="btn secondary btn-sm" data-action="edit">Edit</button>
+          <button type="button" class="btn secondary btn-sm" data-action="dupe">Dupe</button>
           <button type="button" class="btn secondary btn-sm" data-action="view-qr">QR</button>
           <button type="button" class="btn secondary btn-sm" data-action="copy-link">Link</button>
+          <button type="button" class="btn secondary btn-sm pf-btn-danger" data-action="delete">Delete</button>
         </div>
       `;
+      li.querySelector('[data-action="edit"]').addEventListener("click", () => openEditEmployee(emp));
+      li.querySelector('[data-action="dupe"]').addEventListener("click", () => duplicateEmployee(emp));
+      li.querySelector('[data-action="delete"]').addEventListener("click", () => deleteEmployee(emp));
       li.querySelector('[data-action="view-qr"]').addEventListener("click", () => openQrDialog(emp));
       li.querySelector('[data-action="copy-link"]').addEventListener("click", async () => {
         try {
@@ -439,28 +453,25 @@
     setBanner("", null);
   }
 
-  async function createEmployee(e) {
-    e.preventDefault();
-    const sb = window.SiteSupabase.getClient();
-    if (!sb) {
-      setBanner("Supabase is not configured.", "err");
-      return;
-    }
-
+  function clearEmployeeErrors() {
     setFieldError(els.errFirst, "");
     setFieldError(els.errLast, "");
     setFieldError(els.errPhone, "");
     setFieldError(els.errPayment, "");
+  }
 
+  function readEmployeeForm() {
     const fd = new FormData(els.employeeForm);
-    const payload = {
+    return {
       first_name: String(fd.get("first_name") || "").trim(),
       last_name: String(fd.get("last_name") || "").trim(),
       phone: String(fd.get("phone") || "").trim(),
       payment_type: String(fd.get("payment_type") || "").trim(),
-      referral_code: referralCode(),
     };
+  }
 
+  function validateEmployeeForm(payload) {
+    clearEmployeeErrors();
     let bad = false;
     if (!payload.first_name) {
       setFieldError(els.errFirst, "Enter a first name.");
@@ -478,48 +489,136 @@
       setFieldError(els.errPayment, "Choose a payment type.");
       bad = true;
     }
-    if (bad) return;
+    return !bad;
+  }
 
-    const tempId = `temp-${Date.now()}`;
-    const optimistic = { ...payload, id: tempId, created_at: new Date().toISOString() };
-    const cached = readCache();
-    const donationStats = {};
-    (cached?.donations || []).forEach((d) => {
-      if (!d.employee_id) return;
-      if (!donationStats[d.employee_id]) donationStats[d.employee_id] = { count: 0, raised: 0 };
-      donationStats[d.employee_id].count += 1;
-      donationStats[d.employee_id].raised += Number(d.amount) || 0;
-    });
-    renderEmployees([optimistic, ...latestEmployees], donationStats);
-
-    els.employeeDialog.close();
-    els.employeeForm.reset();
+  function setPaymentSelect(value) {
+    if (!els.empPayment) return;
+    els.empPayment.value = value || "";
     window.UiSelect?.initAll(els.employeeForm);
-    setBanner(`Creating ${payload.first_name}…`);
+  }
 
-    els.employeeSubmit.disabled = true;
-    const { data, error } = await sb.from("employees").insert(payload).select("*").single();
-    els.employeeSubmit.disabled = false;
+  function openNewEmployee() {
+    editingEmployeeId = null;
+    els.employeeForm.reset();
+    if (els.empId) els.empId.value = "";
+    clearEmployeeErrors();
+    if (els.employeeTitle) els.employeeTitle.textContent = "New employee";
+    if (els.employeeLead) els.employeeLead.textContent = "Add a hire and generate their donation QR.";
+    if (els.employeeSubmit) els.employeeSubmit.textContent = "Create & generate QR";
+    setPaymentSelect("");
+    els.employeeDialog.showModal();
+    els.empFirst?.focus();
+  }
 
-    if (error) {
-      setBanner(error.message || "Could not create employee.", "err");
-      await loadDashboard({ skipCachePaint: true });
+  function openEditEmployee(emp) {
+    editingEmployeeId = emp.id;
+    clearEmployeeErrors();
+    if (els.empId) els.empId.value = emp.id;
+    if (els.empFirst) els.empFirst.value = emp.first_name || "";
+    if (els.empLast) els.empLast.value = emp.last_name || "";
+    if (els.empPhone) els.empPhone.value = emp.phone || "";
+    setPaymentSelect(emp.payment_type || "");
+    if (els.employeeTitle) els.employeeTitle.textContent = "Edit employee";
+    if (els.employeeLead) {
+      els.employeeLead.textContent = "Rename or update details. Their QR referral code stays the same.";
+    }
+    if (els.employeeSubmit) els.employeeSubmit.textContent = "Save changes";
+    els.employeeDialog.showModal();
+    els.empFirst?.focus();
+  }
+
+  async function saveEmployee(e) {
+    e.preventDefault();
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) {
+      setBanner("Supabase is not configured.", "err");
       return;
     }
 
-    setBanner(`Created ${data.first_name} ${data.last_name}.`, "ok");
+    const payload = readEmployeeForm();
+    if (!validateEmployeeForm(payload)) return;
+
+    const isEdit = !!editingEmployeeId;
+    els.employeeSubmit.disabled = true;
+    setBanner(isEdit ? "Saving…" : `Creating ${payload.first_name}…`);
+
+    let data;
+    let error;
+    if (isEdit) {
+      ({ data, error } = await sb
+        .from("employees")
+        .update(payload)
+        .eq("id", editingEmployeeId)
+        .select("*")
+        .single());
+    } else {
+      const insertPayload = { ...payload, referral_code: referralCode() };
+      ({ data, error } = await sb.from("employees").insert(insertPayload).select("*").single());
+    }
+
+    els.employeeSubmit.disabled = false;
+
+    if (error) {
+      setBanner(error.message || (isEdit ? "Could not save employee." : "Could not create employee."), "err");
+      return;
+    }
+
+    els.employeeDialog.close();
+    editingEmployeeId = null;
+    setBanner(
+      isEdit
+        ? `Updated ${data.first_name} ${data.last_name}.`
+        : `Created ${data.first_name} ${data.last_name}.`,
+      "ok"
+    );
+    await loadDashboard({ skipCachePaint: true });
+    if (!isEdit) await openQrDialog(data);
+  }
+
+  async function duplicateEmployee(emp) {
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) {
+      setBanner("Supabase is not configured.", "err");
+      return;
+    }
+    const payload = {
+      first_name: emp.first_name,
+      last_name: `${emp.last_name} copy`.slice(0, 80),
+      phone: emp.phone,
+      payment_type: emp.payment_type,
+      referral_code: referralCode(),
+    };
+    setBanner(`Duplicating ${emp.first_name}…`);
+    const { data, error } = await sb.from("employees").insert(payload).select("*").single();
+    if (error) {
+      setBanner(error.message || "Could not duplicate employee.", "err");
+      return;
+    }
+    setBanner(`Duplicated as ${data.first_name} ${data.last_name}.`, "ok");
     await loadDashboard({ skipCachePaint: true });
     await openQrDialog(data);
   }
 
-  function openNewEmployee() {
-    els.employeeForm.reset();
-    setFieldError(els.errFirst, "");
-    setFieldError(els.errLast, "");
-    setFieldError(els.errPhone, "");
-    setFieldError(els.errPayment, "");
-    window.UiSelect?.initAll(els.employeeForm);
-    els.employeeDialog.showModal();
+  async function deleteEmployee(emp) {
+    const label = `${emp.first_name} ${emp.last_name}`.trim();
+    const ok = window.confirm(
+      `Delete ${label}? Their QR stops attributing new gifts. Past donations stay in the inbox.`
+    );
+    if (!ok) return;
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) {
+      setBanner("Supabase is not configured.", "err");
+      return;
+    }
+    setBanner(`Deleting ${label}…`);
+    const { error } = await sb.from("employees").delete().eq("id", emp.id);
+    if (error) {
+      setBanner(error.message || "Could not delete employee.", "err");
+      return;
+    }
+    setBanner(`Deleted ${label}.`, "ok");
+    await loadDashboard({ skipCachePaint: true });
   }
 
   async function doSignOut() {
@@ -536,8 +635,11 @@
     els.btnNew?.addEventListener("click", openNewEmployee);
     els.btnNewSecondary?.addEventListener("click", openNewEmployee);
     els.btnRefresh?.addEventListener("click", () => loadDashboard({ skipCachePaint: true }));
-    els.employeeCancel?.addEventListener("click", () => els.employeeDialog.close());
-    els.employeeForm?.addEventListener("submit", createEmployee);
+    els.employeeCancel?.addEventListener("click", () => {
+      editingEmployeeId = null;
+      els.employeeDialog.close();
+    });
+    els.employeeForm?.addEventListener("submit", saveEmployee);
 
     els.qrClose?.addEventListener("click", () => els.qrDialog.close());
     els.qrCopy?.addEventListener("click", async () => {

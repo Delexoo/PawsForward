@@ -195,7 +195,7 @@
         `<aside class="sidebar" id="sidebar">` +
         `<div class="sidebar-panel">` +
         `<a class="brand" href="admin.html" aria-label="Go to Admin console">` +
-        `<span class="brand-mark" aria-hidden="true">PF</span>` +
+        `<span class="brand-mark brand-mark--logo" aria-hidden="true"><img class="brand-mark-img" src="doc/brand-mark.png" width="36" height="36" alt=""></span>` +
         `<span class="brand-text"><strong>${appName}</strong><span class="brand-sub">${brandSub(active)}</span></span>` +
         `</a>` +
         `<div class="nav-group nav-group-home" data-nav-group="dashboard">` +

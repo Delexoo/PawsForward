@@ -8,7 +8,7 @@
   <meta name="description" content="PawsForward admin console — track donations, employee QR codes, payouts owed, and supportive locations. Operators only.">
   <link rel="canonical" href="https://delexoo.github.io/PawsForward/admin.html">
   <title>Admin · PawsForward</title>
-  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/fonts.css">
@@ -123,7 +123,8 @@
   <dialog class="site-leave-dialog pf-dialog" id="employee-dialog" aria-labelledby="employee-dialog-title">
     <form class="site-leave-dialog-panel" id="employee-form" action="#" method="post">
       <h2 class="site-leave-dialog-title" id="employee-dialog-title">New employee</h2>
-      <p class="site-leave-dialog-text">Add a hire and generate their donation QR.</p>
+      <p class="site-leave-dialog-text" id="employee-dialog-lead">Add a hire and generate their donation QR.</p>
+      <input type="hidden" id="emp-id" name="id" value="">
 
       <div class="field">
         <label for="emp-first">First name</label>
