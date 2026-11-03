@@ -36,13 +36,13 @@
   <div id="page-body" class="dashboard-redesign owner-console-page pf-admin-minimal">
     <header class="pf-page-hero pf-admin-hero">
       <div class="pf-page-hero-row">
-        <div>
+        <div class="pf-admin-brand">
+          <img class="pf-admin-logo" src="doc/brand-mark.png" width="40" height="40" alt="PawsForward">
           <h1>Dashboard</h1>
         </div>
         <div class="pf-page-hero-actions">
           <button type="button" class="btn secondary" id="btn-refresh">Refresh</button>
           <button type="button" class="btn" id="btn-new-employee">New employee</button>
-          <button type="button" class="btn secondary" id="btn-sign-out">Lock</button>
         </div>
       </div>
     </header>
@@ -60,6 +60,18 @@
     </div>
 
     <div id="dashboard-content" class="pf-admin-stack">
+      <section class="pf-mini-panel" id="employees" aria-labelledby="employees-heading">
+        <div class="pf-section-head pf-section-head--compact">
+          <h2 class="pf-mini-heading" id="employees-heading">Employees</h2>
+          <button type="button" class="btn secondary btn-sm" id="btn-new-employee-secondary">Add</button>
+        </div>
+        <ul class="pf-employee-list" id="employees-body"></ul>
+        <div class="dash-empty" id="employees-empty" hidden>
+          <p class="dash-empty-title">No employees yet</p>
+          <p class="dash-empty-desc">Create a profile to generate a unique QR.</p>
+        </div>
+      </section>
+
       <section class="pf-mini-panel" id="overview" aria-labelledby="overview-heading">
         <h2 class="pf-mini-heading" id="overview-heading">Activity</h2>
         <dl class="pf-stat-strip" id="stats-grid" aria-label="Organization totals">
@@ -105,18 +117,6 @@
           </div>
         </section>
       </div>
-
-      <section class="pf-mini-panel" id="employees" aria-labelledby="employees-heading">
-        <div class="pf-section-head pf-section-head--compact">
-          <h2 class="pf-mini-heading" id="employees-heading">Employees</h2>
-          <button type="button" class="btn secondary btn-sm" id="btn-new-employee-secondary">Add</button>
-        </div>
-        <ul class="pf-employee-list" id="employees-body"></ul>
-        <div class="dash-empty" id="employees-empty" hidden>
-          <p class="dash-empty-title">No employees yet</p>
-          <p class="dash-empty-desc">Create a profile to generate a unique QR.</p>
-        </div>
-      </section>
     </div>
   </div>
 

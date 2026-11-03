@@ -176,13 +176,20 @@
     const appName = global.SITE_CONFIG?.appName || "PawsForward";
     const shell = document.getElementById("shell");
     if (!shell) return;
-    if (document.getElementById("sidebar")) return;
+    if (document.getElementById("sidebar") || document.body?.classList.contains("pf-no-sidebar")) return;
 
     if (
       document.body?.classList.contains("site-unlocked") ||
       document.body?.getAttribute("data-public") === "1"
     ) {
       document.body.classList.add("site-unlocked");
+    }
+
+    // Admin is a single dashboard page — no sidebar / menu chrome.
+    if (document.body?.getAttribute("data-page") === "admin") {
+      document.body.classList.add("pf-no-sidebar");
+      ensurePageLayout();
+      return;
     }
 
     const active = detectActiveId(activeId);
@@ -194,23 +201,15 @@
       `<div class="sidebar-overlay" id="sidebar-overlay"></div>` +
         `<aside class="sidebar" id="sidebar">` +
         `<div class="sidebar-panel">` +
-        `<a class="brand" href="admin.html" aria-label="Go to Admin console">` +
+        `<a class="brand" href="donate.html" aria-label="Go to Donate">` +
         `<span class="brand-mark brand-mark--logo" aria-hidden="true"><img class="brand-mark-img" src="doc/brand-mark.png" width="36" height="36" alt=""></span>` +
         `<span class="brand-text"><strong>${appName}</strong><span class="brand-sub">${brandSub(active)}</span></span>` +
         `</a>` +
         `<div class="nav-group nav-group-home" data-nav-group="dashboard">` +
         `<ul class="nav-list nav-list-standalone">` +
-        (document.body?.getAttribute("data-page") === "admin"
-          ? navItem("admin.html", "Dashboard", "layout-dashboard", true)
-          : navItem("admin.html", "Dashboard", "layout-dashboard", active === "dashboard")) +
-        (document.body?.getAttribute("data-page") === "admin"
-          ? ""
-          : navItem("donate.html", "Donate", "heart", active === "donate")) +
+        navItem("donate.html", "Donate", "heart", active === "donate") +
         navItem("privacy.html", "Privacy", "help-circle", active === "privacy") +
         navItem("terms.html", "Terms", "info", active === "terms") +
-        (document.body?.getAttribute("data-page") === "admin"
-          ? navItem("#", "Lock site", "settings", false, 'id="nav-sign-out"')
-          : navItem("login.html", "Unlock", "settings", active === "login")) +
         `</ul></div>` +
         `<p class="sidebar-foot">Every dollar helps dogs in need of food, water, and shelter.</p>` +
         `</div>` +
@@ -249,11 +248,6 @@
     });
     overlay.addEventListener("click", close);
     sidebar.querySelectorAll(".nav-link, .brand").forEach((a) => a.addEventListener("click", close));
-    document.getElementById("nav-sign-out")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      global.SitePin?.lock?.();
-      location.href = "login.html";
-    });
     initSidebarResizer(document.getElementById("sidebar-resize-handle"));
 
     if (!global.__pfSidebarResizeBound) {

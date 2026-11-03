@@ -117,7 +117,7 @@ body[data-page="login"] .brand-mark {
 .brand-mark:has(.brand-mark-img) {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 999px;
 }
 
 .brand-mark-img {
@@ -126,6 +126,7 @@ body[data-page="login"] .brand-mark {
   height: 100%;
   object-fit: contain;
   object-position: center;
+  border-radius: inherit;
 }
 
 body[data-page="login"] .site-lock-logo {
@@ -133,6 +134,52 @@ body[data-page="login"] .site-lock-logo {
   background: #fff;
   padding: 8px;
   box-sizing: border-box;
+  border-radius: 999px;
+}
+
+/* Compact menu button (public pages that still use shell) */
+.menu-btn {
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  gap: 6px !important;
+  font-size: 12px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+}
+
+.menu-btn .ico-menu {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.menu-btn span {
+  font-size: 12px !important;
+  font-weight: 650 !important;
+}
+
+/* Admin: no sidebar / full-bleed content */
+body.pf-no-sidebar .sidebar,
+body.pf-no-sidebar .sidebar-overlay,
+body.pf-no-sidebar .menu-btn,
+body[data-page="admin"] .sidebar,
+body[data-page="admin"] .sidebar-overlay,
+body[data-page="admin"] .menu-btn {
+  display: none !important;
+}
+
+body.pf-no-sidebar .main,
+body[data-page="admin"] .main {
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 28px 24px 80px !important;
+}
+
+body[data-page="admin"] #page-body.pf-admin-minimal {
+  max-width: 960px;
+  width: 100%;
+  margin-inline: auto;
 }
 
 .pf-btn-danger {
@@ -1094,6 +1141,24 @@ h1,
   margin-bottom: 4px;
 }
 
+.pf-admin-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pf-admin-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--border, #e2e8f0);
+  padding: 4px;
+  box-sizing: border-box;
+}
+
 .pf-admin-minimal .pf-admin-hero h1 {
   margin: 0;
   font-size: 1.55rem;
@@ -1300,15 +1365,109 @@ h1,
 }
 
 @media (max-width: 900px) {
+  body.pf-no-sidebar .main,
+  body[data-page="admin"] .main {
+    padding: 16px 12px 72px !important;
+  }
+
+  body[data-page="admin"] #page-body.pf-admin-minimal {
+    max-width: 100%;
+    padding-inline: 0;
+  }
+
+  .pf-admin-minimal .pf-page-hero-row {
+    gap: 12px;
+  }
+
+  .pf-admin-minimal .pf-admin-hero h1 {
+    font-size: 1.3rem;
+  }
+
+  .pf-admin-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .pf-admin-minimal .pf-page-hero-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .pf-admin-minimal .pf-page-hero-actions .btn {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .pf-mini-panel {
+    padding: 14px 14px;
+    border-radius: 14px;
+  }
+
+  .pf-admin-stack {
+    gap: 12px;
+  }
+
   .pf-stat-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .pf-stat {
+    padding: 10px;
+  }
+
+  .pf-stat dd {
+    font-size: 0.98rem;
   }
 
   .pf-admin-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .pf-donation-list,
+  .pf-employee-list {
+    max-height: none;
+  }
+
+  .pf-employee-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .pf-employee-actions {
+    max-width: none;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .pf-employee-actions .btn {
+    width: 100%;
+    justify-content: center;
+    padding-inline: 6px;
+    font-size: 12px;
   }
 
   .pf-donation-details > div {
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .pf-geo-svg {
+    min-height: 140px;
+  }
+
+  .menu-btn {
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 0 8px !important;
+    left: 10px !important;
+    top: 10px !important;
   }
 }

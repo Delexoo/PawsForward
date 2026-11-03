@@ -31,7 +31,6 @@
     btnNew: document.getElementById("btn-new-employee"),
     btnNewSecondary: document.getElementById("btn-new-employee-secondary"),
     btnRefresh: document.getElementById("btn-refresh"),
-    btnSignOut: document.getElementById("btn-sign-out"),
     errFirst: document.getElementById("err-emp-first"),
     errLast: document.getElementById("err-emp-last"),
     errPhone: document.getElementById("err-emp-phone"),
@@ -621,16 +620,6 @@
     await loadDashboard({ skipCachePaint: true });
   }
 
-  async function doSignOut() {
-    try {
-      sessionStorage.removeItem(CACHE_KEY);
-    } catch {
-      /* ignore */
-    }
-    window.SitePin?.lock?.();
-    location.href = "login.html";
-  }
-
   function wireDialogs() {
     els.btnNew?.addEventListener("click", openNewEmployee);
     els.btnNewSecondary?.addEventListener("click", openNewEmployee);
@@ -659,8 +648,6 @@
         setBanner("Could not download QR.", "err");
       }
     });
-
-    els.btnSignOut?.addEventListener("click", () => doSignOut());
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
