@@ -304,7 +304,7 @@
       li.innerHTML = `
         <div class="pf-employee-identity">
           <button type="button" class="pf-avatar-btn" data-action="photo" title="Change photo" aria-label="Change photo for ${escapeHtml(emp.first_name)}">
-            <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="40" height="40" loading="lazy">
+            <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="40" height="40" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
           </button>
           <div class="pf-employee-main">
             <strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong>
@@ -313,19 +313,47 @@
           </div>
         </div>
         <div class="pf-employee-actions">
-          <button type="button" class="btn secondary btn-sm" data-action="edit">Edit</button>
-          <button type="button" class="btn secondary btn-sm" data-action="dupe">Dupe</button>
+          <div class="pf-emp-menu">
+            <button type="button" class="btn secondary btn-sm pf-emp-menu-toggle" data-action="menu" aria-expanded="false" aria-haspopup="menu">Edit</button>
+            <div class="pf-emp-menu-panel" role="menu" hidden>
+              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="edit">Edit details</button>
+              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="copy-link">Copy link</button>
+              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="dupe">Duplicate</button>
+              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="photo-menu">Change photo</button>
+            </div>
+          </div>
           <button type="button" class="btn secondary btn-sm" data-action="view-qr">QR</button>
-          <button type="button" class="btn secondary btn-sm" data-action="copy-link">Link</button>
           <button type="button" class="btn secondary btn-sm pf-btn-danger" data-action="delete">Delete</button>
         </div>
         <input type="file" class="pf-avatar-file-input" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
       `;
       const fileInput = li.querySelector(".pf-avatar-file-input");
-      li.querySelector('[data-action="photo"]').addEventListener("click", () => fileInput.click());
-      fileInput.addEventListener("change", async () => {
-        const file = fileInput.files?.[0];
-        fileInput.value = "";
+      const menu = li.querySelector(".pf-emp-menu");
+      const menuToggle = li.querySelector('[data-action="menu"]');
+      const menuPanel = li.querySelector(".pf-emp-menu-panel");
+
+      function closeMenu() {
+        if (!menuPanel || menuPanel.hidden) return;
+        menuPanel.hidden = true;
+        menuToggle?.setAttribute("aria-expanded", "false");
+        menu?.classList.remove("is-open");
+      }
+
+      function openMenu() {
+        document.querySelectorAll(".pf-emp-menu.is-open").forEach((el) => {
+          if (el === menu) return;
+          el.classList.remove("is-open");
+          const panel = el.querySelector(".pf-emp-menu-panel");
+          const toggle = el.querySelector(".pf-emp-menu-toggle");
+          if (panel) panel.hidden = true;
+          toggle?.setAttribute("aria-expanded", "false");
+        });
+        menuPanel.hidden = false;
+        menuToggle.setAttribute("aria-expanded", "true");
+        menu.classList.add("is-open");
+      }
+
+      async function changePhoto(file) {
         if (!file) return;
         if (file.size > 2 * 1024 * 1024) {
           setBanner("Photo must be 2MB or smaller.", "err");
@@ -343,12 +371,35 @@
           console.error(err);
           setBanner(err.message || "Could not update photo.", "err");
         }
+      }
+
+      li.querySelector('[data-action="photo"]').addEventListener("click", () => fileInput.click());
+      li.querySelector('[data-action="photo-menu"]').addEventListener("click", () => {
+        closeMenu();
+        fileInput.click();
       });
-      li.querySelector('[data-action="edit"]').addEventListener("click", () => openEditEmployee(emp));
-      li.querySelector('[data-action="dupe"]').addEventListener("click", () => duplicateEmployee(emp));
+      fileInput.addEventListener("change", async () => {
+        const file = fileInput.files?.[0];
+        fileInput.value = "";
+        await changePhoto(file);
+      });
+      menuToggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (menuPanel.hidden) openMenu();
+        else closeMenu();
+      });
+      li.querySelector('[data-action="edit"]').addEventListener("click", () => {
+        closeMenu();
+        openEditEmployee(emp);
+      });
+      li.querySelector('[data-action="dupe"]').addEventListener("click", () => {
+        closeMenu();
+        duplicateEmployee(emp);
+      });
       li.querySelector('[data-action="delete"]').addEventListener("click", () => deleteEmployee(emp));
       li.querySelector('[data-action="view-qr"]').addEventListener("click", () => openQrDialog(emp));
       li.querySelector('[data-action="copy-link"]').addEventListener("click", async () => {
+        closeMenu();
         try {
           await navigator.clipboard.writeText(donateUrl(emp.referral_code));
           setBanner(`Copied donate link for ${emp.first_name}.`, "ok");
@@ -768,6 +819,27 @@
       setAvatarPreview(DEFAULT_AVATAR);
     });
 
+    document.addEventListener("click", (e) => {
+      if (e.target.closest(".pf-emp-menu")) return;
+      document.querySelectorAll(".pf-emp-menu.is-open").forEach((el) => {
+        el.classList.remove("is-open");
+        const panel = el.querySelector(".pf-emp-menu-panel");
+        const toggle = el.querySelector(".pf-emp-menu-toggle");
+        if (panel) panel.hidden = true;
+        toggle?.setAttribute("aria-expanded", "false");
+      });
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      document.querySelectorAll(".pf-emp-menu.is-open").forEach((el) => {
+        el.classList.remove("is-open");
+        const panel = el.querySelector(".pf-emp-menu-panel");
+        const toggle = el.querySelector(".pf-emp-menu-toggle");
+        if (panel) panel.hidden = true;
+        toggle?.setAttribute("aria-expanded", "false");
+      });
+    });
+
     els.qrClose?.addEventListener("click", () => els.qrDialog.close());
     els.qrCopy?.addEventListener("click", async () => {
       try {
@@ -794,6 +866,12 @@
     document.body.classList.add("site-unlocked");
     window.PfShell?.renderShell("dashboard");
     wireDialogs();
+    window.PfInstall?.init?.({
+      button: document.getElementById("btn-install"),
+      dialog: document.getElementById("install-dialog"),
+      closeBtn: document.getElementById("install-close"),
+      status: setBanner,
+    });
     window.UiSelect?.initAll();
     await loadDashboard();
   });

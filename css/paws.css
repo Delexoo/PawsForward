@@ -1490,15 +1490,54 @@ h1,
 
 .pf-employee-actions {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   flex-shrink: 0;
+  align-items: center;
 }
 
 .pf-employee-actions .btn-sm {
-  min-height: 28px;
-  padding: 0 8px;
+  min-height: 30px;
+  padding: 0 10px;
   font-size: 11px;
   border-radius: 8px;
+}
+
+.pf-emp-menu {
+  position: relative;
+}
+
+.pf-emp-menu-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 30;
+  min-width: 148px;
+  padding: 4px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+  display: grid;
+  gap: 2px;
+}
+
+.pf-emp-menu-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text, #0f172a);
+  cursor: pointer;
+}
+
+.pf-emp-menu-item:hover,
+.pf-emp-menu-item:focus-visible {
+  background: #f1f5f9;
+  outline: none;
 }
 
 .feed-amount {
@@ -1526,7 +1565,8 @@ h1,
   .pf-admin-toolbar {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
   }
 
   .pf-tool-btn {
@@ -1567,8 +1607,8 @@ h1,
   }
 
   .pf-employee-row {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
     gap: 8px;
   }
 
@@ -1579,17 +1619,22 @@ h1,
 
   .pf-employee-actions {
     max-width: none;
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: auto;
+    display: flex;
+    flex-wrap: nowrap;
     gap: 4px;
   }
 
   .pf-employee-actions .btn {
-    width: 100%;
+    width: auto;
     justify-content: center;
-    padding-inline: 4px;
+    padding-inline: 8px;
     font-size: 11px;
+  }
+
+  .pf-emp-menu-panel {
+    right: 0;
+    left: auto;
   }
 
   .pf-donation-details > div {

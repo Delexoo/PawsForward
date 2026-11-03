@@ -43,6 +43,7 @@
         </div>
       </div>
       <div class="pf-admin-toolbar">
+        <button type="button" class="pf-tool-btn" id="btn-install" title="Install or add to home screen">Install</button>
         <button type="button" class="pf-tool-btn" id="btn-refresh">Refresh</button>
         <button type="button" class="pf-tool-btn pf-tool-btn--primary" id="btn-new-employee">New employee</button>
       </div>
@@ -190,6 +191,16 @@
     </div>
   </dialog>
 
+  <dialog class="site-leave-dialog pf-dialog" id="install-dialog" aria-labelledby="install-dialog-title">
+    <div class="site-leave-dialog-panel">
+      <h2 class="site-leave-dialog-title" id="install-dialog-title">Add to Home Screen</h2>
+      <p class="site-leave-dialog-text" id="install-dialog-lead">Install PawsForward so the dashboard opens like an app from your home screen.</p>
+      <div class="site-leave-dialog-actions">
+        <button type="button" class="btn" id="install-close">Got it</button>
+      </div>
+    </div>
+  </dialog>
+
   <script src="js/icons.js"></script>
   <script src="js/shell.js"></script>
   <script src="js/vendor/supabase.js"></script>
@@ -197,6 +208,7 @@
   <script src="js/supabase-client.js"></script>
   <script src="js/ui-select.js"></script>
   <script src="js/qr.js"></script>
+  <script src="js/pwa-install.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>
