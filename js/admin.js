@@ -508,7 +508,7 @@
       url,
       name: `${employee.first_name}-${employee.last_name}`.replace(/\s+/g, "-"),
     };
-    els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Opens Stripe Checkout and attributes the gift to code ${employee.referral_code}.`;
+    els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Opens Stripe Checkout directly (any amount) and attributes the gift to code ${employee.referral_code}.`;
     els.qrLinkText.textContent = url;
     els.qrHost.innerHTML = "";
     els.qrDialog.showModal();

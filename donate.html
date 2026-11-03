@@ -9,13 +9,13 @@
   <title>Donate · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="stylesheet" href="css/fonts.css?v=20261103v">
-  <script src="js/theme.js?v=20261103v"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261103v">
-  <link rel="stylesheet" href="css/paws.css?v=20261103v">
-  <script src="js/config.js?v=20261103v"></script>
+  <link rel="stylesheet" href="css/fonts.css?v=20261103w">
+  <script src="js/theme.js?v=20261103w"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261103w">
+  <link rel="stylesheet" href="css/paws.css?v=20261103w">
+  <script src="js/config.js?v=20261103w"></script>
+  <script src="js/canonical.js?v=20261103w"></script>
   <style>
-    /* Public donate must never be blanked by the admin PIN lock CSS */
     body[data-page="donate"] #page-body,
     body[data-page="donate"] #page-body * {
       visibility: visible !important;
@@ -37,23 +37,13 @@
     <div class="pf-donate-card" id="donate-card">
       <img class="pf-donate-logo" src="doc/brand-mark.png" width="56" height="56" alt="PawsForward">
       <h1 class="pf-donate-title">PawsForward</h1>
-      <p class="pf-donate-lead" id="donate-lead">Choose an amount to donate.</p>
+      <p class="pf-donate-lead" id="donate-lead">Taking you to Stripe Checkout…</p>
       <p class="pf-donate-attr" id="donate-attr" hidden></p>
       <div id="status-banner" class="status-banner" hidden role="status"></div>
 
       <div id="donate-form-panel">
-        <div class="pf-amount-grid" role="group" aria-label="Suggested amounts">
-          <button type="button" class="pf-amount-btn" data-amount="10">$10</button>
-          <button type="button" class="pf-amount-btn" data-amount="25">$25</button>
-          <button type="button" class="pf-amount-btn is-active" data-amount="50">$50</button>
-          <button type="button" class="pf-amount-btn" data-amount="100">$100</button>
-        </div>
-        <label class="pf-donate-label" for="donate-amount">Custom amount (USD)</label>
-        <input id="donate-amount" class="pf-donate-input" type="number" inputmode="decimal" min="1" step="0.01" value="50" required>
-        <label class="pf-donate-label" for="donate-name">Name on gift (optional)</label>
-        <input id="donate-name" class="pf-donate-input" type="text" maxlength="80" placeholder="Anonymous" autocomplete="name">
-        <button type="button" class="btn pf-donate-submit" id="donate-submit">Continue to Stripe</button>
-        <p class="pf-donate-note">Secure checkout on Stripe. This gift is tracked to the scanned employee QR.</p>
+        <p class="pf-donate-note">Choose any amount on the secure Stripe page. This gift is tracked to the scanned employee QR.</p>
+        <button type="button" class="btn pf-donate-submit" id="donate-retry" hidden>Try Stripe again</button>
       </div>
 
       <div id="donate-success" class="pf-donate-success" hidden>
@@ -63,8 +53,8 @@
     </div>
   </div>
 
-  <script src="js/vendor/supabase.js?v=20261103v"></script>
-  <script src="js/supabase-client.js?v=20261103v"></script>
-  <script src="js/donate.js?v=20261103v"></script>
+  <script src="js/vendor/supabase.js?v=20261103w"></script>
+  <script src="js/supabase-client.js?v=20261103w"></script>
+  <script src="js/donate.js?v=20261103w"></script>
 </body>
 </html>

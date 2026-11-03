@@ -4,11 +4,9 @@
     attr: document.getElementById("donate-attr"),
     banner: document.getElementById("status-banner"),
     formPanel: document.getElementById("donate-form-panel"),
-    amount: document.getElementById("donate-amount"),
-    name: document.getElementById("donate-name"),
-    submit: document.getElementById("donate-submit"),
     success: document.getElementById("donate-success"),
     successText: document.getElementById("donate-success-text"),
+    retry: document.getElementById("donate-retry"),
   };
 
   const params = new URLSearchParams(location.search);
@@ -38,36 +36,38 @@
     return String(window.SITE_CONFIG?.siteOrigin || location.origin).replace(/\/$/, "");
   }
 
+  function anonKey() {
+    return String(window.SITE_CONFIG?.supabaseAnonKey || "");
+  }
+
   async function resolveEmployee() {
     if (!referralCode) {
       if (els.lead) els.lead.textContent = "This link is missing an employee code.";
       setBanner("Open a valid employee QR to donate.", "err");
-      if (els.submit) els.submit.disabled = true;
-      return;
+      return false;
     }
     const sb = window.SiteSupabase?.getClient?.();
     if (!sb) {
       setBanner("Donation system is not configured.", "err");
-      return;
+      return false;
     }
     const { data, error } = await sb.rpc("resolve_employee_by_code", { p_code: referralCode });
     if (error) {
       console.error(error);
       setBanner(error.message || "Could not verify this QR.", "err");
-      return;
+      return false;
     }
     employee = Array.isArray(data) ? data[0] : data;
     if (!employee?.id) {
       setBanner("This QR is not linked to an active employee.", "err");
-      if (els.submit) els.submit.disabled = true;
-      return;
+      return false;
     }
     const name = `${employee.first_name || ""} ${employee.last_name || ""}`.trim();
-    if (els.lead) els.lead.textContent = "Choose any amount. Checkout is powered by Stripe.";
     if (els.attr) {
       els.attr.hidden = false;
       els.attr.textContent = `Attributed to ${name}`;
     }
+    return true;
   }
 
   async function recordScan() {
@@ -91,19 +91,19 @@
   async function confirmCheckout(sessionId) {
     const base = functionsBase();
     if (!base || !sessionId) return;
+    if (els.formPanel) els.formPanel.hidden = true;
     setBanner("Confirming your donation…");
     try {
       const res = await fetch(`${base}/confirm-donation`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          apikey: String(window.SITE_CONFIG?.supabaseAnonKey || ""),
+          apikey: anonKey(),
         },
         body: JSON.stringify({ session_id: sessionId }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || "Could not confirm donation.");
-      if (els.formPanel) els.formPanel.hidden = true;
       if (els.success) els.success.hidden = false;
       const amount = body?.donation?.amount;
       if (els.successText) {
@@ -117,18 +117,12 @@
       setBanner("Donation recorded.", "ok");
     } catch (err) {
       console.error(err);
-      setBanner(err.message || "Payment may have succeeded — refresh the admin Donations page.", "err");
-      if (els.formPanel) els.formPanel.hidden = true;
+      setBanner(err.message || "Payment may have succeeded — thank you.", "err");
       if (els.success) els.success.hidden = false;
     }
   }
 
   async function startCheckout() {
-    const amount = Number(els.amount?.value);
-    if (!Number.isFinite(amount) || amount < 1) {
-      setBanner("Enter at least $1.", "err");
-      return;
-    }
     if (!referralCode) {
       setBanner("Missing employee referral code.", "err");
       return;
@@ -138,56 +132,58 @@
       setBanner("Checkout is not configured.", "err");
       return;
     }
-    els.submit.disabled = true;
-    setBanner("Opening Stripe Checkout…");
+    if (els.retry) els.retry.hidden = true;
+    if (els.lead) els.lead.textContent = "Taking you to Stripe Checkout…";
+    setBanner("Opening secure Stripe checkout…");
     try {
       const res = await fetch(`${base}/create-checkout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          apikey: String(window.SITE_CONFIG?.supabaseAnonKey || ""),
+          apikey: anonKey(),
+          Authorization: "Bearer " + anonKey(),
         },
         body: JSON.stringify({
-          amount,
+          custom_amount: true,
           referral_code: referralCode,
-          donor_label: String(els.name?.value || "").trim(),
           site_origin: siteOrigin(),
         }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok || !body.url) throw new Error(body.error || "Could not start checkout.");
-      location.assign(body.url);
+      location.replace(body.url);
     } catch (err) {
       console.error(err);
+      if (els.lead) els.lead.textContent = "Could not open Stripe right now.";
       setBanner(err.message || "Could not start Stripe checkout.", "err");
-      els.submit.disabled = false;
+      if (els.retry) els.retry.hidden = false;
     }
-  }
-
-  function wireAmounts() {
-    document.querySelectorAll("[data-amount]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("[data-amount]").forEach((b) => b.classList.remove("is-active"));
-        btn.classList.add("is-active");
-        if (els.amount) els.amount.value = btn.getAttribute("data-amount") || "50";
-      });
-    });
-    els.amount?.addEventListener("input", () => {
-      document.querySelectorAll("[data-amount]").forEach((b) => b.classList.remove("is-active"));
-    });
-    els.submit?.addEventListener("click", startCheckout);
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-    wireAmounts();
-    if (params.get("cancelled") === "1") {
-      setBanner("Checkout cancelled. You can try again anytime.", "err");
-    }
-    await resolveEmployee();
+    els.retry?.addEventListener("click", () => startCheckout());
+
     if (params.get("success") === "1" && params.get("session_id")) {
+      if (els.formPanel) els.formPanel.hidden = true;
+      await resolveEmployee();
       await confirmCheckout(params.get("session_id"));
       return;
     }
+
+    if (params.get("cancelled") === "1") {
+      if (els.lead) els.lead.textContent = "Checkout cancelled.";
+      setBanner("You can try again whenever you’re ready.", "err");
+      if (els.retry) els.retry.hidden = false;
+      await resolveEmployee();
+      return;
+    }
+
+    const ok = await resolveEmployee();
+    if (!ok) {
+      if (els.retry) els.retry.hidden = false;
+      return;
+    }
     await recordScan();
+    await startCheckout();
   });
 })();
