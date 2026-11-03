@@ -288,10 +288,15 @@
   }
 
   function employeeShareUrl(code) {
+    const supabase = String(window.SITE_CONFIG?.supabaseUrl || "").replace(/\/$/, "");
+    const ref = String(code || "").trim();
+    // QR opens create-checkout, which 303s straight into Stripe Checkout.
+    if (supabase && ref) {
+      return `${supabase}/functions/v1/create-checkout?ref=${encodeURIComponent(ref)}`;
+    }
     const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
     const base = origin ? `${origin}/donate.html` : new URL("donate.html", window.location.href).href;
     const u = new URL(base);
-    const ref = String(code || "").trim();
     if (ref) u.searchParams.set("ref", ref);
     return u.href;
   }

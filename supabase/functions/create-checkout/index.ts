@@ -115,6 +115,22 @@ async function buildCheckout(input: {
   return { url: session.url, session_id: session.id, employee: emp };
 }
 
+async function recordQrVisit(referralCode: string, employeeId: string | null) {
+  try {
+    const supabase = adminClient();
+    await supabase.rpc("record_visit", {
+      p_referral_code: referralCode,
+      p_employee_id: employeeId,
+      p_path: `/functions/v1/create-checkout?ref=${encodeURIComponent(referralCode)}`,
+      p_city: null,
+      p_region: null,
+      p_country: null,
+    });
+  } catch (err) {
+    console.warn("record_visit failed", err);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
@@ -125,12 +141,16 @@ Deno.serve(async (req) => {
     if (req.method === "GET") {
       const url = new URL(req.url);
       const referralCode = String(url.searchParams.get("ref") || "").trim();
+      if (!referralCode) {
+        return Response.redirect(`${siteDefault.replace(/\/$/, "")}/donate.html`, 303);
+      }
       const result = await buildCheckout({
         customAmount: true,
         referralCode,
         siteOrigin: siteDefault,
       });
       if (!result.url) return json({ error: "No checkout URL." }, 500);
+      await recordQrVisit(referralCode, result.employee?.id ? String(result.employee.id) : null);
       return Response.redirect(result.url, 303);
     }
 
