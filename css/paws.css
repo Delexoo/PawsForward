@@ -2249,13 +2249,10 @@ button.pf-stat-chip--link:focus-visible {
     gap: 8px;
   }
 
-  .pf-section-head--compact .pf-add-label {
-    display: none;
-  }
-
   .pf-section-head--compact .pf-tool-btn--primary {
-    min-width: 52px;
+    min-width: 0;
     padding: 0 12px;
+    white-space: nowrap;
   }
 
   .pf-mini-panel {
