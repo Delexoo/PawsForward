@@ -680,82 +680,43 @@ body[data-page="donate"] .amount-pills .pill.active {
   text-align: center;
 }
 
-/* ---- PIN unlock ---- */
-.pin-card {
-  max-width: 420px;
-  margin-inline: auto;
-}
-
-.pin-input {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 64px;
-  margin: 8px 0 0;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--input-bg, var(--surface-2));
-  color: var(--text);
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: 0.55em;
-  text-align: center;
-  font-family: var(--mono);
-}
-
-.pin-input:focus {
-  outline: 2px solid color-mix(in srgb, var(--accent) 45%, var(--border));
-  outline-offset: 2px;
-}
-
-.pin-pad {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin: 22px 0 8px;
-}
-
-.pin-key {
-  min-height: 52px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--surface);
-  color: var(--text);
-  font-size: 1.15rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: transform 0.12s ease, background 0.12s ease;
-}
-
-.pin-key:hover {
-  background: var(--surface-2);
-}
-
-.pin-key:active {
-  transform: scale(0.97);
-}
-
-.pin-key--muted {
-  font-size: 0.92rem;
-  font-weight: 650;
-  color: var(--muted);
-}
-
-body[data-page="login"] #page-body,
-html.site-lock-active body[data-page="login"] #page-body,
-body[data-page="login"]:not(.site-unlocked) #page-body {
+/* ---- PIN unlock (Moonrise-style minimal gate) ---- */
+body[data-page="login"] {
+  margin: 0;
   min-height: 100vh;
+  background: #ffffff !important;
+  color: #111827 !important;
+  color-scheme: light;
+}
+
+body[data-page="login"] #site-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 16px 0;
+  background: #ffffff !important;
+  color: #111827 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
+
+html.site-lock-active body[data-page="login"] #site-lock,
+body[data-page="login"]:not(.site-unlocked) #site-lock {
   display: flex !important;
   visibility: visible !important;
   pointer-events: auto !important;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 18px;
-  margin: 0 auto;
-  max-width: 480px;
-  width: 100%;
+}
+
+body[data-page="login"] .site-lock-error {
+  margin: 0 0 12px;
+  min-height: 1.2em;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b91c1c;
 }
 
 .field-error {

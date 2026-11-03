@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#ffffff">
   <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="Enter the PawsForward operator PIN to unlock the dashboard.">
   <link rel="canonical" href="https://delexoo.github.io/PawsForward/login.html">
@@ -17,23 +17,16 @@
   <link rel="stylesheet" href="css/paws.css">
 </head>
 <body data-page="login">
-  <div id="page-body">
-    <div class="dash-work-panels-card donate-card pin-card">
-      <div class="donate-brand">
-        <span class="brand-mark" aria-hidden="true">PF</span>
-        <div>
-          <h1>Enter PIN</h1>
-          <p class="muted" style="margin:4px 0 0;font-size:13px;">Unlock PawsForward for this browser session</p>
-        </div>
-      </div>
-
-      <div id="status-banner" class="status-banner" hidden role="status"></div>
-
-      <form id="pin-form" autocomplete="off" novalidate>
-        <label class="sr-only" for="pin-input">4-digit PIN</label>
+  <div id="site-lock" role="dialog" aria-modal="true" aria-labelledby="pin-hint">
+    <div class="site-lock-inner">
+      <img class="site-lock-logo" src="icons/favicon.svg" width="72" height="72" alt="PawsForward" />
+      <p class="site-lock-hint" id="pin-hint">Use the PIN your manager gave you</p>
+      <p id="status-banner" class="site-lock-error" hidden role="status"></p>
+      <form id="pin-form" class="site-lock-form" autocomplete="off" novalidate>
+        <label class="sr-only" for="pin-input">Your PIN</label>
         <input
           id="pin-input"
-          class="pin-input"
+          class="site-lock-input"
           name="pin"
           type="password"
           inputmode="numeric"
@@ -42,29 +35,18 @@
           minlength="4"
           required
           autofocus
+          placeholder="Your PIN"
           autocomplete="one-time-code"
           aria-describedby="pin-hint"
         />
-        <p id="pin-hint" class="field-hint">Enter the 4-digit operator PIN. Donate links stay public without a PIN.</p>
-        <button type="submit" class="btn" id="pin-submit" style="width:100%;margin-top:16px">Unlock</button>
       </form>
-
-      <div class="pin-pad" aria-label="PIN keypad">
-        <button type="button" class="pin-key" data-key="1">1</button>
-        <button type="button" class="pin-key" data-key="2">2</button>
-        <button type="button" class="pin-key" data-key="3">3</button>
-        <button type="button" class="pin-key" data-key="4">4</button>
-        <button type="button" class="pin-key" data-key="5">5</button>
-        <button type="button" class="pin-key" data-key="6">6</button>
-        <button type="button" class="pin-key" data-key="7">7</button>
-        <button type="button" class="pin-key" data-key="8">8</button>
-        <button type="button" class="pin-key" data-key="9">9</button>
-        <button type="button" class="pin-key pin-key--muted" data-key="clear">Clear</button>
-        <button type="button" class="pin-key" data-key="0">0</button>
-        <button type="button" class="pin-key pin-key--muted" data-key="del">⌫</button>
-      </div>
-
-      <p class="field-hint"><a href="donate.html">Public donate page</a></p>
+    </div>
+    <div class="site-lock-legal">
+      <a href="privacy.html" class="site-lock-legal-link">Privacy Policy</a>
+      <span class="site-lock-legal-sep" aria-hidden="true">·</span>
+      <a href="terms.html" class="site-lock-legal-link">Terms of Service</a>
+      <span class="site-lock-legal-sep" aria-hidden="true">·</span>
+      <a href="donate.html" class="site-lock-legal-link">Help</a>
     </div>
   </div>
 
