@@ -1123,6 +1123,12 @@ body[data-page="login"] .site-lock-error {
   .pf-section-head {
     flex-direction: column;
   }
+
+  .pf-section-head--compact {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
 }
 
 /* ---- Checklist polish ---- */
@@ -1479,6 +1485,74 @@ h1,
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+}
+
+.pf-pull-indicator {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 0;
+  margin: 0 auto;
+  overflow: hidden;
+  opacity: 0;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+
+.pf-pull-indicator-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  transform: rotate(calc(var(--pf-pull-progress, 0) * 180deg));
+  transition: transform 0.08s linear;
+}
+
+.pf-pull-indicator-icon .ico {
+  width: 16px;
+  height: 16px;
+}
+
+body.pf-pulling .pf-pull-indicator,
+body.pf-pull-ready .pf-pull-indicator,
+body.pf-pull-refreshing .pf-pull-indicator {
+  height: calc(var(--pf-pull, 0px) * 0.55 + 28px);
+  opacity: 1;
+}
+
+body.pf-pull-ready .pf-pull-indicator {
+  color: #0f172a;
+}
+
+body.pf-pull-refreshing .pf-pull-indicator {
+  height: 44px;
+  opacity: 1;
+}
+
+body.pf-pull-refreshing .pf-pull-indicator-icon {
+  animation: pf-pull-spin 0.75s linear infinite;
+}
+
+@keyframes pf-pull-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-pull-indicator-icon,
+  body.pf-pull-refreshing .pf-pull-indicator-icon {
+    animation: none;
+    transition: none;
+  }
 }
 
 .pf-mini-panel {
@@ -1730,6 +1804,8 @@ h1,
 
 .pf-section-head--compact {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -2246,6 +2322,9 @@ button.pf-stat-chip--link:focus-visible {
   }
 
   .pf-section-head--compact {
+    flex-direction: row !important;
+    flex-wrap: nowrap;
+    align-items: center;
     gap: 8px;
   }
 
@@ -2253,6 +2332,7 @@ button.pf-stat-chip--link:focus-visible {
     min-width: 0;
     padding: 0 12px;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .pf-mini-panel {
