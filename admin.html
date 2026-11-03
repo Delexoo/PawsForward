@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261103x">
-  <link rel="stylesheet" href="css/fonts.css?v=20261103x">
-  <script src="js/theme.js?v=20261103x"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261103x">
-  <link rel="stylesheet" href="css/paws.css?v=20261103x">
+  <link rel="manifest" href="manifest.webmanifest?v=20261103y">
+  <link rel="stylesheet" href="css/fonts.css?v=20261103y">
+  <script src="js/theme.js?v=20261103y"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261103y">
+  <link rel="stylesheet" href="css/paws.css?v=20261103y">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261103x"></script>
-  <script src="js/canonical.js?v=20261103x"></script>
+  <script src="js/config.js?v=20261103y"></script>
+  <script src="js/canonical.js?v=20261103y"></script>
   <script>
     (function () {
       try {
@@ -33,7 +33,7 @@
       } catch (e) {}
     })();
   </script>
-  <script src="js/pin-lock.js?v=20261103x"></script>
+  <script src="js/pin-lock.js?v=20261103y"></script>
   <script>
     (function () {
       try {
@@ -143,7 +143,7 @@
   <dialog class="site-leave-dialog pf-dialog" id="employee-dialog" aria-labelledby="employee-dialog-title">
     <form class="site-leave-dialog-panel" id="employee-form" action="#" method="post">
       <h2 class="site-leave-dialog-title" id="employee-dialog-title">New employee</h2>
-      <p class="site-leave-dialog-text" id="employee-dialog-lead">Add a hire and generate their donation QR.</p>
+      <p class="site-leave-dialog-text" id="employee-dialog-lead">Add a hire and generate their Stripe donation QR.</p>
       <input type="hidden" id="emp-id" name="id" value="">
 
       <div class="pf-avatar-editor" id="emp-avatar-editor">
@@ -172,7 +172,7 @@
       </div>
       <div class="field">
         <label for="emp-payment">Preferred payment type</label>
-        <select class="pf-native-select" id="emp-payment" name="payment_type" required data-modern="off">
+        <select id="emp-payment" name="payment_type" required aria-label="Preferred payment type">
           <option value="" disabled selected>Select payment type</option>
           <option value="cashapp">Cash App</option>
           <option value="venmo">Venmo</option>
@@ -330,7 +330,7 @@
       </div>
       <div class="field">
         <label for="don-employee">Attributed to</label>
-        <select class="pf-native-select" id="don-employee" name="employee_id" data-modern="off">
+        <select id="don-employee" name="employee_id" aria-label="Attributed to">
           <option value="">General (no employee)</option>
         </select>
       </div>
@@ -342,12 +342,12 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261103x"></script>
-  <script src="js/shell.js?v=20261103x"></script>
-  <script src="js/vendor/supabase.js?v=20261103x"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261103x"></script>
-  <script src="js/supabase-client.js?v=20261103x"></script>
-  <script src="js/qr.js?v=20261103x"></script>
-  <script src="js/admin.js?v=20261103x"></script>
+  <script src="js/icons.js?v=20261103y"></script>
+  <script src="js/shell.js?v=20261103y"></script>
+  <script src="js/vendor/supabase.js?v=20261103y"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261103y"></script>
+  <script src="js/supabase-client.js?v=20261103y"></script>
+  <script src="js/qr.js?v=20261103y"></script>
+  <script src="js/admin.js?v=20261103y"></script>
 </body>
 </html>

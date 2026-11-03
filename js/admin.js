@@ -1133,7 +1133,13 @@
 
   function setPaymentSelect(value) {
     if (!els.empPayment) return;
-    els.empPayment.value = value || "";
+    const next = String(value || "").trim();
+    if (next) {
+      els.empPayment.value = next;
+    } else {
+      els.empPayment.selectedIndex = 0;
+    }
+    els.empPayment.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
   function openNewEmployee() {
