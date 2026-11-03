@@ -28,6 +28,7 @@
     empLast: document.getElementById("emp-last"),
     empPhone: document.getElementById("emp-phone"),
     empPayment: document.getElementById("emp-payment"),
+    empPaymentHandle: document.getElementById("emp-payment-handle"),
     empAvatarPreview: document.getElementById("emp-avatar-preview"),
     empAvatarFile: document.getElementById("emp-avatar-file"),
     empAvatarReset: document.getElementById("emp-avatar-reset"),
@@ -169,6 +170,83 @@
       other: "Other",
     };
     return map[type] || type || "—";
+  }
+
+  function normalizeHandle(raw) {
+    return String(raw || "")
+      .trim()
+      .replace(/^https?:\/\/(www\.)?/i, "")
+      .replace(/^(cash\.app\/|paypal\.me\/|venmo\.com\/u\/|venmo\.com\/)/i, "")
+      .replace(/^[@$]/, "")
+      .replace(/\/+$/, "")
+      .trim();
+  }
+
+  function payoutTarget(emp) {
+    const type = String(emp?.payment_type || "");
+    const handle = normalizeHandle(emp?.payment_handle);
+    const phone = String(emp?.phone || "").trim();
+    const digits = phone.replace(/\D/g, "");
+
+    if (type === "cashapp") {
+      if (handle) return { url: `https://cash.app/$${encodeURIComponent(handle)}`, label: "Cash App", copy: null };
+      return { url: "https://cash.app/", label: "Cash App", copy: phone || null };
+    }
+    if (type === "venmo") {
+      if (handle) return { url: `https://venmo.com/u/${encodeURIComponent(handle)}`, label: "Venmo", copy: null };
+      return { url: "https://venmo.com/", label: "Venmo", copy: phone || null };
+    }
+    if (type === "paypal") {
+      if (handle) return { url: `https://paypal.me/${encodeURIComponent(handle)}`, label: "PayPal", copy: null };
+      return { url: "https://www.paypal.com/myaccount/transfer/homepage", label: "PayPal", copy: phone || null };
+    }
+    if (type === "zelle") {
+      return {
+        url: "https://www.zellepay.com/",
+        label: "Zelle",
+        copy: handle || phone || (digits ? digits : null),
+      };
+    }
+    return { url: null, label: paymentLabel(type), copy: handle || phone || null };
+  }
+
+  async function payEmployee(emp) {
+    const target = payoutTarget(emp);
+    const name = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "employee";
+    if (target.copy) {
+      try {
+        await navigator.clipboard.writeText(String(target.copy));
+      } catch {
+        /* ignore */
+      }
+    }
+    if (target.url) {
+      window.open(target.url, "_blank", "noopener,noreferrer");
+      setBanner(
+        target.copy
+          ? `Opened ${target.label} for ${name}. Copied ${target.copy}.`
+          : `Opened ${target.label} for ${name}.`,
+        "ok"
+      );
+      return;
+    }
+    if (target.copy) {
+      setBanner(`Copied payout info for ${name} (${target.label}).`, "ok");
+      return;
+    }
+    setBanner(`Add a payout handle for ${name} in Edit details.`, "err");
+  }
+
+  function enableDialogBackdropClose(dialog) {
+    if (!dialog || dialog.dataset.backdropClose === "1") return;
+    dialog.dataset.backdropClose = "1";
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+
+  function wireDialogBackdropClose() {
+    document.querySelectorAll("dialog.pf-dialog, dialog.site-leave-dialog").forEach(enableDialogBackdropClose);
   }
 
   function referralCode() {
@@ -381,6 +459,7 @@
               <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="photo-menu">Change photo</button>
             </div>
           </div>
+          <button type="button" class="btn secondary btn-sm" data-action="pay" title="Pay via ${escapeHtml(paymentLabel(emp.payment_type))}">Pay</button>
           <button type="button" class="btn secondary btn-sm" data-action="view-qr">QR</button>
           <button type="button" class="btn secondary btn-sm pf-btn-danger" data-action="delete">Delete</button>
         </div>
@@ -451,6 +530,7 @@
         duplicateEmployee(emp);
       });
       li.querySelector('[data-action="delete"]').addEventListener("click", () => deleteEmployee(emp));
+      li.querySelector('[data-action="pay"]').addEventListener("click", () => payEmployee(emp));
       li.querySelector('[data-action="view-qr"]').addEventListener("click", () => openQrDialog(emp));
       li.querySelector('[data-action="copy-link"]').addEventListener("click", async () => {
         closeMenu();
@@ -667,11 +747,13 @@
 
   function readEmployeeForm() {
     const fd = new FormData(els.employeeForm);
+    const handle = normalizeHandle(fd.get("payment_handle"));
     return {
       first_name: String(fd.get("first_name") || "").trim(),
       last_name: String(fd.get("last_name") || "").trim(),
       phone: String(fd.get("phone") || "").trim(),
       payment_type: String(fd.get("payment_type") || "").trim(),
+      payment_handle: handle || null,
     };
   }
 
@@ -714,6 +796,7 @@
     if (els.employeeLead) els.employeeLead.textContent = "Add a hire and generate their donation QR.";
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Create & generate QR";
     setPaymentSelect("");
+    if (els.empPaymentHandle) els.empPaymentHandle.value = "";
     els.employeeDialog.showModal();
     els.empFirst?.focus();
   }
@@ -727,10 +810,11 @@
     if (els.empLast) els.empLast.value = emp.last_name || "";
     if (els.empPhone) els.empPhone.value = emp.phone || "";
     setPaymentSelect(emp.payment_type || "");
+    if (els.empPaymentHandle) els.empPaymentHandle.value = emp.payment_handle || "";
     setAvatarPreview(avatarUrl(emp));
     if (els.employeeTitle) els.employeeTitle.textContent = "Edit employee";
     if (els.employeeLead) {
-      els.employeeLead.textContent = "Rename, update details, or change their photo. QR code stays the same.";
+      els.employeeLead.textContent = "Rename, update payout details, or change their photo. QR code stays the same.";
     }
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Save changes";
     els.employeeDialog.showModal();
@@ -809,6 +893,7 @@
       last_name: `${emp.last_name} copy`.slice(0, 80),
       phone: emp.phone,
       payment_type: emp.payment_type,
+      payment_handle: emp.payment_handle || null,
       referral_code: referralCode(),
       avatar_url: emp.avatar_url || null,
     };
@@ -845,6 +930,7 @@
   }
 
   function wireDialogs() {
+    wireDialogBackdropClose();
     els.btnNew?.addEventListener("click", openNewEmployee);
     els.btnRefresh?.addEventListener("click", () => loadDashboard({ skipCachePaint: true }));
     els.visitsClose?.addEventListener("click", () => els.visitsDialog?.close());
