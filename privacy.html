@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="css/site.css">
   <link rel="stylesheet" href="css/paws.css">
 </head>
-<body data-page="privacy" class="site-unlocked">
+<body data-page="privacy" data-public="1">
   <div id="shell"></div>
   <div id="page-body" class="legal-page">
     <span class="page-label">PawsForward</span>
@@ -75,6 +75,7 @@
   <script src="js/privacy.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      document.body.classList.add("site-unlocked");
       window.PfShell && window.PfShell.renderShell("privacy");
     });
   </script>

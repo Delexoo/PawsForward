@@ -184,6 +184,8 @@ grant execute on function public.record_donation(numeric, text, uuid, text) to a
 revoke all on function public.record_visit(text, uuid, text, text, text, text) from public;
 grant execute on function public.record_visit(text, uuid, text, text, text, text) to anon, authenticated;
 
+-- Admin CRUD requires a Supabase Auth session (authenticated role).
+-- Public donate flow uses SECURITY DEFINER RPCs only (no direct table access for anon).
 revoke all on public.employees from anon;
 revoke all on public.donations from anon;
 revoke all on public.visits from anon;
@@ -192,3 +194,11 @@ grant select, insert, update, delete on public.donations to authenticated;
 grant select, insert, update, delete on public.visits to authenticated;
 grant select, insert on public.data_deletion_requests to anon, authenticated;
 grant select, update on public.data_deletion_requests to authenticated;
+
+drop policy if exists "employees_all_anon" on public.employees;
+drop policy if exists "donations_all_anon" on public.donations;
+drop policy if exists "visits_all_anon" on public.visits;
+
+drop policy if exists "deletion_select_anon" on public.data_deletion_requests;
+create policy "deletion_select_anon" on public.data_deletion_requests
+  for select to anon using (true);

@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0f172a">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="description" content="Sign in to the PawsForward admin dashboard.">
+  <meta name="description" content="Enter the PawsForward operator PIN to unlock the dashboard.">
   <link rel="canonical" href="https://delexoo.github.io/PawsForward/login.html">
-  <title>Sign in · PawsForward</title>
+  <title>Unlock · PawsForward</title>
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -16,45 +16,60 @@
   <link rel="stylesheet" href="css/site.css">
   <link rel="stylesheet" href="css/paws.css">
 </head>
-<body data-page="login" class="site-unlocked">
-  <div id="shell"></div>
+<body data-page="login">
   <div id="page-body">
-    <div class="dash-work-panels-card donate-card">
+    <div class="dash-work-panels-card donate-card pin-card">
       <div class="donate-brand">
         <span class="brand-mark" aria-hidden="true">PF</span>
         <div>
-          <h1>Admin sign in</h1>
-          <p class="muted" style="margin:4px 0 0;font-size:13px;">PawsForward operators only</p>
+          <h1>Enter PIN</h1>
+          <p class="muted" style="margin:4px 0 0;font-size:13px;">Unlock PawsForward for this browser session</p>
         </div>
       </div>
-      <div id="status-banner" class="status-banner" hidden></div>
-      <form id="login-form" novalidate>
-        <div class="field">
-          <label for="login-email">Email</label>
-          <input id="login-email" name="email" type="email" required autocomplete="username" value="admin@pawsforward.local">
-          <p class="field-error" id="err-email" hidden></p>
-        </div>
-        <div class="field">
-          <label for="login-password">Password</label>
-          <input id="login-password" name="password" type="password" required autocomplete="current-password" minlength="8">
-          <p class="field-error" id="err-password" hidden></p>
-        </div>
-        <button type="submit" class="btn" id="login-submit" style="width:100%">Sign in</button>
+
+      <div id="status-banner" class="status-banner" hidden role="status"></div>
+
+      <form id="pin-form" autocomplete="off" novalidate>
+        <label class="sr-only" for="pin-input">4-digit PIN</label>
+        <input
+          id="pin-input"
+          class="pin-input"
+          name="pin"
+          type="password"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="4"
+          minlength="4"
+          required
+          autofocus
+          autocomplete="one-time-code"
+          aria-describedby="pin-hint"
+        />
+        <p id="pin-hint" class="field-hint">Enter the 4-digit operator PIN. Donate links stay public without a PIN.</p>
+        <button type="submit" class="btn" id="pin-submit" style="width:100%;margin-top:16px">Unlock</button>
       </form>
-      <p class="field-hint" style="margin-top:14px">Default local admin is documented in the README. Change the password after first login.</p>
-      <p class="field-hint"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
+
+      <div class="pin-pad" aria-label="PIN keypad">
+        <button type="button" class="pin-key" data-key="1">1</button>
+        <button type="button" class="pin-key" data-key="2">2</button>
+        <button type="button" class="pin-key" data-key="3">3</button>
+        <button type="button" class="pin-key" data-key="4">4</button>
+        <button type="button" class="pin-key" data-key="5">5</button>
+        <button type="button" class="pin-key" data-key="6">6</button>
+        <button type="button" class="pin-key" data-key="7">7</button>
+        <button type="button" class="pin-key" data-key="8">8</button>
+        <button type="button" class="pin-key" data-key="9">9</button>
+        <button type="button" class="pin-key pin-key--muted" data-key="clear">Clear</button>
+        <button type="button" class="pin-key" data-key="0">0</button>
+        <button type="button" class="pin-key pin-key--muted" data-key="del">⌫</button>
+      </div>
+
+      <p class="field-hint"><a href="donate.html">Public donate page</a></p>
     </div>
   </div>
+
   <script src="js/config.js"></script>
-  <script src="js/icons.js"></script>
-  <script src="js/shell.js"></script>
-  <script src="js/vendor/supabase.js"></script>
-  <script src="js/supabase-client.js"></script>
+  <script src="js/pin-lock.js"></script>
   <script src="js/login.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      window.PfShell && window.PfShell.renderShell("login");
-    });
-  </script>
 </body>
 </html>

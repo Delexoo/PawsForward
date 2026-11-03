@@ -4,15 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0f172a">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="PawsForward admin console — track donations, employee QR codes, payouts owed, and supportive locations. Operators only.">
+  <link rel="canonical" href="https://delexoo.github.io/PawsForward/admin.html">
   <title>Admin · PawsForward</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="doc/brand-mark.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="prefetch" href="donate.html">
+  <link rel="stylesheet" href="css/fonts.css">
   <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/site.css">
   <link rel="stylesheet" href="css/paws.css">
+  <script src="js/config.js"></script>
+  <script src="js/pin-lock.js"></script>
+  <script>
+    (function () {
+      try {
+        if (sessionStorage.getItem("pf_site_unlock_v1") === "1") {
+          document.documentElement.classList.remove("site-lock-active");
+          document.addEventListener("DOMContentLoaded", function () {
+            document.body.classList.add("site-unlocked");
+          }, { once: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
-<body data-page="admin" class="site-unlocked">
+<body data-page="admin">
+  <a class="skip-link" href="#page-body">Skip to content</a>
   <div id="shell"></div>
   <div id="page-body" class="dashboard-redesign owner-console-page">
     <header class="pf-page-hero">
@@ -20,9 +40,14 @@
         <div>
           <span class="page-label">PawsForward</span>
           <h1>Admin console</h1>
-          <p class="lead">Track every donation, employee QR, payout owed, and supportive location — modeled on the Moonrise owner console.</p>
+          <p class="lead">Track every donation, employee QR, payout owed, and supportive location.</p>
         </div>
         <div class="pf-page-hero-actions">
+          <button type="button" class="btn secondary" id="btn-command" title="Open command menu (Ctrl+K)">
+            Commands <kbd class="pf-kbd">Ctrl</kbd><kbd class="pf-kbd">K</kbd>
+          </button>
+          <button type="button" class="btn secondary" id="btn-account-settings">Account</button>
+          <button type="button" class="btn secondary" id="btn-sign-out">Lock site</button>
           <button type="button" class="btn secondary" id="btn-refresh">Refresh</button>
           <button type="button" class="btn" id="btn-new-employee">New employee</button>
         </div>
@@ -31,262 +56,116 @@
 
     <div id="status-banner" class="status-banner" hidden role="status"></div>
 
-    <!-- Org overview KPIs -->
-    <section class="dash-work-panels-card owner-console-team-overview" id="overview" aria-labelledby="overview-heading">
-      <header class="owner-console-team-overview-head dash-sales-history-head">
-        <h2 class="dash-sales-history-heading" id="overview-heading">Organization activity</h2>
-        <div class="owner-console-export-bar">
-          <span class="owner-console-export-label">Download</span>
-          <div class="owner-console-export-actions">
-            <button type="button" class="btn secondary owner-console-export-btn" data-export="overview" data-format="csv">CSV</button>
-            <button type="button" class="btn secondary owner-console-export-btn" data-export="overview" data-format="txt">TXT</button>
-            <button type="button" class="btn secondary owner-console-export-btn" data-export="overview" data-format="md">MD</button>
-          </div>
-        </div>
-      </header>
-
-      <dl class="owner-console-team-totals" id="stats-grid" aria-label="Organization totals"></dl>
-
-      <div class="owner-console-team-table-wrap">
-        <table class="owner-console-team-table">
-          <thead>
-            <tr>
-              <th scope="col">Employee</th>
-              <th scope="col">Activity</th>
-              <th scope="col">Payment</th>
-              <th scope="col">Donors</th>
-              <th scope="col">Raised</th>
-              <th scope="col">Owed (25%)</th>
-              <th scope="col">Visits</th>
-              <th scope="col">Goal</th>
-            </tr>
-          </thead>
-          <tbody id="overview-employees-body"></tbody>
-        </table>
+    <div id="dashboard-skeleton" class="dashboard-skeleton" hidden>
+      <div class="skeleton-stats" aria-hidden="true">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
       </div>
-      <p class="owner-console-team-overview-empty dash-empty-desc" id="overview-employees-empty" hidden>
-        No employees yet. Create a profile to start tracking QR donations.
-      </p>
-    </section>
-
-    <!-- Split: donation inbox + employee detail -->
-    <div class="owner-console-layout">
-      <section class="dash-work-panels-card owner-console-inbox" id="donations" aria-labelledby="donations-heading">
-        <header class="owner-console-inbox-head">
-          <div class="owner-console-inbox-head-row dash-sales-history-head">
-            <h2 class="dash-sales-history-heading" id="donations-heading">Donation inbox</h2>
-            <div class="owner-console-filters" role="tablist" aria-label="Donation filter">
-              <button type="button" class="owner-console-filter is-active" data-filter="all" role="tab" aria-selected="true">All (0)</button>
-              <button type="button" class="owner-console-filter" data-filter="attributed" role="tab" aria-selected="false">Attributed (0)</button>
-              <button type="button" class="owner-console-filter" data-filter="general" role="tab" aria-selected="false">General (0)</button>
-            </div>
-          </div>
-          <div class="owner-console-export-bar">
-            <span class="owner-console-export-label">Download</span>
-            <div class="owner-console-export-actions">
-              <button type="button" class="btn secondary owner-console-export-btn" data-export="donations" data-format="csv">CSV</button>
-              <button type="button" class="btn secondary owner-console-export-btn" data-export="donations" data-format="txt">TXT</button>
-              <button type="button" class="btn secondary owner-console-export-btn" data-export="donations" data-format="md">MD</button>
-            </div>
-          </div>
-        </header>
-
-        <div class="owner-console-inbox-search-wrap">
-          <label class="sr-only" for="donation-search">Search donations</label>
-          <div class="owner-console-inbox-search-field">
-            <input
-              type="search"
-              id="donation-search"
-              class="owner-console-inbox-search"
-              placeholder="Search donor, employee, code, amount..."
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <button type="button" id="donation-search-clear" class="owner-console-inbox-search-clear" hidden aria-label="Clear search">
-              <span data-icon="x" data-icon-class="owner-console-inbox-search-clear-ico" aria-hidden="true"></span>
-            </button>
-          </div>
-        </div>
-
-        <div class="owner-console-inbox-body">
-          <div class="owner-console-inbox-status" id="donation-status" hidden role="status"></div>
-          <div class="owner-console-inbox-scroll" id="donation-scroll">
-            <ul class="dash-pending-list" id="donation-list" hidden></ul>
-            <div class="dash-empty dash-pending-empty owner-console-empty" id="donations-empty">
-              <p class="dash-empty-title">No donations yet</p>
-              <p class="dash-empty-desc">When donors give through an employee QR or the public page, gifts appear here.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <aside class="owner-console-team-wrap">
-        <section class="dash-goal-tracker-card owner-console-team" id="employee-detail" aria-labelledby="employee-detail-heading">
-          <header class="owner-console-team-head">
-            <h2 class="dash-sales-history-heading" id="employee-detail-heading">Employee dashboard</h2>
-            <div class="owner-console-export-bar">
-              <span class="owner-console-export-label">Download</span>
-              <div class="owner-console-export-actions">
-                <button type="button" class="btn secondary owner-console-export-btn" data-export="employee" data-format="csv">CSV</button>
-                <button type="button" class="btn secondary owner-console-export-btn" data-export="employee" data-format="txt">TXT</button>
-                <button type="button" class="btn secondary owner-console-export-btn" data-export="employee" data-format="md">MD</button>
-              </div>
-            </div>
-          </header>
-
-          <div class="owner-console-rep-picker">
-            <span class="dash-tracker-label" id="employee-picker-label">Employee</span>
-            <div class="owner-console-rep-segment">
-              <div class="owner-console-rep-toggles" id="employee-toggles" role="tablist" aria-labelledby="employee-picker-label"></div>
-            </div>
-          </div>
-
-          <div class="owner-console-team-panel" id="employee-panel" hidden>
-            <div class="dash-progress-panel owner-console-progress-panel">
-              <div class="dash-goal-controls">
-                <div class="dash-goal-metrics">
-                  <label class="dash-goal-stat dash-goal-editor" for="employee-goal-input">
-                    <span class="dash-tracker-label">Raise goal</span>
-                    <input id="employee-goal-input" type="number" min="1" step="50" value="1000" inputmode="numeric" aria-label="Fundraising goal for selected employee">
-                  </label>
-                  <div class="dash-goal-stats-right">
-                    <div class="dash-goal-stat dash-earned-stat" aria-live="polite">
-                      <span class="dash-tracker-label">Raised</span>
-                      <strong class="dash-stat-value dash-earned-value" id="employee-raised">$0</strong>
-                    </div>
-                    <div class="dash-goal-stat" aria-live="polite">
-                      <span class="dash-tracker-label">Owed</span>
-                      <strong class="dash-stat-value" id="employee-owed">$0</strong>
-                    </div>
-                    <div class="dash-goal-stat" aria-live="polite">
-                      <span class="dash-tracker-label">Donors</span>
-                      <strong class="dash-stat-value" id="employee-donors">0</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="dash-goal-ring-card">
-                <div class="dash-goal-ring" id="employee-progress-orbit">
-                  <svg class="dash-goal-ring-svg" viewBox="0 0 280 280" role="img" aria-label="Fundraising goal progress">
-                    <circle class="dash-goal-ring-track" cx="140" cy="140" r="118" fill="none"></circle>
-                    <circle class="dash-goal-ring-fill" id="employee-progress-ring" cx="140" cy="140" r="118" fill="none"></circle>
-                  </svg>
-                  <div class="dash-goal-ring-center">
-                    <span class="dash-goal-ring-pct" id="employee-progress">0%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="pf-employee-meta" id="employee-meta"></div>
-
-            <div class="pf-employee-actions btn-row">
-              <button type="button" class="btn secondary" id="employee-view-qr">View QR</button>
-              <button type="button" class="btn secondary" id="employee-copy-link">Copy donate link</button>
-            </div>
-
-            <section class="owner-console-recent-sales" aria-labelledby="employee-recent-heading">
-              <header class="dash-sales-history-head">
-                <h3 class="dash-sales-history-heading" id="employee-recent-heading">Recent donations</h3>
-              </header>
-              <div class="dash-sales-list-wrap">
-                <div class="sales-list dash-sales-list" id="employee-recent-donations" aria-live="polite"></div>
-              </div>
-              <p class="owner-console-deals-empty dash-empty-desc" id="employee-recent-empty" hidden>No donations for this employee yet.</p>
-            </section>
-          </div>
-
-          <p class="owner-console-team-placeholder" id="employee-placeholder">Choose an employee above to view their stats and QR.</p>
-        </section>
-      </aside>
+      <div class="skeleton-table" aria-hidden="true">
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
+      <p class="sr-only">Loading dashboard…</p>
     </div>
 
-    <!-- Employees management -->
-    <section class="dash-work-panels-card" id="employees" aria-labelledby="employees-heading">
-      <div class="pf-section-head">
-        <div>
-          <h2 class="dash-sales-history-heading" id="employees-heading">Employees</h2>
-          <p class="dash-empty-desc" style="margin:4px 0 0;">Each hire gets a unique QR. They earn 25% of attributed donations.</p>
-        </div>
-        <button type="button" class="btn" id="btn-new-employee-secondary">New employee</button>
-      </div>
-
-      <div class="owner-console-inbox-search-wrap" style="margin-bottom:12px;">
-        <label class="sr-only" for="employee-search">Search employees</label>
-        <div class="owner-console-inbox-search-field">
-          <input type="search" id="employee-search" class="owner-console-inbox-search" placeholder="Filter by name, phone, payment, code..." autocomplete="off" spellcheck="false" />
-          <button type="button" id="employee-search-clear" class="owner-console-inbox-search-clear" hidden aria-label="Clear employee search">
-            <span data-icon="x" data-icon-class="owner-console-inbox-search-clear-ico" aria-hidden="true"></span>
-          </button>
-        </div>
-      </div>
-
-      <div class="owner-console-export-bar" style="margin-bottom:12px;">
-        <span class="owner-console-export-label">Download</span>
-        <div class="owner-console-export-actions">
-          <button type="button" class="btn secondary owner-console-export-btn" data-export="employees" data-format="csv">CSV</button>
-          <button type="button" class="btn secondary owner-console-export-btn" data-export="employees" data-format="txt">TXT</button>
-          <button type="button" class="btn secondary owner-console-export-btn" data-export="employees" data-format="md">MD</button>
-        </div>
-      </div>
-
-      <div class="owner-console-team-table-wrap">
-        <table class="owner-console-team-table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Phone</th>
-              <th scope="col">Payment</th>
-              <th scope="col">Code</th>
-              <th scope="col">Donors</th>
-              <th scope="col">Raised</th>
-              <th scope="col">Owed (25%)</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="employees-body"></tbody>
-        </table>
-      </div>
-      <div class="dash-empty" id="employees-empty" hidden>
-        <p class="dash-empty-title">No employees yet</p>
-        <p class="dash-empty-desc">Create a profile to generate a unique QR code for donation tracking.</p>
-      </div>
-    </section>
-
-    <!-- Geography + visits -->
-    <div class="pf-grid-2">
-      <section class="dash-work-panels-card" id="geography" aria-labelledby="geo-heading">
-        <header class="dash-sales-history-head">
-          <div>
-            <h2 class="dash-sales-history-heading" id="geo-heading">Most supportive locations</h2>
-            <p class="dash-empty-desc" style="margin:4px 0 0;">Approx. from donate-page visits (IP geo).</p>
-          </div>
-          <div class="owner-console-export-bar">
-            <span class="owner-console-export-label">Download</span>
-            <div class="owner-console-export-actions">
-              <button type="button" class="btn secondary owner-console-export-btn" data-export="geo" data-format="csv">CSV</button>
-              <button type="button" class="btn secondary owner-console-export-btn" data-export="geo" data-format="txt">TXT</button>
-              <button type="button" class="btn secondary owner-console-export-btn" data-export="geo" data-format="md">MD</button>
-            </div>
-          </div>
+    <div id="dashboard-content">
+      <section class="dash-work-panels-card owner-console-team-overview" id="overview" aria-labelledby="overview-heading">
+        <header class="owner-console-team-overview-head dash-sales-history-head">
+          <h2 class="dash-sales-history-heading" id="overview-heading">Organization activity</h2>
         </header>
-        <div id="geo-list"></div>
-        <div class="dash-empty" id="geo-empty" hidden>
-          <p class="dash-empty-title">No visit data yet</p>
-          <p class="dash-empty-desc">Open the donate page to start collecting geographic support data.</p>
-        </div>
+
+        <dl class="owner-console-team-totals" id="stats-grid" aria-label="Organization totals">
+          <div class="owner-console-stat">
+            <dt>Total donors</dt>
+            <dd id="stat-total-donors">—</dd>
+          </div>
+          <div class="owner-console-stat">
+            <dt>Donors (24h)</dt>
+            <dd id="stat-donors-24h">—</dd>
+          </div>
+          <div class="owner-console-stat">
+            <dt>Total donated</dt>
+            <dd id="stat-total-donated">—</dd>
+          </div>
+          <div class="owner-console-stat">
+            <dt>Total owed (25%)</dt>
+            <dd id="stat-total-owed">—</dd>
+          </div>
+          <div class="owner-console-stat">
+            <dt>Visits</dt>
+            <dd id="stat-total-visits">—</dd>
+          </div>
+        </dl>
       </section>
 
-      <section class="dash-work-panels-card" id="visits" aria-labelledby="visits-heading">
-        <header class="dash-sales-history-head">
-          <h2 class="dash-sales-history-heading" id="visits-heading">Recent visits</h2>
-          <span class="owner-console-ni-count" id="visits-count" aria-live="polite"></span>
-        </header>
-        <ul class="list-feed" id="visits-feed"></ul>
-        <div class="dash-empty" id="visits-empty" hidden>
-          <p class="dash-empty-title">No visits logged</p>
-          <p class="dash-empty-desc">Each open of the donate page creates a visit row.</p>
+      <div class="owner-console-layout">
+        <section class="dash-work-panels-card owner-console-inbox" id="donations" aria-labelledby="donations-heading">
+          <header class="owner-console-inbox-head">
+            <div class="owner-console-inbox-head-row dash-sales-history-head">
+              <h2 class="dash-sales-history-heading" id="donations-heading">Donation inbox</h2>
+            </div>
+          </header>
+          <div class="owner-console-inbox-body">
+            <div class="owner-console-inbox-scroll" id="donation-scroll">
+              <ul class="dash-pending-list list-feed" id="donations-feed"></ul>
+              <div class="dash-empty dash-pending-empty owner-console-empty" id="donations-empty" hidden>
+                <p class="dash-empty-title">No donations yet</p>
+                <p class="dash-empty-desc">When donors give through an employee QR or the public page, gifts appear here.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="owner-console-team-wrap">
+          <section class="dash-work-panels-card" id="geography" aria-labelledby="geo-heading">
+            <header class="dash-sales-history-head">
+              <div>
+                <h2 class="dash-sales-history-heading" id="geo-heading">Most supportive locations</h2>
+                <p class="dash-empty-desc" style="margin:4px 0 0;">Approx. from donate-page visits (IP geo).</p>
+              </div>
+            </header>
+            <div id="geo-list"></div>
+            <div class="dash-empty" id="geo-empty" hidden>
+              <p class="dash-empty-title">No visit data yet</p>
+              <p class="dash-empty-desc">Open the donate page to start collecting geographic support data.</p>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="dash-work-panels-card" id="employees" aria-labelledby="employees-heading">
+        <div class="pf-section-head">
+          <div>
+            <h2 class="dash-sales-history-heading" id="employees-heading">Employees</h2>
+            <p class="dash-empty-desc" style="margin:4px 0 0;">Each hire gets a unique QR. They earn 25% of attributed donations.</p>
+          </div>
+          <button type="button" class="btn" id="btn-new-employee-secondary">New employee</button>
+        </div>
+
+        <div class="owner-console-team-table-wrap">
+          <table class="owner-console-team-table">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Payment</th>
+                <th scope="col">Donors</th>
+                <th scope="col">Raised</th>
+                <th scope="col">Owed (25%)</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="employees-body"></tbody>
+          </table>
+        </div>
+        <div class="dash-empty" id="employees-empty" hidden>
+          <p class="dash-empty-title">No employees yet</p>
+          <p class="dash-empty-desc">Create a profile to generate a unique QR code for donation tracking.</p>
         </div>
       </section>
     </div>
@@ -300,14 +179,17 @@
       <div class="field">
         <label for="emp-first">First name</label>
         <input id="emp-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80">
+        <p class="field-error" id="err-emp-first" hidden></p>
       </div>
       <div class="field">
         <label for="emp-last">Last name</label>
         <input id="emp-last" name="last_name" type="text" required autocomplete="family-name" maxlength="80">
+        <p class="field-error" id="err-emp-last" hidden></p>
       </div>
       <div class="field">
         <label for="emp-phone">Phone number</label>
         <input id="emp-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567">
+        <p class="field-error" id="err-emp-phone" hidden></p>
       </div>
       <div class="field">
         <label for="emp-payment">Preferred payment type</label>
@@ -321,6 +203,7 @@
             <option value="other">Other</option>
           </select>
         </div>
+        <p class="field-error" id="err-emp-payment" hidden></p>
       </div>
 
       <div class="site-leave-dialog-actions">
@@ -346,11 +229,44 @@
     </div>
   </dialog>
 
-  <script src="js/config.js"></script>
+  <dialog class="site-leave-dialog pf-dialog" id="account-dialog" aria-labelledby="account-dialog-title">
+    <form class="site-leave-dialog-panel" id="account-form" action="#" method="post">
+      <h2 class="site-leave-dialog-title" id="account-dialog-title">Account settings</h2>
+      <p class="site-leave-dialog-text">Review your signed-in operator account and change the password.</p>
+      <div class="field">
+        <label for="account-email">Email</label>
+        <input id="account-email" type="email" readonly autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="account-password">New password</label>
+        <input id="account-password" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" placeholder="At least 10 characters">
+        <p class="field-error" id="err-account-password" hidden></p>
+      </div>
+      <div class="field">
+        <label for="account-password-confirm">Confirm new password</label>
+        <input id="account-password-confirm" name="password_confirm" type="password" autocomplete="new-password" minlength="10" maxlength="128">
+        <p class="field-error" id="err-account-password-confirm" hidden></p>
+      </div>
+      <div class="site-leave-dialog-actions">
+        <button type="button" class="btn secondary" id="account-cancel">Close</button>
+        <button type="submit" class="btn" id="account-submit">Update password</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="site-leave-dialog pf-dialog command-dialog" id="command-dialog" aria-labelledby="command-dialog-title">
+    <div class="site-leave-dialog-panel">
+      <h2 class="site-leave-dialog-title" id="command-dialog-title">Commands <kbd class="pf-kbd">Ctrl</kbd><kbd class="pf-kbd">K</kbd></h2>
+      <label class="sr-only" for="command-input">Filter commands</label>
+      <input id="command-input" type="search" class="command-input" placeholder="Type a command…" autocomplete="off" />
+      <div id="command-list" class="command-list" role="listbox"></div>
+    </div>
+  </dialog>
+
   <script src="js/icons.js"></script>
   <script src="js/shell.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <script src="js/vendor/supabase.js"></script>
+  <script src="js/vendor/qrcode.min.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/ui-select.js"></script>
   <script src="js/qr.js"></script>

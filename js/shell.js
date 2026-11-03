@@ -181,8 +181,12 @@
     if (!shell) return;
     if (document.getElementById("sidebar")) return;
 
-    document.body.classList.add("site-unlocked");
-    document.body.removeAttribute("data-public");
+    if (
+      document.body?.classList.contains("site-unlocked") ||
+      document.body?.getAttribute("data-public") === "1"
+    ) {
+      document.body.classList.add("site-unlocked");
+    }
 
     const active = detectActiveId(activeId);
     ensurePageLayout();
@@ -206,6 +210,9 @@
         navItem("donate.html", "Donate", "heart", active === "donate") +
         navItem("privacy.html", "Privacy", "help-circle", active === "privacy") +
         navItem("terms.html", "Terms", "info", active === "terms") +
+        (document.body?.getAttribute("data-page") === "admin"
+          ? navItem("#", "Lock site", "settings", false, 'id="nav-sign-out"')
+          : navItem("login.html", "Unlock", "settings", active === "login")) +
         `</ul></div>` +
         `<p class="sidebar-foot">Every dollar helps dogs in need of food, water, and shelter.</p>` +
         `</div>` +
@@ -244,6 +251,11 @@
     });
     overlay.addEventListener("click", close);
     sidebar.querySelectorAll(".nav-link, .brand").forEach((a) => a.addEventListener("click", close));
+    document.getElementById("nav-sign-out")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      global.SitePin?.lock?.();
+      location.href = "login.html";
+    });
     initSidebarResizer(document.getElementById("sidebar-resize-handle"));
 
     if (!global.__pfSidebarResizeBound) {

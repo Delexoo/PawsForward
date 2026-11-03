@@ -34,7 +34,8 @@
   }
   </script>
 </head>
-<body data-page="donate" class="site-unlocked">
+<body data-page="donate" data-public="1">
+  <a class="skip-link" href="#page-body">Skip to content</a>
   <div id="shell"></div>
   <div id="page-body">
     <div class="dash-work-panels-card donate-card" id="donate-card">
@@ -119,6 +120,7 @@
   <script src="js/donate.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      document.body.classList.add("site-unlocked");
       window.PfShell && window.PfShell.renderShell("donate");
     });
   </script>

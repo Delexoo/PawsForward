@@ -22,6 +22,11 @@
     employeeCancel: document.getElementById("employee-cancel"),
     employeeSubmit: document.getElementById("employee-submit"),
     btnNew: document.getElementById("btn-new-employee"),
+    btnNewSecondary: document.getElementById("btn-new-employee-secondary"),
+    btnRefresh: document.getElementById("btn-refresh"),
+    btnCommand: document.getElementById("btn-command"),
+    btnAccount: document.getElementById("btn-account-settings"),
+    btnSignOut: document.getElementById("btn-sign-out"),
     errFirst: document.getElementById("err-emp-first"),
     errLast: document.getElementById("err-emp-last"),
     errPhone: document.getElementById("err-emp-phone"),
@@ -36,10 +41,20 @@
     commandDialog: document.getElementById("command-dialog"),
     commandInput: document.getElementById("command-input"),
     commandList: document.getElementById("command-list"),
+    accountDialog: document.getElementById("account-dialog"),
+    accountForm: document.getElementById("account-form"),
+    accountEmail: document.getElementById("account-email"),
+    accountPassword: document.getElementById("account-password"),
+    accountPasswordConfirm: document.getElementById("account-password-confirm"),
+    accountCancel: document.getElementById("account-cancel"),
+    accountSubmit: document.getElementById("account-submit"),
+    errAccountPassword: document.getElementById("err-account-password"),
+    errAccountPasswordConfirm: document.getElementById("err-account-password-confirm"),
   };
 
   let currentQr = { url: "", name: "" };
   let latestEmployees = [];
+  let currentUser = null;
 
   function money(n) {
     return new Intl.NumberFormat("en-US", {
@@ -142,30 +157,26 @@
     els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Donations through this link count toward their payout (25%).`;
     els.qrLinkText.textContent = url;
     els.qrHost.innerHTML = "";
-    try {
-      const canvas = await window.PfQr.toCanvas(url, 220);
-      els.qrHost.appendChild(canvas);
-    } catch (err) {
-      const img = document.createElement("img");
-      img.width = 220;
-      img.height = 220;
-      img.alt = `QR code for ${employee.first_name} ${employee.last_name}`;
-      img.src = window.PfQr.qrImageUrl(url, 220);
-      els.qrHost.appendChild(img);
-      console.error(err);
-    }
     els.qrDialog.showModal();
+    try {
+      await window.PfQr.renderInto(els.qrHost, url, 220);
+    } catch (err) {
+      console.error(err);
+      els.qrHost.textContent = "Could not render QR.";
+      setBanner("Could not render QR. Try Download after refreshing.", "err");
+    }
   }
 
   function renderEmployees(employees, donationStats) {
     latestEmployees = employees;
     const body = els.employeesBody;
+    if (!body) return;
     body.innerHTML = "";
     if (!employees.length) {
-      els.employeesEmpty.hidden = false;
+      if (els.employeesEmpty) els.employeesEmpty.hidden = false;
       return;
     }
-    els.employeesEmpty.hidden = true;
+    if (els.employeesEmpty) els.employeesEmpty.hidden = true;
 
     employees.forEach((emp) => {
       const stats = donationStats[emp.id] || { count: 0, raised: 0 };
@@ -201,12 +212,13 @@
 
   function renderDonations(rows, employeeMap) {
     const feed = els.donationsFeed;
+    if (!feed) return;
     feed.innerHTML = "";
     if (!rows.length) {
-      els.donationsEmpty.hidden = false;
+      if (els.donationsEmpty) els.donationsEmpty.hidden = false;
       return;
     }
-    els.donationsEmpty.hidden = true;
+    if (els.donationsEmpty) els.donationsEmpty.hidden = true;
     rows.slice(0, 12).forEach((d) => {
       const emp = d.employee_id ? employeeMap[d.employee_id] : null;
       const who = emp
@@ -235,12 +247,13 @@
       counts.set(key, (counts.get(key) || 0) + 1);
     });
     const ranked = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    if (!els.geoList) return;
     els.geoList.innerHTML = "";
     if (!ranked.length) {
-      els.geoEmpty.hidden = false;
+      if (els.geoEmpty) els.geoEmpty.hidden = false;
       return;
     }
-    els.geoEmpty.hidden = true;
+    if (els.geoEmpty) els.geoEmpty.hidden = true;
     const max = ranked[0][1] || 1;
     ranked.forEach(([label, count]) => {
       const row = document.createElement("div");
@@ -267,11 +280,11 @@
     });
     const attributedRaised = Object.values(donationStats).reduce((s, x) => s + x.raised, 0);
 
-    els.totalDonors.textContent = String(donations.length);
-    els.donors24h.textContent = String(donors24h ?? 0);
-    els.totalDonated.textContent = money(raisedTotal);
-    els.totalOwed.textContent = money(attributedRaised * COMMISSION());
-    els.totalVisits.textContent = String(visits.length);
+    if (els.totalDonors) els.totalDonors.textContent = String(donations.length);
+    if (els.donors24h) els.donors24h.textContent = String(donors24h ?? 0);
+    if (els.totalDonated) els.totalDonated.textContent = money(raisedTotal);
+    if (els.totalOwed) els.totalOwed.textContent = money(attributedRaised * COMMISSION());
+    if (els.totalVisits) els.totalVisits.textContent = String(visits.length);
 
     const employeeMap = Object.fromEntries(employees.map((e) => [e.id, e]));
     renderEmployees(employees, donationStats);
@@ -381,11 +394,6 @@
 
     const tempId = `temp-${Date.now()}`;
     const optimistic = { ...payload, id: tempId, created_at: new Date().toISOString() };
-    const optimisticStats = {};
-    latestEmployees.forEach((emp) => {
-      optimisticStats[emp.id] = { count: 0, raised: 0 };
-    });
-    // Keep existing raised numbers by reloading from cache if present
     const cached = readCache();
     const donationStats = {};
     (cached?.donations || []).forEach((d) => {
@@ -416,21 +424,81 @@
     await openQrDialog(data);
   }
 
+  function openNewEmployee() {
+    els.employeeForm.reset();
+    setFieldError(els.errFirst, "");
+    setFieldError(els.errLast, "");
+    setFieldError(els.errPhone, "");
+    setFieldError(els.errPayment, "");
+    window.UiSelect?.initAll(els.employeeForm);
+    els.employeeDialog.showModal();
+  }
+
+  async function doSignOut() {
+    try {
+      sessionStorage.removeItem(CACHE_KEY);
+    } catch {
+      /* ignore */
+    }
+    window.SitePin?.lock?.();
+    location.href = "login.html";
+  }
+
+  function openAccountSettings() {
+    if (els.accountEmail) els.accountEmail.value = currentUser?.email || "";
+    if (els.accountPassword) els.accountPassword.value = "";
+    if (els.accountPasswordConfirm) els.accountPasswordConfirm.value = "";
+    setFieldError(els.errAccountPassword, "");
+    setFieldError(els.errAccountPasswordConfirm, "");
+    els.accountDialog?.showModal();
+  }
+
+  async function updatePassword(e) {
+    e.preventDefault();
+    setFieldError(els.errAccountPassword, "");
+    setFieldError(els.errAccountPasswordConfirm, "");
+
+    const password = String(els.accountPassword?.value || "");
+    const confirm = String(els.accountPasswordConfirm?.value || "");
+    let bad = false;
+    if (password.length < 10) {
+      setFieldError(els.errAccountPassword, "Use at least 10 characters.");
+      bad = true;
+    }
+    if (password !== confirm) {
+      setFieldError(els.errAccountPasswordConfirm, "Passwords do not match.");
+      bad = true;
+    }
+    if (bad) return;
+
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) {
+      setBanner("Supabase is not configured.", "err");
+      return;
+    }
+
+    els.accountSubmit.disabled = true;
+    const { error } = await sb.auth.updateUser({ password });
+    els.accountSubmit.disabled = false;
+
+    if (error) {
+      setFieldError(els.errAccountPassword, error.message || "Could not update password.");
+      return;
+    }
+
+    els.accountDialog.close();
+    setBanner("Password updated.", "ok");
+  }
+
   function wireCommandMenu() {
     const commands = [
-      { id: "new", label: "New employee", run: () => els.btnNew?.click() },
+      { id: "new", label: "New employee", run: () => openNewEmployee() },
       { id: "employees", label: "Go to employees", run: () => (location.hash = "#employees") },
       { id: "geo", label: "Go to geography", run: () => (location.hash = "#geography") },
       { id: "donate", label: "Open donate page", run: () => window.open("donate.html", "_blank") },
       { id: "refresh", label: "Refresh dashboard", run: () => loadDashboard({ skipCachePaint: true }) },
-      {
-        id: "signout",
-        label: "Sign out",
-        run: async () => {
-          await window.SiteSupabase.getClient()?.auth.signOut();
-          location.href = "login.html";
-        },
-      },
+      { id: "account", label: "Account settings", run: () => openAccountSettings() },
+      { id: "signout", label: "Lock site", run: () => doSignOut() },
     ];
 
     function renderList(filter) {
@@ -442,6 +510,7 @@
           const btn = document.createElement("button");
           btn.type = "button";
           btn.className = "command-item";
+          btn.setAttribute("role", "option");
           btn.textContent = c.label;
           btn.addEventListener("click", () => {
             els.commandDialog.close();
@@ -451,28 +520,27 @@
         });
     }
 
+    function openCommand() {
+      renderList("");
+      els.commandInput.value = "";
+      els.commandDialog.showModal();
+      els.commandInput.focus();
+    }
+
     document.addEventListener("keydown", (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        renderList("");
-        els.commandInput.value = "";
-        els.commandDialog.showModal();
-        els.commandInput.focus();
+        openCommand();
       }
     });
     els.commandInput?.addEventListener("input", () => renderList(els.commandInput.value));
+    els.btnCommand?.addEventListener("click", openCommand);
   }
 
   function wireDialogs() {
-    els.btnNew?.addEventListener("click", () => {
-      els.employeeForm.reset();
-      setFieldError(els.errFirst, "");
-      setFieldError(els.errLast, "");
-      setFieldError(els.errPhone, "");
-      setFieldError(els.errPayment, "");
-      window.UiSelect?.initAll(els.employeeForm);
-      els.employeeDialog.showModal();
-    });
+    els.btnNew?.addEventListener("click", openNewEmployee);
+    els.btnNewSecondary?.addEventListener("click", openNewEmployee);
+    els.btnRefresh?.addEventListener("click", () => loadDashboard({ skipCachePaint: true }));
     els.employeeCancel?.addEventListener("click", () => els.employeeDialog.close());
     els.employeeForm?.addEventListener("submit", createEmployee);
 
@@ -495,23 +563,30 @@
       }
     });
 
-    document.getElementById("btn-sign-out")?.addEventListener("click", async () => {
-      await window.SiteSupabase.getClient()?.auth.signOut();
-      location.href = "login.html";
-    });
+    els.btnSignOut?.addEventListener("click", () => doSignOut());
+    els.btnAccount?.addEventListener("click", () => openAccountSettings());
+    els.accountCancel?.addEventListener("click", () => els.accountDialog.close());
+    els.accountForm?.addEventListener("submit", updatePassword);
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
+    if (!window.SitePin?.requireUnlock?.()) return;
+
+    document.body.classList.add("site-unlocked");
     window.PfShell?.renderShell("overview");
     wireDialogs();
     wireCommandMenu();
     window.UiSelect?.initAll();
 
-    const gate = await window.SiteSupabase.requireAdminSession();
-    if (!gate.ok) {
-      window.location.replace("login.html");
-      return;
-    }
+    window.addEventListener("hashchange", () => {
+      const go = () => {
+        const id = location.hash.replace(/^#/, "");
+        if (!id) return;
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      };
+      if (document.startViewTransition) document.startViewTransition(go);
+      else go();
+    });
 
     await loadDashboard();
   });

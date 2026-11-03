@@ -1,11 +1,8 @@
 (function () {
-  const form = document.getElementById("login-form");
+  const form = document.getElementById("pin-form");
+  const input = document.getElementById("pin-input");
   const banner = document.getElementById("status-banner");
-  const submit = document.getElementById("login-submit");
-  const emailEl = document.getElementById("login-email");
-  const passEl = document.getElementById("login-password");
-  const errEmail = document.getElementById("err-email");
-  const errPass = document.getElementById("err-password");
+  const submit = document.getElementById("pin-submit");
 
   function setBanner(msg, kind) {
     if (!banner) return;
@@ -21,61 +18,80 @@
     banner.classList.toggle("is-err", kind === "err");
   }
 
-  function setFieldError(el, msg) {
-    if (!el) return;
-    if (!msg) {
-      el.hidden = true;
-      el.textContent = "";
-      return;
-    }
-    el.hidden = false;
-    el.textContent = msg;
+  function nextUrl() {
+    const params = new URLSearchParams(location.search);
+    const next = String(params.get("next") || "admin.html").replace(/[^a-z0-9._-]/gi, "");
+    if (!next || next === "login.html") return "admin.html";
+    return next;
   }
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    const gate = await window.SiteSupabase.requireAdminSession();
-    if (gate.ok) {
-      window.location.replace("admin.html");
+  function attempt() {
+    if (!window.SitePin) {
+      setBanner("PIN lock failed to load.", "err");
       return;
     }
+    if (!window.SitePin.configuredPin()) {
+      setBanner("Set sitePin (4 digits) in js/config.js.", "err");
+      return;
+    }
+    const result = window.SitePin.verify(input.value);
+    if (result.ok) {
+      setBanner("Unlocked.", "ok");
+      location.replace(nextUrl());
+      return;
+    }
+    if (result.reason === "locked") {
+      const secs = Math.ceil((result.remainingMs || 0) / 1000);
+      setBanner(`Too many attempts. Try again in ${secs}s.`, "err");
+      return;
+    }
+    if (result.reason === "not_configured") {
+      setBanner("Set sitePin (4 digits) in js/config.js.", "err");
+      return;
+    }
+    input.value = "";
+    input.focus();
+    setBanner("Incorrect PIN.", "err");
+  }
 
-    form?.addEventListener("submit", async (e) => {
+  function setDigits(next) {
+    input.value = String(next || "").replace(/\D/g, "").slice(0, 4);
+    if (input.value.length === 4) attempt();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    window.SitePin?.requireUnlock?.();
+
+    form?.addEventListener("submit", (e) => {
       e.preventDefault();
-      setFieldError(errEmail, "");
-      setFieldError(errPass, "");
-      setBanner("");
-
-      const email = String(emailEl.value || "").trim();
-      const password = String(passEl.value || "");
-      let bad = false;
-      if (!email || !email.includes("@")) {
-        setFieldError(errEmail, "Enter a valid email.");
-        bad = true;
-      }
-      if (!password || password.length < 8) {
-        setFieldError(errPass, "Password must be at least 8 characters.");
-        bad = true;
-      }
-      if (bad) return;
-
-      const sb = window.SiteSupabase.getClient();
-      if (!sb) {
-        setBanner("Supabase is not configured.", "err");
-        return;
-      }
-
-      submit.disabled = true;
-      setBanner("Signing in…");
-      const { error } = await sb.auth.signInWithPassword({ email, password });
-      submit.disabled = false;
-
-      if (error) {
-        // Same message whether or not the email exists.
-        setBanner("Could not sign in. Check your email and password.", "err");
-        return;
-      }
-
-      window.location.replace("admin.html");
+      attempt();
     });
+
+    input?.addEventListener("input", () => {
+      input.value = String(input.value || "").replace(/\D/g, "").slice(0, 4);
+      if (input.value.length === 4) attempt();
+    });
+
+    document.querySelectorAll(".pin-key").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.getAttribute("data-key");
+        if (key === "clear") {
+          setDigits("");
+          return;
+        }
+        if (key === "del") {
+          setDigits(String(input.value || "").slice(0, -1));
+          return;
+        }
+        setDigits(String(input.value || "") + key);
+      });
+    });
+
+    submit?.addEventListener("click", (e) => {
+      e.preventDefault();
+      attempt();
+    });
+
+    input?.focus();
   });
 })();
