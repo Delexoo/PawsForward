@@ -19,7 +19,7 @@ create table if not exists public.employees (
 
 create table if not exists public.donations (
   id uuid primary key default gen_random_uuid(),
-  employee_id uuid references public.employees (id) on delete set null,
+  employee_id uuid references public.employees (id) on delete cascade,
   referral_code text,
   amount numeric(12, 2) not null check (amount > 0),
   donor_label text,
@@ -28,7 +28,7 @@ create table if not exists public.donations (
 
 create table if not exists public.visits (
   id uuid primary key default gen_random_uuid(),
-  employee_id uuid references public.employees (id) on delete set null,
+  employee_id uuid references public.employees (id) on delete cascade,
   referral_code text,
   path text,
   city text,

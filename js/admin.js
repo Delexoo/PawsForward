@@ -51,6 +51,11 @@
     visitsList: document.getElementById("visits-dialog-list"),
     visitsEmpty: document.getElementById("visits-dialog-empty"),
     visitsClose: document.getElementById("visits-dialog-close"),
+    confirmDialog: document.getElementById("confirm-dialog"),
+    confirmTitle: document.getElementById("confirm-dialog-title"),
+    confirmLead: document.getElementById("confirm-dialog-lead"),
+    confirmCancel: document.getElementById("confirm-cancel"),
+    confirmOk: document.getElementById("confirm-ok"),
   };
 
   const DEFAULT_AVATAR = "doc/default-avatar.jpg";
@@ -908,25 +913,84 @@
     await openQrDialog(data);
   }
 
+  function askConfirm({ title, lead, confirmLabel = "Delete" }) {
+    const dialog = els.confirmDialog;
+    if (!dialog) return Promise.resolve(window.confirm(`${title}\n\n${lead}`));
+
+    return new Promise((resolve) => {
+      if (els.confirmTitle) els.confirmTitle.textContent = title;
+      if (els.confirmLead) els.confirmLead.textContent = lead;
+      if (els.confirmOk) els.confirmOk.textContent = confirmLabel;
+
+      const finish = (ok) => {
+        dialog.removeEventListener("close", onClose);
+        els.confirmCancel?.removeEventListener("click", onCancel);
+        els.confirmOk?.removeEventListener("click", onOk);
+        if (dialog.open) dialog.close();
+        resolve(ok);
+      };
+      const onCancel = () => finish(false);
+      const onOk = () => finish(true);
+      const onClose = () => finish(false);
+
+      els.confirmCancel?.addEventListener("click", onCancel, { once: true });
+      els.confirmOk?.addEventListener("click", onOk, { once: true });
+      dialog.addEventListener("close", onClose, { once: true });
+      dialog.showModal();
+      els.confirmCancel?.focus();
+    });
+  }
+
+  async function revokeEmployeeData(sb, emp) {
+    const id = emp.id;
+    const code = String(emp.referral_code || "").trim();
+
+    const donationQ = sb.from("donations").delete();
+    const { error: donErr } = code
+      ? await donationQ.or(`employee_id.eq.${id},referral_code.eq.${code}`)
+      : await donationQ.eq("employee_id", id);
+    if (donErr) throw donErr;
+
+    const visitQ = sb.from("visits").delete();
+    const { error: visitErr } = code
+      ? await visitQ.or(`employee_id.eq.${id},referral_code.eq.${code}`)
+      : await visitQ.eq("employee_id", id);
+    if (visitErr) throw visitErr;
+
+    try {
+      const { data: files } = await sb.storage.from(AVATAR_BUCKET).list(String(id));
+      if (files?.length) {
+        await sb.storage.from(AVATAR_BUCKET).remove(files.map((f) => `${id}/${f.name}`));
+      }
+    } catch (storageErr) {
+      console.warn("Avatar cleanup skipped", storageErr);
+    }
+  }
+
   async function deleteEmployee(emp) {
     const label = `${emp.first_name} ${emp.last_name}`.trim();
-    const ok = window.confirm(
-      `Delete ${label}? Their QR stops attributing new gifts. Past donations stay in the inbox.`
-    );
+    const ok = await askConfirm({
+      title: `Delete ${label}?`,
+      lead: "This permanently removes their profile, QR attribution, inbox gifts, and visit history.",
+      confirmLabel: "Delete everything",
+    });
     if (!ok) return;
     const sb = window.SiteSupabase.getClient();
     if (!sb) {
       setBanner("Supabase is not configured.", "err");
       return;
     }
-    setBanner(`Deleting ${label}…`);
-    const { error } = await sb.from("employees").delete().eq("id", emp.id);
-    if (error) {
-      setBanner(error.message || "Could not delete employee.", "err");
-      return;
+    setBanner(`Deleting ${label} and revoking their data…`);
+    try {
+      await revokeEmployeeData(sb, emp);
+      const { error } = await sb.from("employees").delete().eq("id", emp.id);
+      if (error) throw error;
+      setBanner(`Deleted ${label} and revoked their data.`, "ok");
+      await loadDashboard({ skipCachePaint: true });
+    } catch (err) {
+      console.error(err);
+      setBanner(err.message || "Could not delete employee.", "err");
     }
-    setBanner(`Deleted ${label}.`, "ok");
-    await loadDashboard({ skipCachePaint: true });
   }
 
   function wireDialogs() {

@@ -189,6 +189,18 @@ body[data-page="admin"] #page-body.pf-admin-minimal {
   color: #b91c1c !important;
 }
 
+.pf-confirm-danger {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #fff !important;
+}
+
+.pf-confirm-danger:hover {
+  background: #991b1b !important;
+  border-color: #991b1b !important;
+  color: #fff !important;
+}
+
 .pf-employee-actions {
   flex-wrap: nowrap;
   justify-content: flex-end;
