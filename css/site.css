@@ -850,7 +850,7 @@ html.site-lock-active body[data-legal-page="1"] #main-content {
   height: 72px;
   margin: 0 auto 18px;
   object-fit: cover;
-  border-radius: 999px;
+  border-radius: 16px;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.08);
   overflow: hidden;

@@ -32,8 +32,10 @@
     empAvatarPreview: document.getElementById("emp-avatar-preview"),
     empAvatarFile: document.getElementById("emp-avatar-file"),
     empAvatarReset: document.getElementById("emp-avatar-reset"),
-    btnNew: document.getElementById("btn-new-employee-secondary"),
+    btnNew: document.getElementById("btn-new-employee"),
     btnRefresh: document.getElementById("btn-refresh"),
+    inboxFold: document.getElementById("inbox-fold"),
+    inboxCountHint: document.getElementById("inbox-count-hint"),
     errFirst: document.getElementById("err-emp-first"),
     errLast: document.getElementById("err-emp-last"),
     errPhone: document.getElementById("err-emp-phone"),
@@ -533,6 +535,10 @@
     const feed = els.donationsFeed;
     if (!feed) return;
     feed.innerHTML = "";
+    const total = rows.length;
+    if (els.inboxCountHint) {
+      els.inboxCountHint.textContent = total ? `${total} gift${total === 1 ? "" : "s"}` : "Empty";
+    }
     if (!rows.length) {
       if (els.donationsEmpty) els.donationsEmpty.hidden = false;
       return;
