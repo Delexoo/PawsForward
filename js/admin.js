@@ -56,6 +56,16 @@
     confirmLead: document.getElementById("confirm-dialog-lead"),
     confirmCancel: document.getElementById("confirm-cancel"),
     confirmOk: document.getElementById("confirm-ok"),
+    detailDialog: document.getElementById("employee-detail-dialog"),
+    detailTitle: document.getElementById("employee-detail-title"),
+    detailLead: document.getElementById("employee-detail-lead"),
+    detailAvatar: document.getElementById("detail-avatar"),
+    detailVisits: document.getElementById("detail-visits"),
+    detailRaised: document.getElementById("detail-raised"),
+    detailOwed: document.getElementById("detail-owed"),
+    detailPayout: document.getElementById("detail-payout"),
+    detailClose: document.getElementById("employee-detail-close"),
+    detailAvatarFile: document.getElementById("detail-avatar-file"),
   };
 
   const DEFAULT_AVATAR = "doc/default-avatar.jpg";
@@ -64,6 +74,8 @@
   let currentQr = { url: "", name: "" };
   let latestEmployees = [];
   let latestVisitStats = {};
+  let latestDonationStats = {};
+  let detailEmployee = null;
   let editingEmployeeId = null;
   let pendingAvatarFile = null;
   let pendingAvatarReset = false;
@@ -418,9 +430,67 @@
     els.visitsDialog.showModal();
   }
 
+  function fillEmployeeDetail(emp) {
+    detailEmployee = emp;
+    const stats = latestDonationStats[emp.id] || { count: 0, raised: 0 };
+    const visits = latestVisitStats[emp.id] || { count: 0, places: {} };
+    const owed = stats.raised * COMMISSION();
+    const handle = normalizeHandle(emp.payment_handle);
+    const payout = handle
+      ? `${paymentLabel(emp.payment_type)} · ${handle}`
+      : paymentLabel(emp.payment_type);
+
+    if (els.detailAvatar) {
+      els.detailAvatar.src = avatarUrl(emp);
+      els.detailAvatar.onerror = () => {
+        els.detailAvatar.src = DEFAULT_AVATAR;
+      };
+    }
+    if (els.detailTitle) els.detailTitle.textContent = `${emp.first_name} ${emp.last_name}`.trim();
+    if (els.detailLead) els.detailLead.textContent = `${emp.phone || "No phone"} · code ${emp.referral_code || "—"}`;
+    if (els.detailVisits) els.detailVisits.textContent = String(visits.count || 0);
+    if (els.detailRaised) els.detailRaised.textContent = money(stats.raised);
+    if (els.detailOwed) els.detailOwed.textContent = money(owed);
+    if (els.detailPayout) els.detailPayout.textContent = payout;
+  }
+
+  function openEmployeeDetail(emp) {
+    if (!els.detailDialog) return;
+    fillEmployeeDetail(emp);
+    els.detailDialog.showModal();
+  }
+
+  function closeEmployeeDetail() {
+    detailEmployee = null;
+    if (els.detailDialog?.open) els.detailDialog.close();
+  }
+
+  async function changeEmployeePhoto(emp, file) {
+    if (!emp?.id || !file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setBanner("Photo must be 2MB or smaller.", "err");
+      return;
+    }
+    try {
+      setBanner(`Updating photo for ${emp.first_name}…`);
+      const publicUrl = await uploadEmployeeAvatar(emp.id, file);
+      const sb = window.SiteSupabase.getClient();
+      const { error } = await sb.from("employees").update({ avatar_url: publicUrl }).eq("id", emp.id);
+      if (error) throw error;
+      setBanner(`Photo updated for ${emp.first_name}.`, "ok");
+      await loadDashboard({ skipCachePaint: true });
+      const refreshed = latestEmployees.find((e) => e.id === emp.id);
+      if (refreshed && els.detailDialog?.open) fillEmployeeDetail(refreshed);
+    } catch (err) {
+      console.error(err);
+      setBanner(err.message || "Could not update photo.", "err");
+    }
+  }
+
   function renderEmployees(employees, donationStats, visitStats) {
     latestEmployees = employees;
     latestVisitStats = visitStats || {};
+    latestDonationStats = donationStats || {};
     const body = els.employeesBody;
     if (!body) return;
     body.innerHTML = "";
@@ -439,113 +509,22 @@
       li.dataset.employeeId = emp.id;
       li.innerHTML = `
         <div class="pf-employee-identity">
-          <button type="button" class="pf-avatar-btn" data-action="photo" title="Change photo" aria-label="Change photo for ${escapeHtml(emp.first_name)}">
-            <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="40" height="40" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
-          </button>
+          <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="36" height="36" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
           <div class="pf-employee-main">
             <strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong>
             <span class="pf-employee-meta">${escapeHtml(emp.phone || "—")}</span>
             <div class="pf-employee-stats">
-              <button type="button" class="pf-stat-chip pf-stat-chip--link" data-action="visits" title="View visit locations">
-                ${visits.count} visit${visits.count === 1 ? "" : "s"}
-              </button>
+              <span class="pf-stat-chip">${visits.count} visit${visits.count === 1 ? "" : "s"}</span>
               <span class="pf-stat-chip">${money(stats.raised)} raised</span>
               <span class="pf-stat-chip">${money(owed)} owed</span>
             </div>
           </div>
         </div>
         <div class="pf-employee-actions">
-          <div class="pf-emp-menu">
-            <button type="button" class="btn secondary btn-sm pf-emp-menu-toggle" data-action="menu" aria-expanded="false" aria-haspopup="menu">Edit</button>
-            <div class="pf-emp-menu-panel" role="menu">
-              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="edit">Edit details</button>
-              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="copy-link">Copy code</button>
-              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="dupe">Duplicate</button>
-              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="photo-menu">Change photo</button>
-            </div>
-          </div>
-          <button type="button" class="btn secondary btn-sm" data-action="pay" title="Pay via ${escapeHtml(paymentLabel(emp.payment_type))}">Pay</button>
-          <button type="button" class="btn secondary btn-sm" data-action="view-qr">QR</button>
-          <button type="button" class="btn secondary btn-sm pf-btn-danger" data-action="delete">Delete</button>
+          <button type="button" class="btn secondary btn-sm" data-action="more">View more</button>
         </div>
-        <input type="file" class="pf-avatar-file-input" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
       `;
-      const fileInput = li.querySelector(".pf-avatar-file-input");
-      const menu = li.querySelector(".pf-emp-menu");
-      const menuToggle = li.querySelector('[data-action="menu"]');
-
-      function closeMenu() {
-        if (!menu?.classList.contains("is-open")) return;
-        menuToggle?.setAttribute("aria-expanded", "false");
-        menu.classList.remove("is-open");
-      }
-
-      function openMenu() {
-        document.querySelectorAll(".pf-emp-menu.is-open").forEach((el) => {
-          if (el === menu) return;
-          el.classList.remove("is-open");
-          el.querySelector(".pf-emp-menu-toggle")?.setAttribute("aria-expanded", "false");
-        });
-        menuToggle.setAttribute("aria-expanded", "true");
-        menu.classList.add("is-open");
-      }
-
-      async function changePhoto(file) {
-        if (!file) return;
-        if (file.size > 2 * 1024 * 1024) {
-          setBanner("Photo must be 2MB or smaller.", "err");
-          return;
-        }
-        try {
-          setBanner(`Updating photo for ${emp.first_name}…`);
-          const publicUrl = await uploadEmployeeAvatar(emp.id, file);
-          const sb = window.SiteSupabase.getClient();
-          const { error } = await sb.from("employees").update({ avatar_url: publicUrl }).eq("id", emp.id);
-          if (error) throw error;
-          setBanner(`Photo updated for ${emp.first_name}.`, "ok");
-          await loadDashboard({ skipCachePaint: true });
-        } catch (err) {
-          console.error(err);
-          setBanner(err.message || "Could not update photo.", "err");
-        }
-      }
-
-      li.querySelector('[data-action="photo"]').addEventListener("click", () => fileInput.click());
-      li.querySelector('[data-action="photo-menu"]').addEventListener("click", () => {
-        closeMenu();
-        fileInput.click();
-      });
-      fileInput.addEventListener("change", async () => {
-        const file = fileInput.files?.[0];
-        fileInput.value = "";
-        await changePhoto(file);
-      });
-      menuToggle.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (menu.classList.contains("is-open")) closeMenu();
-        else openMenu();
-      });
-      li.querySelector('[data-action="visits"]').addEventListener("click", () => openVisitsDialog(emp, visits));
-      li.querySelector('[data-action="edit"]').addEventListener("click", () => {
-        closeMenu();
-        openEditEmployee(emp);
-      });
-      li.querySelector('[data-action="dupe"]').addEventListener("click", () => {
-        closeMenu();
-        duplicateEmployee(emp);
-      });
-      li.querySelector('[data-action="delete"]').addEventListener("click", () => deleteEmployee(emp));
-      li.querySelector('[data-action="pay"]').addEventListener("click", () => payEmployee(emp));
-      li.querySelector('[data-action="view-qr"]').addEventListener("click", () => openQrDialog(emp));
-      li.querySelector('[data-action="copy-link"]').addEventListener("click", async () => {
-        closeMenu();
-        try {
-          await navigator.clipboard.writeText(String(emp.referral_code || ""));
-          setBanner(`Copied referral code for ${emp.first_name}.`, "ok");
-        } catch {
-          setBanner("Could not copy code.", "err");
-        }
-      });
+      li.querySelector('[data-action="more"]').addEventListener("click", () => openEmployeeDetail(emp));
       body.appendChild(li);
     });
   }
@@ -619,7 +598,7 @@
     ranked.forEach(([label, count], i) => {
       const y = i * rowH + 4;
       const barW = Math.max(4, Math.round((count / max) * barMax));
-      const short = label.length > 18 ? label.slice(0, 16) + "…" : label;
+      const short = label.length > 22 ? label.slice(0, 20) + "…" : label;
 
       const text = document.createElementNS(ns, "text");
       text.setAttribute("x", "0");
@@ -1001,6 +980,7 @@
     els.btnNew?.addEventListener("click", openNewEmployee);
     els.btnRefresh?.addEventListener("click", () => loadDashboard({ skipCachePaint: true }));
     els.visitsClose?.addEventListener("click", () => els.visitsDialog?.close());
+    els.detailClose?.addEventListener("click", () => closeEmployeeDetail());
     els.employeeCancel?.addEventListener("click", () => {
       editingEmployeeId = null;
       clearPendingAvatar();
@@ -1027,18 +1007,59 @@
       setAvatarPreview(DEFAULT_AVATAR);
     });
 
-    document.addEventListener("click", (e) => {
-      if (e.target.closest(".pf-emp-menu")) return;
-      document.querySelectorAll(".pf-emp-menu.is-open").forEach((el) => {
-        el.classList.remove("is-open");
-        el.querySelector(".pf-emp-menu-toggle")?.setAttribute("aria-expanded", "false");
-      });
+    els.detailAvatarFile?.addEventListener("change", async () => {
+      const file = els.detailAvatarFile.files?.[0];
+      els.detailAvatarFile.value = "";
+      if (!file || !detailEmployee) return;
+      await changeEmployeePhoto(detailEmployee, file);
     });
-    document.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-      document.querySelectorAll(".pf-emp-menu.is-open").forEach((el) => {
-        el.classList.remove("is-open");
-        el.querySelector(".pf-emp-menu-toggle")?.setAttribute("aria-expanded", "false");
+
+    els.detailDialog?.querySelectorAll("[data-detail]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const emp = detailEmployee;
+        if (!emp) return;
+        const action = btn.getAttribute("data-detail");
+        if (action === "pay") {
+          await payEmployee(emp);
+          return;
+        }
+        if (action === "qr") {
+          closeEmployeeDetail();
+          await openQrDialog(emp);
+          return;
+        }
+        if (action === "edit") {
+          closeEmployeeDetail();
+          openEditEmployee(emp);
+          return;
+        }
+        if (action === "copy") {
+          try {
+            await navigator.clipboard.writeText(String(emp.referral_code || ""));
+            setBanner(`Copied referral code for ${emp.first_name}.`, "ok");
+          } catch {
+            setBanner("Could not copy code.", "err");
+          }
+          return;
+        }
+        if (action === "dupe") {
+          closeEmployeeDetail();
+          await duplicateEmployee(emp);
+          return;
+        }
+        if (action === "photo") {
+          els.detailAvatarFile?.click();
+          return;
+        }
+        if (action === "visits") {
+          const visits = latestVisitStats[emp.id] || { count: 0, places: {} };
+          openVisitsDialog(emp, visits);
+          return;
+        }
+        if (action === "delete") {
+          closeEmployeeDetail();
+          await deleteEmployee(emp);
+        }
       });
     });
 

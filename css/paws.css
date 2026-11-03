@@ -179,10 +179,10 @@ body[data-page="admin"] .main {
 }
 
 body[data-page="admin"] #page-body.pf-admin-minimal {
-  max-width: 920px;
+  max-width: 860px;
   width: 100%;
   margin-inline: auto;
-  gap: 12px;
+  gap: 8px;
 }
 
 .pf-btn-danger {
@@ -1254,12 +1254,12 @@ h1,
 .pf-admin-stack {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .pf-mini-panel {
   margin: 0;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 12px;
   background: var(--surface, #fff);
@@ -1267,8 +1267,8 @@ h1,
 }
 
 .pf-mini-heading {
-  margin: 0 0 6px;
-  font-size: 0.68rem;
+  margin: 0 0 4px;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1323,7 +1323,7 @@ h1,
 
 .pf-donation-row,
 .pf-employee-row {
-  padding: 6px 0;
+  padding: 5px 0;
   border-bottom: 1px solid var(--border, #eef2f7);
 }
 
@@ -1431,6 +1431,7 @@ h1,
   justify-content: space-between;
   gap: 8px;
   align-items: center;
+  min-height: 0;
 }
 
 .pf-employee-identity {
@@ -1439,6 +1440,10 @@ h1,
   gap: 8px;
   min-width: 0;
   flex: 1;
+}
+
+.pf-employee-identity > .pf-avatar {
+  flex-shrink: 0;
 }
 
 .pf-avatar-btn {
@@ -1599,10 +1604,71 @@ button.pf-stat-chip--link:focus-visible {
 }
 
 .pf-employee-actions .btn-sm {
-  min-height: 26px;
-  padding: 0 8px;
+  min-height: 28px;
+  padding: 0 10px;
   font-size: 11px;
-  border-radius: 7px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.pf-emp-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 12px;
+}
+
+.pf-emp-detail-copy {
+  min-width: 0;
+}
+
+.pf-emp-detail-copy .site-leave-dialog-title {
+  margin-bottom: 2px;
+}
+
+.pf-avatar--lg {
+  width: 56px;
+  height: 56px;
+}
+
+.pf-emp-detail-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.pf-emp-detail-stats > div {
+  margin: 0;
+  padding: 8px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+.pf-emp-detail-stats dt {
+  margin: 0 0 2px;
+  font-size: 10px;
+  font-weight: 650;
+  color: var(--muted, #64748b);
+}
+
+.pf-emp-detail-stats dd {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.pf-emp-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+}
+
+.pf-emp-detail-actions .btn-sm {
+  min-height: 32px;
 }
 
 .pf-emp-menu {
@@ -1739,9 +1805,8 @@ button.pf-stat-chip--link:focus-visible {
     font-size: 11px;
   }
 
-  .pf-emp-menu-panel {
-    right: 0;
-    left: auto;
+  .pf-emp-detail-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .pf-donation-details > div {
