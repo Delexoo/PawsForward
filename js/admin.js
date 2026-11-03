@@ -40,6 +40,7 @@
     errLast: document.getElementById("err-emp-last"),
     errPhone: document.getElementById("err-emp-phone"),
     errPayment: document.getElementById("err-emp-payment"),
+    errHandle: document.getElementById("err-emp-handle"),
     qrDialog: document.getElementById("qr-dialog"),
     qrLead: document.getElementById("qr-dialog-lead"),
     qrHost: document.getElementById("qr-canvas-host"),
@@ -766,6 +767,7 @@
     setFieldError(els.errLast, "");
     setFieldError(els.errPhone, "");
     setFieldError(els.errPayment, "");
+    setFieldError(els.errHandle, "");
   }
 
   function readEmployeeForm() {
@@ -776,7 +778,7 @@
       last_name: String(fd.get("last_name") || "").trim(),
       phone: String(fd.get("phone") || "").trim(),
       payment_type: String(fd.get("payment_type") || "").trim(),
-      payment_handle: handle || null,
+      payment_handle: handle,
     };
   }
 
@@ -797,6 +799,10 @@
     }
     if (!payload.payment_type) {
       setFieldError(els.errPayment, "Choose a payment type.");
+      bad = true;
+    }
+    if (!payload.payment_handle) {
+      setFieldError(els.errHandle, "Enter a payout handle.");
       bad = true;
     }
     return !bad;
