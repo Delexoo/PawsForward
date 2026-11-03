@@ -147,9 +147,10 @@
     el.textContent = msg || "";
   }
 
-  function donateUrl(code) {
-    const u = new URL("donate.html", window.location.href);
-    if (code) u.searchParams.set("code", code);
+  function employeeShareUrl(code) {
+    const u = new URL("admin.html", window.location.href);
+    const ref = String(code || "").trim();
+    if (ref) u.searchParams.set("ref", ref);
     return u.href;
   }
 
@@ -266,12 +267,12 @@
   }
 
   async function openQrDialog(employee) {
-    const url = donateUrl(employee.referral_code);
+    const url = employeeShareUrl(employee.referral_code);
     currentQr = {
       url,
       name: `${employee.first_name}-${employee.last_name}`.replace(/\s+/g, "-"),
     };
-    els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Donations through this link count toward their payout (25%).`;
+    els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Shares their referral code (${employee.referral_code}).`;
     els.qrLinkText.textContent = url;
     els.qrHost.innerHTML = "";
     els.qrDialog.showModal();
@@ -317,7 +318,7 @@
             <button type="button" class="btn secondary btn-sm pf-emp-menu-toggle" data-action="menu" aria-expanded="false" aria-haspopup="menu">Edit</button>
             <div class="pf-emp-menu-panel" role="menu" hidden>
               <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="edit">Edit details</button>
-              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="copy-link">Copy link</button>
+              <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="copy-link">Copy code</button>
               <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="dupe">Duplicate</button>
               <button type="button" class="pf-emp-menu-item" role="menuitem" data-action="photo-menu">Change photo</button>
             </div>
@@ -401,10 +402,10 @@
       li.querySelector('[data-action="copy-link"]').addEventListener("click", async () => {
         closeMenu();
         try {
-          await navigator.clipboard.writeText(donateUrl(emp.referral_code));
-          setBanner(`Copied donate link for ${emp.first_name}.`, "ok");
+          await navigator.clipboard.writeText(String(emp.referral_code || ""));
+          setBanner(`Copied referral code for ${emp.first_name}.`, "ok");
         } catch {
-          setBanner("Could not copy link.", "err");
+          setBanner("Could not copy code.", "err");
         }
       });
       body.appendChild(li);
@@ -429,7 +430,7 @@
           : "General (no employee)";
       const donor = d.donor_label || "Anonymous";
       const place = locationIndex?.forDonation(d) || "";
-      const channel = emp || d.referral_code ? "Employee QR" : "Public donate page";
+      const channel = emp || d.referral_code ? "Employee QR" : "Direct";
       const li = document.createElement("li");
       li.className = "pf-donation-row";
       li.innerHTML = `
@@ -844,7 +845,7 @@
     els.qrCopy?.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(currentQr.url);
-        setBanner("Donate link copied.", "ok");
+        setBanner("Employee link copied.", "ok");
       } catch {
         setBanner("Could not copy link.", "err");
       }

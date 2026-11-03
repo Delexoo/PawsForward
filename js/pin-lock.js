@@ -1,6 +1,5 @@
 /**
- * Session PIN unlock for PawsForward operator pages.
- * Donate stays public so QR donors can give without a PIN.
+ * Session PIN unlock for PawsForward admin pages.
  */
 (function (global) {
   "use strict";
@@ -16,10 +15,7 @@
   }
 
   function isPublicPage() {
-    return (
-      document.body?.getAttribute("data-public") === "1" ||
-      document.body?.getAttribute("data-page") === "donate"
-    );
+    return false;
   }
 
   function isLoginPage() {

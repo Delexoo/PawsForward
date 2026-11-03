@@ -120,17 +120,11 @@
     if (explicit) return explicit;
     const page = document.body?.getAttribute("data-page") || "";
     if (page === "admin") return "dashboard";
-    if (page === "donate") return "donate";
-    if (page === "privacy") return "privacy";
-    if (page === "terms") return "terms";
     if (page === "login") return "login";
     return "dashboard";
   }
 
   function brandSub(activeId) {
-    if (activeId === "donate") return "Donate";
-    if (activeId === "privacy") return "Privacy";
-    if (activeId === "terms") return "Terms";
     if (activeId === "login") return "Unlock";
     return "Dashboard";
   }
@@ -201,17 +195,15 @@
       `<div class="sidebar-overlay" id="sidebar-overlay"></div>` +
         `<aside class="sidebar" id="sidebar">` +
         `<div class="sidebar-panel">` +
-        `<a class="brand" href="donate.html" aria-label="Go to Donate">` +
+        `<a class="brand" href="admin.html" aria-label="Go to Dashboard">` +
         `<span class="brand-mark brand-mark--logo" aria-hidden="true"><img class="brand-mark-img" src="doc/brand-mark.png" width="36" height="36" alt=""></span>` +
         `<span class="brand-text"><strong>${appName}</strong><span class="brand-sub">${brandSub(active)}</span></span>` +
         `</a>` +
         `<div class="nav-group nav-group-home" data-nav-group="dashboard">` +
         `<ul class="nav-list nav-list-standalone">` +
-        navItem("donate.html", "Donate", "heart", active === "donate") +
-        navItem("privacy.html", "Privacy", "help-circle", active === "privacy") +
-        navItem("terms.html", "Terms", "info", active === "terms") +
+        navItem("admin.html", "Dashboard", "layout-dashboard", active === "dashboard") +
         `</ul></div>` +
-        `<p class="sidebar-foot">Every dollar helps dogs in need of food, water, and shelter.</p>` +
+        `<p class="sidebar-foot">Operator dashboard for PawsForward.</p>` +
         `</div>` +
         `<button type="button" class="sidebar-resize-handle" id="sidebar-resize-handle" aria-label="Resize sidebar" title="Drag to resize sidebar"></button>` +
         `<button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-controls="sidebar" aria-expanded="true">${ico("chevron-left", "ico-menu")}<span>Menu</span></button>` +

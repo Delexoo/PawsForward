@@ -1,6 +1,12 @@
 /* PawsForward — minimal service worker for installability */
-const CACHE = "pawsforward-shell-v1";
-const PRECACHE = ["./admin.html", "./manifest.webmanifest", "./doc/brand-mark.png", "./icons/favicon.png"];
+const CACHE = "pawsforward-shell-v2";
+const PRECACHE = [
+  "./admin.html",
+  "./login.html",
+  "./manifest.webmanifest",
+  "./doc/brand-mark.png",
+  "./icons/favicon.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
