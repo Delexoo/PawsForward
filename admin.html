@@ -127,6 +127,16 @@
       <p class="site-leave-dialog-text" id="employee-dialog-lead">Add a hire and generate their donation QR.</p>
       <input type="hidden" id="emp-id" name="id" value="">
 
+      <div class="pf-avatar-editor" id="emp-avatar-editor">
+        <img id="emp-avatar-preview" class="pf-avatar-preview" src="doc/default-avatar.jpg" alt="Employee photo preview" width="72" height="72">
+        <div class="pf-avatar-editor-actions">
+          <label class="pf-tool-btn pf-tool-btn--file" for="emp-avatar-file">Change photo</label>
+          <input id="emp-avatar-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+          <button type="button" class="pf-tool-btn" id="emp-avatar-reset">Use default</button>
+          <p class="field-hint" style="margin:6px 0 0;text-align:left">JPG, PNG, or WebP up to 2MB. Saved when you keep editing or create the employee.</p>
+        </div>
+      </div>
+
       <div class="field">
         <label for="emp-first">First name</label>
         <input id="emp-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80">

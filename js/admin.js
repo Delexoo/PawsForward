@@ -28,6 +28,9 @@
     empLast: document.getElementById("emp-last"),
     empPhone: document.getElementById("emp-phone"),
     empPayment: document.getElementById("emp-payment"),
+    empAvatarPreview: document.getElementById("emp-avatar-preview"),
+    empAvatarFile: document.getElementById("emp-avatar-file"),
+    empAvatarReset: document.getElementById("emp-avatar-reset"),
     btnNew: document.getElementById("btn-new-employee"),
     btnNewSecondary: document.getElementById("btn-new-employee-secondary"),
     btnRefresh: document.getElementById("btn-refresh"),
@@ -44,9 +47,77 @@
     qrClose: document.getElementById("qr-close"),
   };
 
+  const DEFAULT_AVATAR = "doc/default-avatar.jpg";
+  const AVATAR_BUCKET = "employee-avatars";
+
   let currentQr = { url: "", name: "" };
   let latestEmployees = [];
   let editingEmployeeId = null;
+  let pendingAvatarFile = null;
+  let pendingAvatarReset = false;
+
+  function avatarUrl(emp) {
+    const url = String(emp?.avatar_url || "").trim();
+    return url || DEFAULT_AVATAR;
+  }
+
+  function setAvatarPreview(url) {
+    if (els.empAvatarPreview) els.empAvatarPreview.src = url || DEFAULT_AVATAR;
+  }
+
+  function clearPendingAvatar() {
+    pendingAvatarFile = null;
+    pendingAvatarReset = false;
+    if (els.empAvatarFile) els.empAvatarFile.value = "";
+  }
+
+  async function uploadEmployeeAvatar(employeeId, file) {
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) throw new Error("Supabase is not configured.");
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `${employeeId}/${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from(AVATAR_BUCKET).upload(path, file, {
+      upsert: true,
+      contentType: file.type || "image/jpeg",
+      cacheControl: "3600",
+    });
+    if (error) throw error;
+    const { data } = sb.storage.from(AVATAR_BUCKET).getPublicUrl(path);
+    return data?.publicUrl || "";
+  }
+
+  async function applyPendingAvatar(employee) {
+    if (!employee?.id) return employee;
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) return employee;
+
+    if (pendingAvatarReset) {
+      const { data, error } = await sb
+        .from("employees")
+        .update({ avatar_url: null })
+        .eq("id", employee.id)
+        .select("*")
+        .single();
+      clearPendingAvatar();
+      if (error) throw error;
+      return data;
+    }
+
+    if (pendingAvatarFile) {
+      const publicUrl = await uploadEmployeeAvatar(employee.id, pendingAvatarFile);
+      const { data, error } = await sb
+        .from("employees")
+        .update({ avatar_url: publicUrl })
+        .eq("id", employee.id)
+        .select("*")
+        .single();
+      clearPendingAvatar();
+      if (error) throw error;
+      return data;
+    }
+
+    return employee;
+  }
 
   function money(n) {
     return new Intl.NumberFormat("en-US", {
@@ -231,10 +302,15 @@
       li.className = "pf-employee-row";
       li.dataset.employeeId = emp.id;
       li.innerHTML = `
-        <div class="pf-employee-main">
-          <strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong>
-          <span class="pf-employee-meta">${escapeHtml(paymentLabel(emp.payment_type))} · ${escapeHtml(emp.phone)}</span>
-          <span class="pf-employee-meta">${stats.count} gifts · ${money(stats.raised)} raised · ${money(owed)} owed</span>
+        <div class="pf-employee-identity">
+          <button type="button" class="pf-avatar-btn" data-action="photo" title="Change photo" aria-label="Change photo for ${escapeHtml(emp.first_name)}">
+            <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="40" height="40" loading="lazy">
+          </button>
+          <div class="pf-employee-main">
+            <strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong>
+            <span class="pf-employee-meta">${escapeHtml(paymentLabel(emp.payment_type))} · ${escapeHtml(emp.phone)}</span>
+            <span class="pf-employee-meta">${stats.count} gifts · ${money(stats.raised)} raised · ${money(owed)} owed</span>
+          </div>
         </div>
         <div class="pf-employee-actions">
           <button type="button" class="btn secondary btn-sm" data-action="edit">Edit</button>
@@ -243,7 +319,31 @@
           <button type="button" class="btn secondary btn-sm" data-action="copy-link">Link</button>
           <button type="button" class="btn secondary btn-sm pf-btn-danger" data-action="delete">Delete</button>
         </div>
+        <input type="file" class="pf-avatar-file-input" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
       `;
+      const fileInput = li.querySelector(".pf-avatar-file-input");
+      li.querySelector('[data-action="photo"]').addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", async () => {
+        const file = fileInput.files?.[0];
+        fileInput.value = "";
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+          setBanner("Photo must be 2MB or smaller.", "err");
+          return;
+        }
+        try {
+          setBanner(`Updating photo for ${emp.first_name}…`);
+          const publicUrl = await uploadEmployeeAvatar(emp.id, file);
+          const sb = window.SiteSupabase.getClient();
+          const { error } = await sb.from("employees").update({ avatar_url: publicUrl }).eq("id", emp.id);
+          if (error) throw error;
+          setBanner(`Photo updated for ${emp.first_name}.`, "ok");
+          await loadDashboard({ skipCachePaint: true });
+        } catch (err) {
+          console.error(err);
+          setBanner(err.message || "Could not update photo.", "err");
+        }
+      });
       li.querySelector('[data-action="edit"]').addEventListener("click", () => openEditEmployee(emp));
       li.querySelector('[data-action="dupe"]').addEventListener("click", () => duplicateEmployee(emp));
       li.querySelector('[data-action="delete"]').addEventListener("click", () => deleteEmployee(emp));
@@ -499,9 +599,11 @@
 
   function openNewEmployee() {
     editingEmployeeId = null;
+    clearPendingAvatar();
     els.employeeForm.reset();
     if (els.empId) els.empId.value = "";
     clearEmployeeErrors();
+    setAvatarPreview(DEFAULT_AVATAR);
     if (els.employeeTitle) els.employeeTitle.textContent = "New employee";
     if (els.employeeLead) els.employeeLead.textContent = "Add a hire and generate their donation QR.";
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Create & generate QR";
@@ -512,15 +614,17 @@
 
   function openEditEmployee(emp) {
     editingEmployeeId = emp.id;
+    clearPendingAvatar();
     clearEmployeeErrors();
     if (els.empId) els.empId.value = emp.id;
     if (els.empFirst) els.empFirst.value = emp.first_name || "";
     if (els.empLast) els.empLast.value = emp.last_name || "";
     if (els.empPhone) els.empPhone.value = emp.phone || "";
     setPaymentSelect(emp.payment_type || "");
+    setAvatarPreview(avatarUrl(emp));
     if (els.employeeTitle) els.employeeTitle.textContent = "Edit employee";
     if (els.employeeLead) {
-      els.employeeLead.textContent = "Rename or update details. Their QR referral code stays the same.";
+      els.employeeLead.textContent = "Rename, update details, or change their photo. QR code stays the same.";
     }
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Save changes";
     els.employeeDialog.showModal();
@@ -552,8 +656,20 @@
         .select("*")
         .single());
     } else {
-      const insertPayload = { ...payload, referral_code: referralCode() };
+      const insertPayload = { ...payload, referral_code: referralCode(), avatar_url: null };
       ({ data, error } = await sb.from("employees").insert(insertPayload).select("*").single());
+    }
+
+    if (!error && data) {
+      try {
+        data = await applyPendingAvatar(data);
+      } catch (avatarErr) {
+        console.error(avatarErr);
+        els.employeeSubmit.disabled = false;
+        setBanner(avatarErr.message || "Saved details, but photo upload failed.", "err");
+        await loadDashboard({ skipCachePaint: true });
+        return;
+      }
     }
 
     els.employeeSubmit.disabled = false;
@@ -565,6 +681,7 @@
 
     els.employeeDialog.close();
     editingEmployeeId = null;
+    clearPendingAvatar();
     setBanner(
       isEdit
         ? `Updated ${data.first_name} ${data.last_name}.`
@@ -587,6 +704,7 @@
       phone: emp.phone,
       payment_type: emp.payment_type,
       referral_code: referralCode(),
+      avatar_url: emp.avatar_url || null,
     };
     setBanner(`Duplicating ${emp.first_name}…`);
     const { data, error } = await sb.from("employees").insert(payload).select("*").single();
@@ -626,9 +744,29 @@
     els.btnRefresh?.addEventListener("click", () => loadDashboard({ skipCachePaint: true }));
     els.employeeCancel?.addEventListener("click", () => {
       editingEmployeeId = null;
+      clearPendingAvatar();
       els.employeeDialog.close();
     });
     els.employeeForm?.addEventListener("submit", saveEmployee);
+    els.empAvatarFile?.addEventListener("change", () => {
+      const file = els.empAvatarFile.files?.[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        setBanner("Photo must be 2MB or smaller.", "err");
+        els.empAvatarFile.value = "";
+        return;
+      }
+      pendingAvatarFile = file;
+      pendingAvatarReset = false;
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+    });
+    els.empAvatarReset?.addEventListener("click", () => {
+      pendingAvatarFile = null;
+      pendingAvatarReset = true;
+      if (els.empAvatarFile) els.empAvatarFile.value = "";
+      setAvatarPreview(DEFAULT_AVATAR);
+    });
 
     els.qrClose?.addEventListener("click", () => els.qrDialog.close());
     els.qrCopy?.addEventListener("click", async () => {

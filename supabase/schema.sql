@@ -12,6 +12,7 @@ create table if not exists public.employees (
   phone text not null,
   payment_type text not null check (payment_type in ('cashapp', 'venmo', 'paypal', 'zelle', 'other')),
   referral_code text not null unique,
+  avatar_url text,
   created_at timestamptz not null default now()
 );
 
