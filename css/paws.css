@@ -813,6 +813,38 @@ body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
   border-radius: 12px;
 }
 
+.pf-payout-summary {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  background: var(--surface-2, #f8fafc);
+}
+
+.pf-payout-summary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.pf-payout-summary span {
+  color: var(--muted, #64748b);
+}
+
+.pf-payout-summary strong {
+  font-variant-numeric: tabular-nums;
+  color: var(--text, #0f172a);
+}
+
+.pf-optional {
+  font-weight: 500;
+  color: var(--muted, #64748b);
+}
+
 .qr-box {
   display: flex;
   flex-direction: column;

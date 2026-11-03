@@ -43,6 +43,15 @@ create table if not exists public.visits (
   created_at timestamptz not null default now()
 );
 
+-- Commission payouts already sent to employees (owed = commission − paid).
+create table if not exists public.payouts (
+  id uuid primary key default gen_random_uuid(),
+  employee_id uuid not null references public.employees (id) on delete cascade,
+  amount numeric(12, 2) not null check (amount > 0),
+  note text,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.data_deletion_requests (
   id uuid primary key default gen_random_uuid(),
   email text not null,
@@ -57,10 +66,13 @@ create index if not exists donations_employee_id_idx on public.donations (employ
 create index if not exists visits_created_at_idx on public.visits (created_at desc);
 create index if not exists visits_country_idx on public.visits (country);
 create index if not exists employees_referral_code_idx on public.employees (referral_code);
+create index if not exists payouts_employee_id_idx on public.payouts (employee_id);
+create index if not exists payouts_created_at_idx on public.payouts (created_at desc);
 
 alter table public.employees enable row level security;
 alter table public.donations enable row level security;
 alter table public.visits enable row level security;
+alter table public.payouts enable row level security;
 alter table public.data_deletion_requests enable row level security;
 
 -- Authenticated admin policies
@@ -74,6 +86,14 @@ create policy "donations_all_auth" on public.donations
 
 drop policy if exists "visits_all_auth" on public.visits;
 create policy "visits_all_auth" on public.visits
+  for all to authenticated using (true) with check (true);
+
+drop policy if exists "payouts_all_anon" on public.payouts;
+create policy "payouts_all_anon" on public.payouts
+  for all to anon using (true) with check (true);
+
+drop policy if exists "payouts_all_auth" on public.payouts;
+create policy "payouts_all_auth" on public.payouts
   for all to authenticated using (true) with check (true);
 
 drop policy if exists "deletion_select_auth" on public.data_deletion_requests;
@@ -200,6 +220,7 @@ revoke all on public.visits from anon;
 grant select, insert, update, delete on public.employees to authenticated;
 grant select, insert, update, delete on public.donations to authenticated;
 grant select, insert, update, delete on public.visits to authenticated;
+grant select, insert, update, delete on public.payouts to anon, authenticated;
 grant select, insert on public.data_deletion_requests to anon, authenticated;
 grant select, update on public.data_deletion_requests to authenticated;
 

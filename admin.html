@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261103z">
-  <link rel="stylesheet" href="css/fonts.css?v=20261103z">
-  <script src="js/theme.js?v=20261103z"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261103z">
-  <link rel="stylesheet" href="css/paws.css?v=20261103z">
+  <link rel="manifest" href="manifest.webmanifest?v=20261103aa">
+  <link rel="stylesheet" href="css/fonts.css?v=20261103aa">
+  <script src="js/theme.js?v=20261103aa"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261103aa">
+  <link rel="stylesheet" href="css/paws.css?v=20261103aa">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261103z"></script>
-  <script src="js/canonical.js?v=20261103z"></script>
+  <script src="js/config.js?v=20261103aa"></script>
+  <script src="js/canonical.js?v=20261103aa"></script>
   <script>
     (function () {
       try {
@@ -33,7 +33,7 @@
       } catch (e) {}
     })();
   </script>
-  <script src="js/pin-lock.js?v=20261103z"></script>
+  <script src="js/pin-lock.js?v=20261103aa"></script>
   <script>
     (function () {
       try {
@@ -279,10 +279,11 @@
           <span class="pf-emp-stat-value" id="detail-owed">—</span>
         </div>
         <div class="pf-emp-stat">
-          <span class="pf-emp-stat-label">Payout</span>
-          <span class="pf-emp-stat-value" id="detail-payout">—</span>
+          <span class="pf-emp-stat-label">Paid</span>
+          <span class="pf-emp-stat-value" id="detail-paid">—</span>
         </div>
       </div>
+      <p class="pf-emp-detail-code" id="detail-payout-method" hidden></p>
 
       <div class="pf-emp-detail-actions" role="group" aria-label="Employee actions">
         <button type="button" class="pf-chip-btn" data-detail="pay">Pay</button>
@@ -311,6 +312,32 @@
         <button type="button" class="btn" id="stat-info-close">Close</button>
       </div>
     </div>
+  </dialog>
+
+  <dialog class="site-leave-dialog pf-dialog" id="payout-dialog" aria-labelledby="payout-dialog-title">
+    <form class="site-leave-dialog-panel" id="payout-form" action="#" method="post">
+      <h2 class="site-leave-dialog-title" id="payout-dialog-title">Record payout</h2>
+      <p class="site-leave-dialog-text" id="payout-dialog-lead">Log what you already paid so owed goes down.</p>
+      <input type="hidden" id="pay-employee-id" value="">
+
+      <div class="pf-payout-summary" id="payout-summary" aria-live="polite"></div>
+
+      <div class="field">
+        <label for="pay-amount">Amount paid (USD)</label>
+        <input id="pay-amount" name="amount" type="number" inputmode="decimal" min="0.01" step="0.01" required>
+        <p class="field-error" id="err-pay-amount" hidden></p>
+      </div>
+      <div class="field">
+        <label for="pay-note">Note <span class="pf-optional">(optional)</span></label>
+        <input id="pay-note" name="note" type="text" maxlength="160" placeholder="Cash App · week of Nov 3">
+      </div>
+
+      <div class="site-leave-dialog-actions">
+        <button type="button" class="btn secondary" id="payout-open-app">Open payout app</button>
+        <button type="button" class="btn secondary" id="payout-cancel">Cancel</button>
+        <button type="submit" class="btn" id="payout-submit">Record payment</button>
+      </div>
+    </form>
   </dialog>
 
   <dialog class="site-leave-dialog pf-dialog" id="donation-dialog" aria-labelledby="donation-dialog-title">
@@ -342,12 +369,12 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261103z"></script>
-  <script src="js/shell.js?v=20261103z"></script>
-  <script src="js/vendor/supabase.js?v=20261103z"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261103z"></script>
-  <script src="js/supabase-client.js?v=20261103z"></script>
-  <script src="js/qr.js?v=20261103z"></script>
-  <script src="js/admin.js?v=20261103z"></script>
+  <script src="js/icons.js?v=20261103aa"></script>
+  <script src="js/shell.js?v=20261103aa"></script>
+  <script src="js/vendor/supabase.js?v=20261103aa"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261103aa"></script>
+  <script src="js/supabase-client.js?v=20261103aa"></script>
+  <script src="js/qr.js?v=20261103aa"></script>
+  <script src="js/admin.js?v=20261103aa"></script>
 </body>
 </html>

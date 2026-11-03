@@ -67,7 +67,9 @@
     detailVisits: document.getElementById("detail-visits"),
     detailRaised: document.getElementById("detail-raised"),
     detailOwed: document.getElementById("detail-owed"),
+    detailPaid: document.getElementById("detail-paid"),
     detailPayout: document.getElementById("detail-payout"),
+    detailPayoutMethod: document.getElementById("detail-payout-method"),
     detailClose: document.getElementById("employee-detail-close"),
     detailAvatarFile: document.getElementById("detail-avatar-file"),
     statsGrid: document.getElementById("stats-grid"),
@@ -76,6 +78,18 @@
     statInfoLead: document.getElementById("stat-info-lead"),
     statInfoList: document.getElementById("stat-info-list"),
     statInfoClose: document.getElementById("stat-info-close"),
+    payoutDialog: document.getElementById("payout-dialog"),
+    payoutForm: document.getElementById("payout-form"),
+    payoutTitle: document.getElementById("payout-dialog-title"),
+    payoutLead: document.getElementById("payout-dialog-lead"),
+    payoutSummary: document.getElementById("payout-summary"),
+    payoutOpenApp: document.getElementById("payout-open-app"),
+    payoutCancel: document.getElementById("payout-cancel"),
+    payoutSubmit: document.getElementById("payout-submit"),
+    payEmployeeId: document.getElementById("pay-employee-id"),
+    payAmount: document.getElementById("pay-amount"),
+    payNote: document.getElementById("pay-note"),
+    errPayAmount: document.getElementById("err-pay-amount"),
     donationDialog: document.getElementById("donation-dialog"),
     donationForm: document.getElementById("donation-form"),
     donationTitle: document.getElementById("donation-dialog-title"),
@@ -95,18 +109,22 @@
   let currentQr = { url: "", name: "" };
   let latestEmployees = [];
   let latestDonations = [];
+  let latestPayouts = [];
   let latestVisits = [];
   let latestVisitStats = {};
   let latestDonationStats = {};
+  let latestPaidByEmployee = {};
   let latestSnapshot = {
     donors: 0,
     donors24h: 0,
     raised: 0,
     attributedRaised: 0,
+    paid: 0,
     owed: 0,
     visits: 0,
   };
   let detailEmployee = null;
+  let payoutEmployee = null;
   let editingDonationId = null;
   let editingEmployeeId = null;
   let pendingAvatarFile = null;
@@ -362,7 +380,23 @@
     return { url: null, label: paymentLabel(type), copy: handle || phone || null };
   }
 
-  async function payEmployee(emp) {
+  function paidFor(employeeId) {
+    return Number(latestPaidByEmployee[employeeId] || 0);
+  }
+
+  function grossOwedFor(raised) {
+    return Math.max(0, Number(raised || 0) * COMMISSION());
+  }
+
+  function netOwedFor(employeeId, raised) {
+    return Math.max(0, grossOwedFor(raised) - paidFor(employeeId));
+  }
+
+  function roundMoney(n) {
+    return Math.round((Number(n) || 0) * 100) / 100;
+  }
+
+  async function openPayoutApp(emp) {
     const target = payoutTarget(emp);
     const name = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "employee";
     if (target.copy) {
@@ -380,13 +414,85 @@
           : `Opened ${target.label} for ${name}.`,
         "ok"
       );
-      return;
+      return true;
     }
     if (target.copy) {
       setBanner(`Copied payout info for ${name} (${target.label}).`, "ok");
-      return;
+      return true;
     }
     setBanner(`Add a payout handle for ${name} in Edit details.`, "err");
+    return false;
+  }
+
+  function openPayoutDialog(emp) {
+    if (!els.payoutDialog || !emp) return;
+    payoutEmployee = emp;
+    const stats = latestDonationStats[emp.id] || { count: 0, raised: 0 };
+    const paid = paidFor(emp.id);
+    const owed = netOwedFor(emp.id, stats.raised);
+    const name = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "employee";
+    if (els.payEmployeeId) els.payEmployeeId.value = emp.id;
+    if (els.payoutTitle) els.payoutTitle.textContent = `Pay ${name}`;
+    if (els.payoutLead) {
+      els.payoutLead.textContent = "Record what you already sent so their owed balance updates.";
+    }
+    if (els.payoutSummary) {
+      els.payoutSummary.innerHTML = `
+        <div><span>Commission earned</span><strong>${money(grossOwedFor(stats.raised))}</strong></div>
+        <div><span>Already paid</span><strong>${money(paid)}</strong></div>
+        <div><span>Still owed</span><strong>${money(owed)}</strong></div>
+      `;
+    }
+    if (els.payAmount) els.payAmount.value = owed > 0 ? String(roundMoney(owed)) : "";
+    if (els.payNote) els.payNote.value = "";
+    if (els.errPayAmount) {
+      els.errPayAmount.hidden = true;
+      els.errPayAmount.textContent = "";
+    }
+    els.payoutDialog.showModal();
+    if (window.matchMedia && window.matchMedia("(min-width: 700px)").matches) {
+      els.payAmount?.focus();
+      els.payAmount?.select?.();
+    }
+  }
+
+  async function recordPayout(event) {
+    event?.preventDefault?.();
+    const emp = payoutEmployee || latestEmployees.find((e) => e.id === els.payEmployeeId?.value);
+    if (!emp) return;
+    const amount = roundMoney(els.payAmount?.value);
+    if (!(amount > 0)) {
+      if (els.errPayAmount) {
+        els.errPayAmount.hidden = false;
+        els.errPayAmount.textContent = "Enter at least $0.01.";
+      }
+      return;
+    }
+    const note = String(els.payNote?.value || "").trim();
+    const sb = window.SiteSupabase?.getClient?.();
+    if (!sb) {
+      setBanner("Supabase is not configured.", "err");
+      return;
+    }
+    if (els.payoutSubmit) els.payoutSubmit.disabled = true;
+    try {
+      const { error } = await sb.from("payouts").insert({
+        employee_id: emp.id,
+        amount,
+        note: note || null,
+      });
+      if (error) throw error;
+      els.payoutDialog?.close();
+      setBanner(`Recorded ${money(amount)} paid to ${emp.first_name}.`, "ok");
+      await loadDashboard({ skipCachePaint: true });
+      const refreshed = latestEmployees.find((e) => e.id === emp.id);
+      if (refreshed && els.detailDialog?.open) fillEmployeeDetail(refreshed);
+    } catch (err) {
+      console.error(err);
+      setBanner(err.message || "Could not record payout.", "err");
+    } finally {
+      if (els.payoutSubmit) els.payoutSubmit.disabled = false;
+    }
   }
 
   function enableDialogBackdropClose(dialog) {
@@ -569,7 +675,8 @@
     detailEmployee = emp;
     const stats = latestDonationStats[emp.id] || { count: 0, raised: 0 };
     const visits = latestVisitStats[emp.id] || { count: 0, places: {} };
-    const owed = stats.raised * COMMISSION();
+    const paid = paidFor(emp.id);
+    const owed = netOwedFor(emp.id, stats.raised);
     const handle = normalizeHandle(emp.payment_handle);
     const payout = handle
       ? `${paymentLabel(emp.payment_type)} · ${handle}`
@@ -589,7 +696,12 @@
     if (els.detailVisits) els.detailVisits.textContent = String(visits.count || 0);
     if (els.detailRaised) els.detailRaised.textContent = money(stats.raised);
     if (els.detailOwed) els.detailOwed.textContent = money(owed);
+    if (els.detailPaid) els.detailPaid.textContent = money(paid);
     if (els.detailPayout) els.detailPayout.textContent = payout;
+    if (els.detailPayoutMethod) {
+      els.detailPayoutMethod.hidden = !payout;
+      els.detailPayoutMethod.textContent = payout ? `Payout · ${payout}` : "";
+    }
   }
 
   function openEmployeeDetail(emp) {
@@ -641,7 +753,8 @@
     employees.forEach((emp) => {
       const stats = donationStats[emp.id] || { count: 0, raised: 0 };
       const visits = visitStats[emp.id] || { count: 0, places: {} };
-      const owed = stats.raised * COMMISSION();
+      const owed = netOwedFor(emp.id, stats.raised);
+      const paid = paidFor(emp.id);
       const li = document.createElement("li");
       li.className = "pf-employee-row";
       li.dataset.employeeId = emp.id;
@@ -654,6 +767,7 @@
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Visits</span><span class="pf-stat-chip-value">${visits.count}</span></span>
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Raised</span><span class="pf-stat-chip-value">${money(stats.raised)}</span></span>
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Owed</span><span class="pf-stat-chip-value">${money(owed)}</span></span>
+              <span class="pf-stat-chip"><span class="pf-stat-chip-label">Paid</span><span class="pf-stat-chip-value">${money(paid)}</span></span>
             </div>
           </div>
         </div>
@@ -876,12 +990,13 @@
       },
       owed: {
         title: "Owed",
-        lead: `Employee commission on attributed gifts (${rate}%).`,
+        lead: `Employee commission on attributed gifts (${rate}%), minus recorded payouts.`,
         items: [
-          `${money(latestSnapshot.owed)} currently owed`,
+          `${money(latestSnapshot.owed)} still owed`,
+          `${money(latestSnapshot.paid)} already paid out`,
           `Based on ${money(latestSnapshot.attributedRaised)} attributed raised`,
           `Commission rate ${rate}%`,
-          "General gifts do not create employee owed balance",
+          "Use Pay on an employee to record a payout and reduce owed",
         ],
       },
       visits: {
@@ -982,7 +1097,7 @@
     els.geoChart.appendChild(svg);
   }
 
-  function applyDashboardData({ employees, donations, visits, donors24h }) {
+  function applyDashboardData({ employees, donations, payouts, visits, donors24h }) {
     const donationStats = {};
     let raisedTotal = 0;
     donations.forEach((d) => {
@@ -992,17 +1107,32 @@
       donationStats[d.employee_id].count += 1;
       donationStats[d.employee_id].raised += Number(d.amount) || 0;
     });
+
+    const paidByEmployee = {};
+    let paidTotal = 0;
+    (payouts || []).forEach((p) => {
+      const amount = Number(p.amount) || 0;
+      paidTotal += amount;
+      if (!p.employee_id) return;
+      paidByEmployee[p.employee_id] = (paidByEmployee[p.employee_id] || 0) + amount;
+    });
+
     const attributedRaised = Object.values(donationStats).reduce((s, x) => s + x.raised, 0);
-    const owedTotal = attributedRaised * COMMISSION();
+    const grossOwed = attributedRaised * COMMISSION();
+    const owedTotal = Math.max(0, grossOwed - paidTotal);
 
     latestEmployees = employees;
     latestDonations = donations;
+    latestPayouts = payouts || [];
+    latestPaidByEmployee = paidByEmployee;
+    latestDonationStats = donationStats;
     latestVisits = visits;
     latestSnapshot = {
       donors: donations.length,
       donors24h: donors24h ?? 0,
       raised: raisedTotal,
       attributedRaised,
+      paid: paidTotal,
       owed: owedTotal,
       visits: visits.length,
     };
@@ -1039,12 +1169,13 @@
 
     const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    let empRes, donRes, visitRes, don24Res;
+    let empRes, donRes, payRes, visitRes, don24Res;
     try {
       const timed = Promise.race([
         Promise.all([
           sb.from("employees").select("*").order("created_at", { ascending: false }),
           sb.from("donations").select("*").order("created_at", { ascending: false }).limit(200),
+          sb.from("payouts").select("*").order("created_at", { ascending: false }).limit(500),
           sb.from("visits").select("city,region,country,created_at,referral_code,employee_id").order("created_at", { ascending: false }).limit(1000),
           sb.from("donations").select("id", { count: "exact", head: true }).gte("created_at", since24h),
         ]),
@@ -1052,7 +1183,7 @@
           setTimeout(() => reject(new Error("Timed out loading dashboard data.")), 12000)
         ),
       ]);
-      [empRes, donRes, visitRes, don24Res] = await timed;
+      [empRes, donRes, payRes, visitRes, don24Res] = await timed;
     } catch (err) {
       setLoading(false);
       setBanner(err.message || "Failed to load data.", "err");
@@ -1060,17 +1191,18 @@
       return;
     }
 
-    if (empRes.error || donRes.error || visitRes.error) {
+    if (empRes.error || donRes.error || payRes.error || visitRes.error) {
       setLoading(false);
-      const err = empRes.error || donRes.error || visitRes.error;
+      const err = empRes.error || donRes.error || payRes.error || visitRes.error;
       setBanner(err.message || "Failed to load data. Sign in again if this persists.", "err");
-      console.error(empRes.error, donRes.error, visitRes.error);
+      console.error(empRes.error, donRes.error, payRes.error, visitRes.error);
       return;
     }
 
     const payload = {
       employees: empRes.data || [],
       donations: donRes.data || [],
+      payouts: payRes.data || [],
       visits: visitRes.data || [],
       donors24h: don24Res.count ?? 0,
     };
@@ -1364,6 +1496,19 @@
       els.donationDialog?.close();
     });
     els.donationForm?.addEventListener("submit", saveDonation);
+    els.payoutCancel?.addEventListener("click", () => {
+      payoutEmployee = null;
+      els.payoutDialog?.close();
+    });
+    els.payoutForm?.addEventListener("submit", recordPayout);
+    els.payoutOpenApp?.addEventListener("click", async () => {
+      const emp = payoutEmployee || detailEmployee;
+      if (!emp) return;
+      await openPayoutApp(emp);
+    });
+    els.payoutDialog?.addEventListener("close", () => {
+      payoutEmployee = null;
+    });
     els.employeeCancel?.addEventListener("click", () => {
       editingEmployeeId = null;
       clearPendingAvatar();
@@ -1403,7 +1548,7 @@
         if (!emp) return;
         const action = btn.getAttribute("data-detail");
         if (action === "pay") {
-          await payEmployee(emp);
+          openPayoutDialog(emp);
           return;
         }
         if (action === "qr") {
