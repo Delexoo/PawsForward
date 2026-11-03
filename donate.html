@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>Donate · PawsForward</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body data-page="donate">
+  <div class="donate-shell">
+    <div class="donate-card" id="donate-card">
+      <div class="donate-brand">
+        <span class="brand-mark" aria-hidden="true">PF</span>
+        <div>
+          <h1>PawsForward</h1>
+          <p class="muted" style="margin:4px 0 0;font-size:13px;">Food, water, and shelter for dogs in need</p>
+        </div>
+      </div>
+
+      <div id="status-banner" class="status-banner" hidden></div>
+
+      <div id="donate-form-wrap">
+        <p class="lead" id="donate-lead" style="margin-bottom:18px;">
+          Every dollar helps. Choose an amount to donate.
+        </p>
+
+        <div class="amount-pills" role="group" aria-label="Suggested amounts">
+          <button type="button" class="pill" data-amount="5">$5</button>
+          <button type="button" class="pill active" data-amount="10">$10</button>
+          <button type="button" class="pill" data-amount="25">$25</button>
+          <button type="button" class="pill" data-amount="50">$50</button>
+          <button type="button" class="pill" data-amount="100">$100</button>
+        </div>
+
+        <form id="donate-form">
+          <div class="field">
+            <label for="donate-amount">Amount</label>
+            <div class="money-wrap">
+              <span class="money-symbol">$</span>
+              <input id="donate-amount" name="amount" type="number" min="1" step="0.01" value="10" required inputmode="decimal">
+            </div>
+          </div>
+          <div class="field">
+            <label for="donate-name">Your name <span class="muted">(optional)</span></label>
+            <input id="donate-name" name="donor_label" type="text" maxlength="80" placeholder="Anonymous friend">
+          </div>
+          <button type="submit" class="btn" id="donate-submit" style="width:100%;">Donate</button>
+          <p class="field-hint">Demo checkout — donations are recorded for tracking. Card processing comes later.</p>
+        </form>
+      </div>
+
+      <div class="success-panel" id="donate-success" hidden>
+        <h2>Thank you</h2>
+        <p class="lead" id="donate-success-msg">Your gift helps dogs get food, water, and shelter.</p>
+        <button type="button" class="btn" id="donate-again">Donate again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/supabase-client.js" defer></script>
+  <script src="js/donate.js" defer></script>
+</body>
+</html>

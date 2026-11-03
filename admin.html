@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>Admin · PawsForward</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body data-page="admin">
+  <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu">Menu</button>
+  <div class="sidebar-overlay" id="sidebar-overlay" hidden></div>
+
+  <div class="layout" id="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-panel">
+        <a class="brand" href="admin.html">
+          <span class="brand-mark" aria-hidden="true">PF</span>
+          <span class="brand-text">
+            <strong>PawsForward</strong>
+            <span class="brand-sub">Admin dashboard</span>
+          </span>
+        </a>
+        <nav aria-label="Admin">
+          <ul class="nav-list">
+            <li><a class="nav-link active" href="admin.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+              Overview
+            </a></li>
+            <li><a class="nav-link" href="#employees">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Employees
+            </a></li>
+            <li><a class="nav-link" href="#geography">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              Geography
+            </a></li>
+            <li><a class="nav-link" href="donate.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Donate page
+            </a></li>
+          </ul>
+        </nav>
+        <p class="sidebar-foot">Every dollar helps dogs in need of food, water, and shelter.</p>
+      </div>
+    </aside>
+
+    <main class="main" id="page-body">
+      <span class="page-label">PawsForward</span>
+      <h1>Admin dashboard</h1>
+      <p class="lead">Track donations, hire employees with QR codes, and see which locations support dogs the most.</p>
+
+      <div id="status-banner" class="status-banner" hidden></div>
+
+      <section class="stats-grid" aria-label="Overview stats">
+        <div class="stat-card">
+          <span class="stat-label">Total donors</span>
+          <strong class="stat-value" id="stat-total-donors">—</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Donors (24h)</span>
+          <strong class="stat-value" id="stat-donors-24h">—</strong>
+        </div>
+        <div class="stat-card stat-card--green">
+          <span class="stat-label">Total donated</span>
+          <strong class="stat-value" id="stat-total-donated">—</strong>
+        </div>
+        <div class="stat-card stat-card--gold">
+          <span class="stat-label">Total owed (25%)</span>
+          <strong class="stat-value" id="stat-total-owed">—</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total visits</span>
+          <strong class="stat-value" id="stat-total-visits">—</strong>
+        </div>
+      </section>
+
+      <div class="stack">
+        <section class="dash-work-panels-card" id="employees" aria-labelledby="employees-heading">
+          <div class="section-head">
+            <h2 id="employees-heading">Employees</h2>
+            <button type="button" class="btn" id="btn-new-employee">New employee</button>
+          </div>
+          <div class="table-wrap">
+            <table class="pf-table">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Phone</th>
+                  <th scope="col">Payment</th>
+                  <th scope="col">Donors</th>
+                  <th scope="col">Raised</th>
+                  <th scope="col">Owed (25%)</th>
+                  <th scope="col">QR</th>
+                </tr>
+              </thead>
+              <tbody id="employees-body"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="employees-empty" hidden>
+            <p class="empty-title">No employees yet</p>
+            <p class="empty-desc">Create a profile to generate a unique QR code for donation tracking.</p>
+          </div>
+        </section>
+
+        <div class="grid-2">
+          <section class="dash-work-panels-card" id="recent-donations" aria-labelledby="donations-heading">
+            <div class="section-head">
+              <h2 id="donations-heading">Recent donations</h2>
+            </div>
+            <ul class="list-feed" id="donations-feed"></ul>
+            <div class="empty" id="donations-empty" hidden>
+              <p class="empty-title">No donations yet</p>
+              <p class="empty-desc">Donations from employee QR codes will show here.</p>
+            </div>
+          </section>
+
+          <section class="dash-work-panels-card" id="geography" aria-labelledby="geo-heading">
+            <div class="section-head">
+              <h2 id="geo-heading">Most supportive locations</h2>
+            </div>
+            <div id="geo-list"></div>
+            <div class="empty" id="geo-empty" hidden>
+              <p class="empty-title">No visit data yet</p>
+              <p class="empty-desc">Open the donate page to start collecting geographic support data.</p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <dialog class="pf-dialog" id="employee-dialog" aria-labelledby="employee-dialog-title">
+    <form class="pf-dialog-panel" id="employee-form" action="#" method="post">
+      <h2 class="pf-dialog-title" id="employee-dialog-title">New employee</h2>
+      <p class="pf-dialog-lead">Add a hire and generate their unique donation QR code.</p>
+
+      <div class="field">
+        <label for="emp-first">First name</label>
+        <input id="emp-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80">
+      </div>
+      <div class="field">
+        <label for="emp-last">Last name</label>
+        <input id="emp-last" name="last_name" type="text" required autocomplete="family-name" maxlength="80">
+      </div>
+      <div class="field">
+        <label for="emp-phone">Phone number</label>
+        <input id="emp-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567">
+      </div>
+      <div class="field">
+        <label for="emp-payment">Preferred payment type</label>
+        <div class="ui-select" data-ui-select>
+          <select class="ui-select-native" id="emp-payment" name="payment_type" required>
+            <option value="" disabled selected>Select payment type</option>
+            <option value="cashapp">Cash App</option>
+            <option value="venmo">Venmo</option>
+            <option value="paypal">PayPal</option>
+            <option value="zelle">Zelle</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pf-dialog-actions">
+        <button type="button" class="btn secondary" id="employee-cancel">Cancel</button>
+        <button type="submit" class="btn" id="employee-submit">Create &amp; generate QR</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="pf-dialog" id="qr-dialog" aria-labelledby="qr-dialog-title">
+    <div class="pf-dialog-panel pf-dialog-panel--wide">
+      <h2 class="pf-dialog-title" id="qr-dialog-title">Employee QR</h2>
+      <p class="pf-dialog-lead" id="qr-dialog-lead">Share this code so donations attribute to this employee.</p>
+      <div class="qr-box">
+        <div id="qr-canvas-host"></div>
+        <p class="qr-link" id="qr-link-text"></p>
+      </div>
+      <div class="pf-dialog-actions btn-row">
+        <button type="button" class="btn secondary" id="qr-copy-link">Copy link</button>
+        <button type="button" class="btn secondary" id="qr-download">Download QR</button>
+        <button type="button" class="btn" id="qr-close">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/config.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
+  <script src="js/supabase-client.js" defer></script>
+  <script src="js/ui-select.js" defer></script>
+  <script src="js/qr.js" defer></script>
+  <script src="js/admin.js" defer></script>
+</body>
+</html>
