@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Join PawsForward as a promoter. Create your own donation QR, share it, and earn 25% of every gift attributed to your code.">
+  <meta property="og:title" content="Join · PawsForward">
+  <meta property="og:description" content="Help dogs get food, water, and shelter. Create your QR in seconds and earn 25% of attributed donations.">
+  <meta property="og:image" content="https://delexoo.github.io/PawsForward/doc/brand-mark.png">
+  <meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://delexoo.github.io/PawsForward/join.html">
+  <title>Join · PawsForward</title>
+  <link rel="icon" href="icons/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="doc/brand-mark.png">
+  <link rel="stylesheet" href="css/fonts.css?v=20261104a">
+  <script src="js/theme.js?v=20261104a"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261104a">
+  <link rel="stylesheet" href="css/paws.css?v=20261104a">
+  <script src="js/config.js?v=20261104a"></script>
+  <script src="js/canonical.js?v=20261104a"></script>
+</head>
+<body data-page="join" data-public="1">
+  <script>
+    document.body.setAttribute("data-public", "1");
+    document.body.classList.add("site-unlocked");
+  </script>
+  <a class="skip-link" href="#page-body">Skip to content</a>
+  <div id="page-body" class="donate-shell pf-join-shell">
+    <div class="pf-join-card" id="join-card">
+      <img class="pf-donate-logo" src="doc/brand-mark.png" width="56" height="56" alt="PawsForward">
+      <p class="pf-join-kicker">Public signup</p>
+      <h1 class="pf-donate-title">Help PawsForward grow</h1>
+      <p class="pf-donate-lead">
+        PawsForward is a dog-rescue fundraising org. We raise money for food, water, and shelter —
+        and promoters earn <strong id="join-commission">25%</strong> of every donation that comes through their QR.
+      </p>
+
+      <div id="status-banner" class="status-banner" hidden role="status"></div>
+
+      <section class="pf-join-story" aria-label="About PawsForward">
+        <h2 class="pf-join-section-title">What we do</h2>
+        <p>
+          Supporters scan a promoter QR, give any amount through Stripe, and that gift is tracked to the person who shared the code.
+          Operators pay out commissions from the dashboard.
+        </p>
+        <ol class="pf-join-steps">
+          <li>Create your profile below — takes about a minute.</li>
+          <li>Get a personal short link and QR instantly.</li>
+          <li>Share it. Attributed donations count toward your payout.</li>
+        </ol>
+      </section>
+
+      <form class="pf-join-form" id="join-form" action="#" method="post">
+        <h2 class="pf-join-section-title">Create your QR</h2>
+        <div class="field">
+          <label for="join-first">First name</label>
+          <input id="join-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80">
+          <p class="field-error" id="err-join-first" hidden></p>
+        </div>
+        <div class="field">
+          <label for="join-last">Last name</label>
+          <input id="join-last" name="last_name" type="text" required autocomplete="family-name" maxlength="80">
+          <p class="field-error" id="err-join-last" hidden></p>
+        </div>
+        <div class="field">
+          <label for="join-phone">Phone number</label>
+          <input id="join-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567">
+          <p class="field-error" id="err-join-phone" hidden></p>
+        </div>
+        <div class="field">
+          <label for="join-payment">Preferred payout type</label>
+          <select id="join-payment" name="payment_type" required>
+            <option value="" disabled selected>Select payment type</option>
+            <option value="cashapp">Cash App</option>
+            <option value="venmo">Venmo</option>
+            <option value="paypal">PayPal</option>
+            <option value="zelle">Zelle</option>
+            <option value="apple_cash">Apple Cash</option>
+            <option value="apple_pay">Apple Pay</option>
+            <option value="google_pay">Google Pay</option>
+            <option value="chime">Chime</option>
+            <option value="cash">Cash</option>
+            <option value="other">Other</option>
+          </select>
+          <p class="field-error" id="err-join-payment" hidden></p>
+        </div>
+        <div class="field">
+          <label for="join-handle">Payout handle</label>
+          <input id="join-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, email…">
+          <p class="field-error" id="err-join-handle" hidden></p>
+        </div>
+        <p class="pf-join-fineprint">
+          By signing up you agree we may contact you about payouts and campaign updates.
+          Privacy requests: <a href="privacy.html">privacy policy</a>.
+        </p>
+        <button type="submit" class="btn pf-donate-submit" id="join-submit">Create my QR</button>
+      </form>
+
+      <section class="pf-join-success" id="join-success" hidden>
+        <h2 class="pf-join-section-title">You’re in, <span id="join-success-name">promoter</span></h2>
+        <p class="pf-donate-lead" id="join-success-lead">Share this QR or link. Donations through it are attributed to you.</p>
+        <div class="pf-join-qr" id="join-qr" role="img" aria-label="Your donation QR code"></div>
+        <label class="pf-donate-label" for="join-share-url">Your short link</label>
+        <input id="join-share-url" class="pf-donate-input" type="text" readonly>
+        <div class="pf-join-actions">
+          <button type="button" class="btn" id="join-copy">Copy link</button>
+          <button type="button" class="btn secondary" id="join-download">Download QR</button>
+        </div>
+        <p class="pf-join-fineprint">Keep this page or save the QR. Operators can also find you in the dashboard by name or code <code id="join-code"></code>.</p>
+      </section>
+    </div>
+  </div>
+
+  <script src="js/vendor/supabase.js?v=20261104a"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261104a"></script>
+  <script src="js/supabase-client.js?v=20261104a"></script>
+  <script src="js/qr.js?v=20261104a"></script>
+  <script src="js/join.js?v=20261104a"></script>
+</body>
+</html>

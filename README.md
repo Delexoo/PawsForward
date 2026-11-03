@@ -9,6 +9,7 @@ Admin dashboard and public donate page for **PawsForward**, a dog-rescue fundrai
 | `admin.html` | Signed-in admin dashboard |
 | `login.html` | Admin email/password sign-in + reset |
 | `donate.html` | Public donate + QR landing |
+| `join.html` | Public promoter signup — create your own QR |
 | `privacy.html` / `terms.html` / `404.html` | Legal + not found |
 | `css/` | `fonts.css`, shared `site.css`, `paws.css` extras |
 | `fonts/` | Self-hosted DM Sans + IBM Plex Mono |

@@ -2729,3 +2729,132 @@ body[data-page="admin"] .btn:active {
   margin: 0;
   color: #64748b;
 }
+
+/* ---- Public join / promoter signup ---- */
+body[data-page="join"] #page-body,
+body[data-page="join"] .main > #page-body {
+  width: min(560px, 100%);
+}
+
+.pf-join-shell {
+  align-items: start;
+  padding-top: max(28px, env(safe-area-inset-top, 0px));
+}
+
+.pf-join-card {
+  width: min(520px, 100%);
+  padding: 28px 22px 32px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+  text-align: left;
+}
+
+.pf-join-card .pf-donate-logo {
+  display: block;
+  margin-inline: auto 0;
+}
+
+.pf-join-card .pf-donate-title,
+.pf-join-kicker {
+  text-align: left;
+}
+
+.pf-join-kicker {
+  margin: 0 0 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.pf-join-section-title {
+  margin: 18px 0 8px;
+  font-size: 0.95rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  color: #0f172a;
+}
+
+.pf-join-story p,
+.pf-join-fineprint {
+  margin: 0 0 10px;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.pf-join-steps {
+  margin: 10px 0 0;
+  padding-left: 1.15rem;
+  color: #334155;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.pf-join-steps li + li {
+  margin-top: 4px;
+}
+
+.pf-join-form .field {
+  margin-top: 12px;
+}
+
+.pf-join-form .field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.pf-join-form .field input,
+.pf-join-form .field select {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.pf-join-fineprint a {
+  color: #0f172a;
+  font-weight: 650;
+}
+
+.pf-join-success {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.pf-join-qr {
+  display: grid;
+  place-items: center;
+  margin: 16px auto;
+  min-height: 220px;
+}
+
+.pf-join-qr canvas,
+.pf-join-qr img {
+  width: 220px;
+  height: 220px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.pf-join-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.pf-join-actions .btn {
+  min-width: 140px;
+}
+
+.pf-join-success .pf-donate-input {
+  text-align: center;
+  font-size: 0.82rem;
+}

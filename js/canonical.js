@@ -12,6 +12,7 @@
     "": `${origin}/`,
     "admin.html": `${origin}/admin.html`,
     "donate.html": `${origin}/donate.html`,
+    "join.html": `${origin}/join.html`,
     "login.html": `${origin}/login.html`,
     "404.html": `${origin}/404.html`,
   };
