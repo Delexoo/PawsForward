@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261103f">
-  <link rel="stylesheet" href="css/fonts.css?v=20261103f">
-  <script src="js/theme.js?v=20261103f"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261103f">
-  <link rel="stylesheet" href="css/paws.css?v=20261103f">
+  <link rel="manifest" href="manifest.webmanifest?v=20261103g">
+  <link rel="stylesheet" href="css/fonts.css?v=20261103g">
+  <script src="js/theme.js?v=20261103g"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261103g">
+  <link rel="stylesheet" href="css/paws.css?v=20261103g">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261103f"></script>
-  <script src="js/pin-lock.js?v=20261103f"></script>
+  <script src="js/config.js?v=20261103g"></script>
+  <script src="js/pin-lock.js?v=20261103g"></script>
   <script>
     (function () {
       try {
@@ -50,7 +50,7 @@
       <div class="pf-admin-toolbar">
         <button type="button" class="pf-tool-btn" id="btn-install" title="Install or add to home screen">Install</button>
         <button type="button" class="pf-tool-btn" id="btn-refresh">Refresh</button>
-        <button type="button" class="pf-tool-btn pf-tool-btn--primary" id="btn-new-employee">New employee</button>
+        <button type="button" class="btn secondary btn-sm" id="btn-new-employee-secondary">Add</button>
       </div>
     </header>
 
@@ -68,10 +68,7 @@
 
     <div id="dashboard-content" class="pf-admin-stack">
       <section class="pf-mini-panel" id="employees" aria-labelledby="employees-heading">
-        <div class="pf-section-head pf-section-head--compact">
-          <h2 class="pf-mini-heading" id="employees-heading">Employees</h2>
-          <button type="button" class="btn secondary btn-sm" id="btn-new-employee-secondary">Add</button>
-        </div>
+        <h2 class="pf-mini-heading" id="employees-heading">Employees</h2>
         <ul class="pf-employee-list" id="employees-body"></ul>
         <div class="dash-empty" id="employees-empty" hidden>
           <p class="dash-empty-title">No employees yet</p>
@@ -103,27 +100,24 @@
             <dd id="stat-total-visits">—</dd>
           </div>
         </dl>
-      </section>
-
-      <div class="pf-admin-grid">
-        <section class="pf-mini-panel" id="donations" aria-labelledby="donations-heading">
-          <h2 class="pf-mini-heading" id="donations-heading">Donations</h2>
-          <ul class="pf-donation-list" id="donations-feed"></ul>
-          <div class="dash-empty" id="donations-empty" hidden>
-            <p class="dash-empty-title">No donations yet</p>
-            <p class="dash-empty-desc">Attributed gifts show up here.</p>
-          </div>
-        </section>
-
-        <section class="pf-mini-panel" id="geography" aria-labelledby="geo-heading">
-          <h2 class="pf-mini-heading" id="geo-heading">Locations</h2>
+        <div class="pf-activity-locations">
+          <h3 class="pf-mini-subheading">Locations</h3>
           <div class="pf-geo-chart" id="geo-chart" role="img" aria-label="Supportive locations chart"></div>
           <div class="dash-empty" id="geo-empty" hidden>
             <p class="dash-empty-title">No visit data yet</p>
             <p class="dash-empty-desc">Visit analytics will show up here when available.</p>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      <section class="pf-mini-panel" id="donations" aria-labelledby="donations-heading">
+        <h2 class="pf-mini-heading" id="donations-heading">Inbox</h2>
+        <ul class="pf-donation-list" id="donations-feed"></ul>
+        <div class="dash-empty" id="donations-empty" hidden>
+          <p class="dash-empty-title">Inbox is empty</p>
+          <p class="dash-empty-desc">Attributed gifts show up here.</p>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -206,14 +200,29 @@
     </div>
   </dialog>
 
-  <script src="js/icons.js?v=20261103f"></script>
-  <script src="js/shell.js?v=20261103f"></script>
-  <script src="js/vendor/supabase.js?v=20261103f"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261103f"></script>
-  <script src="js/supabase-client.js?v=20261103f"></script>
-  <script src="js/ui-select.js?v=20261103f"></script>
-  <script src="js/qr.js?v=20261103f"></script>
-  <script src="js/pwa-install.js?v=20261103f"></script>
-  <script src="js/admin.js?v=20261103f"></script>
+  <dialog class="site-leave-dialog pf-dialog" id="visits-dialog" aria-labelledby="visits-dialog-title">
+    <div class="site-leave-dialog-panel">
+      <h2 class="site-leave-dialog-title" id="visits-dialog-title">Visit locations</h2>
+      <p class="site-leave-dialog-text" id="visits-dialog-lead">Location breakdown for this employee.</p>
+      <ul class="pf-visits-list" id="visits-dialog-list"></ul>
+      <div class="dash-empty" id="visits-dialog-empty" hidden>
+        <p class="dash-empty-title">No locations yet</p>
+        <p class="dash-empty-desc">Visits with city/region data will list here.</p>
+      </div>
+      <div class="site-leave-dialog-actions">
+        <button type="button" class="btn" id="visits-dialog-close">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/icons.js?v=20261103g"></script>
+  <script src="js/shell.js?v=20261103g"></script>
+  <script src="js/vendor/supabase.js?v=20261103g"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261103g"></script>
+  <script src="js/supabase-client.js?v=20261103g"></script>
+  <script src="js/ui-select.js?v=20261103g"></script>
+  <script src="js/qr.js?v=20261103g"></script>
+  <script src="js/pwa-install.js?v=20261103g"></script>
+  <script src="js/admin.js?v=20261103g"></script>
 </body>
 </html>

@@ -31,8 +31,7 @@
     empAvatarPreview: document.getElementById("emp-avatar-preview"),
     empAvatarFile: document.getElementById("emp-avatar-file"),
     empAvatarReset: document.getElementById("emp-avatar-reset"),
-    btnNew: document.getElementById("btn-new-employee"),
-    btnNewSecondary: document.getElementById("btn-new-employee-secondary"),
+    btnNew: document.getElementById("btn-new-employee-secondary"),
     btnRefresh: document.getElementById("btn-refresh"),
     errFirst: document.getElementById("err-emp-first"),
     errLast: document.getElementById("err-emp-last"),
@@ -45,6 +44,12 @@
     qrCopy: document.getElementById("qr-copy-link"),
     qrDownload: document.getElementById("qr-download"),
     qrClose: document.getElementById("qr-close"),
+    visitsDialog: document.getElementById("visits-dialog"),
+    visitsTitle: document.getElementById("visits-dialog-title"),
+    visitsLead: document.getElementById("visits-dialog-lead"),
+    visitsList: document.getElementById("visits-dialog-list"),
+    visitsEmpty: document.getElementById("visits-dialog-empty"),
+    visitsClose: document.getElementById("visits-dialog-close"),
   };
 
   const DEFAULT_AVATAR = "doc/default-avatar.jpg";
@@ -52,6 +57,7 @@
 
   let currentQr = { url: "", name: "" };
   let latestEmployees = [];
+  let latestVisitStats = {};
   let editingEmployeeId = null;
   let pendingAvatarFile = null;
   let pendingAvatarReset = false;
@@ -285,8 +291,53 @@
     }
   }
 
-  function renderEmployees(employees, donationStats) {
+  function buildVisitStats(visits, employees) {
+    const byId = Object.create(null);
+    const codeToId = Object.create(null);
+    employees.forEach((emp) => {
+      byId[emp.id] = { count: 0, places: Object.create(null) };
+      if (emp.referral_code) codeToId[String(emp.referral_code).trim()] = emp.id;
+    });
+    visits.forEach((v) => {
+      let id = v.employee_id || null;
+      if (!id && v.referral_code) id = codeToId[String(v.referral_code).trim()] || null;
+      if (!id || !byId[id]) return;
+      byId[id].count += 1;
+      const place = formatPlace(v) || "Unknown";
+      byId[id].places[place] = (byId[id].places[place] || 0) + 1;
+    });
+    return byId;
+  }
+
+  function openVisitsDialog(emp, visitInfo) {
+    if (!els.visitsDialog) return;
+    const name = `${emp.first_name} ${emp.last_name}`.trim();
+    if (els.visitsTitle) els.visitsTitle.textContent = `Visits · ${name}`;
+    if (els.visitsLead) {
+      els.visitsLead.textContent = visitInfo.count
+        ? `${visitInfo.count} visit${visitInfo.count === 1 ? "" : "s"} with location detail.`
+        : "No visits recorded for this employee yet.";
+    }
+    const list = els.visitsList;
+    if (list) list.innerHTML = "";
+    const ranked = Object.entries(visitInfo.places || {}).sort((a, b) => b[1] - a[1]);
+    if (!ranked.length) {
+      if (els.visitsEmpty) els.visitsEmpty.hidden = false;
+    } else {
+      if (els.visitsEmpty) els.visitsEmpty.hidden = true;
+      ranked.forEach(([place, count]) => {
+        const li = document.createElement("li");
+        li.className = "pf-visits-row";
+        li.innerHTML = `<span>${escapeHtml(place)}</span><strong>${count}</strong>`;
+        list.appendChild(li);
+      });
+    }
+    els.visitsDialog.showModal();
+  }
+
+  function renderEmployees(employees, donationStats, visitStats) {
     latestEmployees = employees;
+    latestVisitStats = visitStats || {};
     const body = els.employeesBody;
     if (!body) return;
     body.innerHTML = "";
@@ -298,6 +349,7 @@
 
     employees.forEach((emp) => {
       const stats = donationStats[emp.id] || { count: 0, raised: 0 };
+      const visits = visitStats[emp.id] || { count: 0, places: {} };
       const owed = stats.raised * COMMISSION();
       const li = document.createElement("li");
       li.className = "pf-employee-row";
@@ -309,8 +361,14 @@
           </button>
           <div class="pf-employee-main">
             <strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong>
-            <span class="pf-employee-meta">${escapeHtml(paymentLabel(emp.payment_type))} · ${escapeHtml(emp.phone)}</span>
-            <span class="pf-employee-meta">${stats.count} gifts · ${money(stats.raised)} raised · ${money(owed)} owed</span>
+            <span class="pf-employee-meta">${escapeHtml(emp.phone || "—")}</span>
+            <div class="pf-employee-stats">
+              <button type="button" class="pf-stat-chip pf-stat-chip--link" data-action="visits" title="View visit locations">
+                ${visits.count} visit${visits.count === 1 ? "" : "s"}
+              </button>
+              <span class="pf-stat-chip">${money(stats.raised)} raised</span>
+              <span class="pf-stat-chip">${money(owed)} owed</span>
+            </div>
           </div>
         </div>
         <div class="pf-employee-actions">
@@ -331,7 +389,6 @@
       const fileInput = li.querySelector(".pf-avatar-file-input");
       const menu = li.querySelector(".pf-emp-menu");
       const menuToggle = li.querySelector('[data-action="menu"]');
-      const menuPanel = li.querySelector(".pf-emp-menu-panel");
 
       function closeMenu() {
         if (!menu?.classList.contains("is-open")) return;
@@ -384,6 +441,7 @@
         if (menu.classList.contains("is-open")) closeMenu();
         else openMenu();
       });
+      li.querySelector('[data-action="visits"]').addEventListener("click", () => openVisitsDialog(emp, visits));
       li.querySelector('[data-action="edit"]').addEventListener("click", () => {
         closeMenu();
         openEditEmployee(emp);
@@ -535,7 +593,8 @@
 
     const employeeMap = Object.fromEntries(employees.map((e) => [e.id, e]));
     const locationIndex = buildLocationIndex(visits);
-    renderEmployees(employees, donationStats);
+    const visitStats = buildVisitStats(visits, employees);
+    renderEmployees(employees, donationStats, visitStats);
     renderDonations(donations, employeeMap, locationIndex);
     renderGeo(visits);
   }
@@ -787,8 +846,8 @@
 
   function wireDialogs() {
     els.btnNew?.addEventListener("click", openNewEmployee);
-    els.btnNewSecondary?.addEventListener("click", openNewEmployee);
     els.btnRefresh?.addEventListener("click", () => loadDashboard({ skipCachePaint: true }));
+    els.visitsClose?.addEventListener("click", () => els.visitsDialog?.close());
     els.employeeCancel?.addEventListener("click", () => {
       editingEmployeeId = null;
       clearPendingAvatar();
