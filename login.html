@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Sign in to the PawsForward admin dashboard.">
+  <link rel="canonical" href="https://delexoo.github.io/PawsForward/login.html">
+  <title>Sign in · PawsForward</title>
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="doc/brand-mark.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/fonts.css">
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/site.css">
+  <link rel="stylesheet" href="css/paws.css">
+</head>
+<body data-page="login" class="site-unlocked">
+  <div id="shell"></div>
+  <div id="page-body">
+    <div class="dash-work-panels-card donate-card">
+      <div class="donate-brand">
+        <span class="brand-mark" aria-hidden="true">PF</span>
+        <div>
+          <h1>Admin sign in</h1>
+          <p class="muted" style="margin:4px 0 0;font-size:13px;">PawsForward operators only</p>
+        </div>
+      </div>
+      <div id="status-banner" class="status-banner" hidden></div>
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input id="login-email" name="email" type="email" required autocomplete="username" value="admin@pawsforward.local">
+          <p class="field-error" id="err-email" hidden></p>
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input id="login-password" name="password" type="password" required autocomplete="current-password" minlength="8">
+          <p class="field-error" id="err-password" hidden></p>
+        </div>
+        <button type="submit" class="btn" id="login-submit" style="width:100%">Sign in</button>
+      </form>
+      <p class="field-hint" style="margin-top:14px">Default local admin is documented in the README. Change the password after first login.</p>
+      <p class="field-hint"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
+    </div>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/shell.js"></script>
+  <script src="js/vendor/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/login.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      window.PfShell && window.PfShell.renderShell("login");
+    });
+  </script>
+</body>
+</html>

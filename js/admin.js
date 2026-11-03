@@ -1,8 +1,11 @@
 (function () {
   const COMMISSION = () => Number(window.SITE_CONFIG?.commissionRate ?? 0.25);
+  const CACHE_KEY = "pf_admin_cache_v1";
 
   const els = {
     banner: document.getElementById("status-banner"),
+    skeleton: document.getElementById("dashboard-skeleton"),
+    content: document.getElementById("dashboard-content"),
     totalDonors: document.getElementById("stat-total-donors"),
     donors24h: document.getElementById("stat-donors-24h"),
     totalDonated: document.getElementById("stat-total-donated"),
@@ -19,6 +22,10 @@
     employeeCancel: document.getElementById("employee-cancel"),
     employeeSubmit: document.getElementById("employee-submit"),
     btnNew: document.getElementById("btn-new-employee"),
+    errFirst: document.getElementById("err-emp-first"),
+    errLast: document.getElementById("err-emp-last"),
+    errPhone: document.getElementById("err-emp-phone"),
+    errPayment: document.getElementById("err-emp-payment"),
     qrDialog: document.getElementById("qr-dialog"),
     qrLead: document.getElementById("qr-dialog-lead"),
     qrHost: document.getElementById("qr-canvas-host"),
@@ -26,11 +33,13 @@
     qrCopy: document.getElementById("qr-copy-link"),
     qrDownload: document.getElementById("qr-download"),
     qrClose: document.getElementById("qr-close"),
-    menuBtn: document.getElementById("menu-btn"),
-    overlay: document.getElementById("sidebar-overlay"),
+    commandDialog: document.getElementById("command-dialog"),
+    commandInput: document.getElementById("command-input"),
+    commandList: document.getElementById("command-list"),
   };
 
   let currentQr = { url: "", name: "" };
+  let latestEmployees = [];
 
   function money(n) {
     return new Intl.NumberFormat("en-US", {
@@ -54,6 +63,12 @@
     els.banner.classList.toggle("is-err", kind === "err");
   }
 
+  function setFieldError(el, msg) {
+    if (!el) return;
+    el.hidden = !msg;
+    el.textContent = msg || "";
+  }
+
   function donateUrl(code) {
     const u = new URL("donate.html", window.location.href);
     if (code) u.searchParams.set("code", code);
@@ -72,9 +87,7 @@
   }
 
   function referralCode() {
-    if (crypto.randomUUID) {
-      return crypto.randomUUID().replace(/-/g, "").slice(0, 10);
-    }
+    if (crypto.randomUUID) return crypto.randomUUID().replace(/-/g, "").slice(0, 10);
     return Math.random().toString(36).slice(2, 12);
   }
 
@@ -87,8 +100,37 @@
     if (m < 60) return `${m}m ago`;
     const h = Math.floor(m / 60);
     if (h < 24) return `${h}h ago`;
-    const d = Math.floor(h / 24);
-    return `${d}d ago`;
+    return `${Math.floor(h / 24)}d ago`;
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function readCache() {
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeCache(payload) {
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function setLoading(isLoading) {
+    if (els.skeleton) els.skeleton.hidden = !isLoading;
+    if (els.content) els.content.classList.toggle("is-loading", isLoading);
   }
 
   async function openQrDialog(employee) {
@@ -104,13 +146,19 @@
       const canvas = await window.PfQr.toCanvas(url, 220);
       els.qrHost.appendChild(canvas);
     } catch (err) {
-      els.qrHost.textContent = "Could not render QR.";
+      const img = document.createElement("img");
+      img.width = 220;
+      img.height = 220;
+      img.alt = `QR code for ${employee.first_name} ${employee.last_name}`;
+      img.src = window.PfQr.qrImageUrl(url, 220);
+      els.qrHost.appendChild(img);
       console.error(err);
     }
     els.qrDialog.showModal();
   }
 
   function renderEmployees(employees, donationStats) {
+    latestEmployees = employees;
     const body = els.employeesBody;
     body.innerHTML = "";
     if (!employees.length) {
@@ -123,6 +171,7 @@
       const stats = donationStats[emp.id] || { count: 0, raised: 0 };
       const owed = stats.raised * COMMISSION();
       const tr = document.createElement("tr");
+      tr.dataset.employeeId = emp.id;
       tr.innerHTML = `
         <td><strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong></td>
         <td>${escapeHtml(emp.phone)}</td>
@@ -206,43 +255,7 @@
     });
   }
 
-  function escapeHtml(s) {
-    return String(s ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
-  async function loadDashboard() {
-    const sb = window.SiteSupabase.getClient();
-    if (!sb) {
-      setBanner("Add your Supabase URL and anon key in js/config.js (see .env.example).", "err");
-      return;
-    }
-
-    setBanner("Loading…");
-
-    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
-    const [empRes, donRes, visitRes, don24Res] = await Promise.all([
-      sb.from("employees").select("*").order("created_at", { ascending: false }),
-      sb.from("donations").select("*").order("created_at", { ascending: false }).limit(200),
-      sb.from("visits").select("city,region,country,created_at").order("created_at", { ascending: false }).limit(1000),
-      sb.from("donations").select("id", { count: "exact", head: true }).gte("created_at", since24h),
-    ]);
-
-    if (empRes.error || donRes.error || visitRes.error) {
-      const err = empRes.error || donRes.error || visitRes.error;
-      setBanner(err.message || "Failed to load data.", "err");
-      console.error(empRes.error, donRes.error, visitRes.error);
-      return;
-    }
-
-    const employees = empRes.data || [];
-    const donations = donRes.data || [];
-    const visits = visitRes.data || [];
-
+  function applyDashboardData({ employees, donations, visits, donors24h }) {
     const donationStats = {};
     let raisedTotal = 0;
     donations.forEach((d) => {
@@ -252,11 +265,10 @@
       donationStats[d.employee_id].count += 1;
       donationStats[d.employee_id].raised += Number(d.amount) || 0;
     });
-
     const attributedRaised = Object.values(donationStats).reduce((s, x) => s + x.raised, 0);
 
     els.totalDonors.textContent = String(donations.length);
-    els.donors24h.textContent = String(don24Res.count ?? 0);
+    els.donors24h.textContent = String(donors24h ?? 0);
     els.totalDonated.textContent = money(raisedTotal);
     els.totalOwed.textContent = money(attributedRaised * COMMISSION());
     els.totalVisits.textContent = String(visits.length);
@@ -265,6 +277,64 @@
     renderEmployees(employees, donationStats);
     renderDonations(donations, employeeMap);
     renderGeo(visits);
+  }
+
+  async function loadDashboard(opts = {}) {
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) {
+      setBanner("Add your Supabase URL and anon key in js/config.js (see .env.example).", "err");
+      return;
+    }
+
+    const cached = readCache();
+    if (cached?.employees && !opts.skipCachePaint) {
+      applyDashboardData(cached);
+      setLoading(false);
+    } else {
+      setLoading(true);
+      setBanner("Loading…");
+    }
+
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    let empRes, donRes, visitRes, don24Res;
+    try {
+      const timed = Promise.race([
+        Promise.all([
+          sb.from("employees").select("*").order("created_at", { ascending: false }),
+          sb.from("donations").select("*").order("created_at", { ascending: false }).limit(200),
+          sb.from("visits").select("city,region,country,created_at").order("created_at", { ascending: false }).limit(1000),
+          sb.from("donations").select("id", { count: "exact", head: true }).gte("created_at", since24h),
+        ]),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timed out loading dashboard data.")), 12000)
+        ),
+      ]);
+      [empRes, donRes, visitRes, don24Res] = await timed;
+    } catch (err) {
+      setLoading(false);
+      setBanner(err.message || "Failed to load data.", "err");
+      console.error(err);
+      return;
+    }
+
+    if (empRes.error || donRes.error || visitRes.error) {
+      setLoading(false);
+      const err = empRes.error || donRes.error || visitRes.error;
+      setBanner(err.message || "Failed to load data. Sign in again if this persists.", "err");
+      console.error(empRes.error, donRes.error, visitRes.error);
+      return;
+    }
+
+    const payload = {
+      employees: empRes.data || [],
+      donations: donRes.data || [],
+      visits: visitRes.data || [],
+      donors24h: don24Res.count ?? 0,
+    };
+    writeCache(payload);
+    applyDashboardData(payload);
+    setLoading(false);
     setBanner("", null);
   }
 
@@ -276,6 +346,11 @@
       return;
     }
 
+    setFieldError(els.errFirst, "");
+    setFieldError(els.errLast, "");
+    setFieldError(els.errPhone, "");
+    setFieldError(els.errPayment, "");
+
     const fd = new FormData(els.employeeForm);
     const payload = {
       first_name: String(fd.get("first_name") || "").trim(),
@@ -285,10 +360,46 @@
       referral_code: referralCode(),
     };
 
-    if (!payload.first_name || !payload.last_name || !payload.phone || !payload.payment_type) {
-      setBanner("Fill in all employee fields.", "err");
-      return;
+    let bad = false;
+    if (!payload.first_name) {
+      setFieldError(els.errFirst, "Enter a first name.");
+      bad = true;
     }
+    if (!payload.last_name) {
+      setFieldError(els.errLast, "Enter a last name.");
+      bad = true;
+    }
+    if (!payload.phone) {
+      setFieldError(els.errPhone, "Enter a phone number.");
+      bad = true;
+    }
+    if (!payload.payment_type) {
+      setFieldError(els.errPayment, "Choose a payment type.");
+      bad = true;
+    }
+    if (bad) return;
+
+    const tempId = `temp-${Date.now()}`;
+    const optimistic = { ...payload, id: tempId, created_at: new Date().toISOString() };
+    const optimisticStats = {};
+    latestEmployees.forEach((emp) => {
+      optimisticStats[emp.id] = { count: 0, raised: 0 };
+    });
+    // Keep existing raised numbers by reloading from cache if present
+    const cached = readCache();
+    const donationStats = {};
+    (cached?.donations || []).forEach((d) => {
+      if (!d.employee_id) return;
+      if (!donationStats[d.employee_id]) donationStats[d.employee_id] = { count: 0, raised: 0 };
+      donationStats[d.employee_id].count += 1;
+      donationStats[d.employee_id].raised += Number(d.amount) || 0;
+    });
+    renderEmployees([optimistic, ...latestEmployees], donationStats);
+
+    els.employeeDialog.close();
+    els.employeeForm.reset();
+    window.UiSelect?.initAll(els.employeeForm);
+    setBanner(`Creating ${payload.first_name}…`);
 
     els.employeeSubmit.disabled = true;
     const { data, error } = await sb.from("employees").insert(payload).select("*").single();
@@ -296,31 +407,69 @@
 
     if (error) {
       setBanner(error.message || "Could not create employee.", "err");
+      await loadDashboard({ skipCachePaint: true });
       return;
     }
 
-    els.employeeDialog.close();
-    els.employeeForm.reset();
-    window.UiSelect?.initAll(els.employeeForm);
     setBanner(`Created ${data.first_name} ${data.last_name}.`, "ok");
-    await loadDashboard();
+    await loadDashboard({ skipCachePaint: true });
     await openQrDialog(data);
   }
 
-  function wireShell() {
-    els.menuBtn?.addEventListener("click", () => {
-      document.body.classList.toggle("sidebar-open");
-      if (els.overlay) els.overlay.hidden = !document.body.classList.contains("sidebar-open");
+  function wireCommandMenu() {
+    const commands = [
+      { id: "new", label: "New employee", run: () => els.btnNew?.click() },
+      { id: "employees", label: "Go to employees", run: () => (location.hash = "#employees") },
+      { id: "geo", label: "Go to geography", run: () => (location.hash = "#geography") },
+      { id: "donate", label: "Open donate page", run: () => window.open("donate.html", "_blank") },
+      { id: "refresh", label: "Refresh dashboard", run: () => loadDashboard({ skipCachePaint: true }) },
+      {
+        id: "signout",
+        label: "Sign out",
+        run: async () => {
+          await window.SiteSupabase.getClient()?.auth.signOut();
+          location.href = "login.html";
+        },
+      },
+    ];
+
+    function renderList(filter) {
+      const q = String(filter || "").toLowerCase();
+      els.commandList.innerHTML = "";
+      commands
+        .filter((c) => !q || c.label.toLowerCase().includes(q))
+        .forEach((c) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "command-item";
+          btn.textContent = c.label;
+          btn.addEventListener("click", () => {
+            els.commandDialog.close();
+            c.run();
+          });
+          els.commandList.appendChild(btn);
+        });
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        renderList("");
+        els.commandInput.value = "";
+        els.commandDialog.showModal();
+        els.commandInput.focus();
+      }
     });
-    els.overlay?.addEventListener("click", () => {
-      document.body.classList.remove("sidebar-open");
-      els.overlay.hidden = true;
-    });
+    els.commandInput?.addEventListener("input", () => renderList(els.commandInput.value));
   }
 
   function wireDialogs() {
     els.btnNew?.addEventListener("click", () => {
       els.employeeForm.reset();
+      setFieldError(els.errFirst, "");
+      setFieldError(els.errLast, "");
+      setFieldError(els.errPhone, "");
+      setFieldError(els.errPayment, "");
       window.UiSelect?.initAll(els.employeeForm);
       els.employeeDialog.showModal();
     });
@@ -345,12 +494,25 @@
         setBanner("Could not download QR.", "err");
       }
     });
+
+    document.getElementById("btn-sign-out")?.addEventListener("click", async () => {
+      await window.SiteSupabase.getClient()?.auth.signOut();
+      location.href = "login.html";
+    });
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    wireShell();
+  document.addEventListener("DOMContentLoaded", async () => {
+    window.PfShell?.renderShell("overview");
     wireDialogs();
+    wireCommandMenu();
     window.UiSelect?.initAll();
-    loadDashboard();
+
+    const gate = await window.SiteSupabase.requireAdminSession();
+    if (!gate.ok) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    await loadDashboard();
   });
 })();

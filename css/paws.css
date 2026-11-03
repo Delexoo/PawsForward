@@ -1,0 +1,754 @@
+/* PawsForward layout — spacious, centered, modern on top of shared dashboard CSS. */
+
+:root {
+  --pf-page-max: 1120px;
+  --pf-section-gap: 28px;
+  --pf-card-pad: 28px;
+  --pf-soft-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+/* ---- Page shell / centering ---- */
+body[data-page="admin"] #page-body.dashboard-redesign.owner-console-page,
+body[data-page="donate"] #page-body,
+body[data-page="privacy"] #page-body,
+body[data-page="terms"] #page-body,
+body[data-page="login"] #page-body,
+.main > #page-body.dashboard-redesign.owner-console-page,
+.main > #page-body {
+  width: 100%;
+  max-width: var(--pf-page-max);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.main {
+  padding: 40px 36px 120px !important;
+  align-items: center !important;
+}
+
+body[data-page="admin"] .main > #page-body,
+body[data-page="donate"] .main > #page-body,
+body[data-page="privacy"] .main > #page-body,
+body[data-page="terms"] .main > #page-body,
+body[data-page="login"] .main > #page-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--pf-section-gap);
+  padding-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .main {
+    padding: 28px 18px 96px !important;
+  }
+
+  :root {
+    --pf-section-gap: 20px;
+    --pf-card-pad: 20px;
+  }
+}
+
+/* ---- Sidebar ---- */
+.sidebar-foot {
+  margin-top: auto;
+  padding: 20px 10px 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.sidebar-panel .nav-list-standalone {
+  padding: 8px !important;
+}
+
+.sidebar-panel .nav-link {
+  padding: 11px 12px !important;
+  border-radius: 12px !important;
+  gap: 12px !important;
+}
+
+body[data-page="donate"] .brand-mark,
+body[data-page="admin"] .brand-mark,
+body[data-page="privacy"] .brand-mark,
+body[data-page="terms"] .brand-mark,
+body[data-page="login"] .brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #0f172a;
+  background: #fff;
+  border: 1px solid var(--border);
+}
+
+/* ---- Hero ---- */
+.dashboard-redesign.owner-console-page .pf-page-hero,
+.pf-page-hero {
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.pf-page-hero-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.pf-page-hero-row > div:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.pf-page-hero-row .page-label {
+  display: inline-flex;
+  margin: 0 auto 10px;
+}
+
+.pf-page-hero-row h1,
+.pf-page-hero h1,
+.legal-page > h1 {
+  margin: 0;
+  text-align: center;
+  letter-spacing: -0.045em;
+}
+
+.pf-page-hero-row .lead,
+.pf-page-hero .lead,
+.legal-page > .lead {
+  margin: 10px auto 0;
+  max-width: 40rem;
+  text-align: center;
+  line-height: 1.55;
+}
+
+.pf-page-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* ---- Cards / sections ---- */
+body[data-page="admin"] .dash-work-panels-card,
+body[data-page="admin"] .dash-goal-tracker-card,
+body[data-page="donate"] .dash-work-panels-card,
+body[data-page="login"] .dash-work-panels-card {
+  padding: var(--pf-card-pad) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--pf-soft-shadow) !important;
+}
+
+body[data-page="admin"] .owner-console-team-overview,
+body[data-page="admin"] .owner-console-inbox,
+body[data-page="admin"] .owner-console-team,
+body[data-page="admin"] #employees,
+body[data-page="admin"] #geography,
+body[data-page="admin"] #visits {
+  margin: 0;
+}
+
+body[data-page="admin"] .owner-console-layout {
+  gap: 24px !important;
+  padding-top: 0 !important;
+}
+
+body[data-page="admin"] .owner-console-team-totals {
+  gap: 12px !important;
+  margin: 0 0 20px !important;
+}
+
+body[data-page="admin"] .owner-console-team-total {
+  padding: 16px 16px !important;
+  border-radius: 14px !important;
+}
+
+body[data-page="admin"] .owner-console-team-table thead th,
+body[data-page="admin"] .owner-console-team-table tbody td,
+body[data-page="admin"] .owner-console-team-table tbody th {
+  padding: 12px 14px !important;
+}
+
+body[data-page="admin"] .owner-console-inbox-search-wrap,
+body[data-page="admin"] .owner-console-export-bar {
+  margin-bottom: 14px;
+}
+
+body[data-page="admin"] .owner-console-inbox-search {
+  min-height: 46px;
+  padding: 12px 14px;
+}
+
+body[data-page="admin"] .dash-sales-history-head,
+body[data-page="admin"] .owner-console-inbox-head,
+body[data-page="admin"] .owner-console-team-head,
+body[data-page="admin"] .owner-console-team-overview-head {
+  margin-bottom: 16px !important;
+  gap: 14px !important;
+}
+
+.status-banner {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.status-banner.is-ok {
+  color: var(--green);
+  background: var(--green-bg);
+  border-color: color-mix(in srgb, var(--green) 28%, var(--border));
+}
+
+.status-banner.is-err {
+  color: var(--red, #dc2626);
+  background: var(--red-soft, #fef2f2);
+  border-color: color-mix(in srgb, var(--red, #dc2626) 28%, var(--border));
+}
+
+.pf-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-section-gap);
+}
+
+.pf-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 860px) {
+  .pf-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pf-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.pf-section-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.list-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list-feed li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.feed-meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.feed-amount {
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--green);
+  white-space: nowrap;
+}
+
+.geo-bar-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 2fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.geo-bar-row > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.geo-bar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.geo-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 70%, #18e07f), #18e07f);
+}
+
+.geo-count {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-sm {
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+}
+
+.money {
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.pf-dialog.site-leave-dialog {
+  width: min(480px, calc(100vw - 32px));
+}
+
+.pf-dialog.site-leave-dialog--wide {
+  width: min(540px, calc(100vw - 32px));
+}
+
+.pf-dialog .site-leave-dialog-panel {
+  padding: 22px !important;
+}
+
+.pf-dialog .field {
+  margin-bottom: 14px;
+}
+
+.pf-dialog .field label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pf-dialog .field input,
+.pf-dialog .field select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 46px;
+  padding: 10px 12px;
+}
+
+.qr-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin: 12px 0 18px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-2);
+}
+
+.qr-box canvas {
+  display: block;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.qr-link {
+  margin: 0;
+  max-width: 100%;
+  word-break: break-all;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pf-overview-row.is-selected {
+  background: color-mix(in srgb, var(--accent-soft, #eef2ff) 55%, var(--surface));
+}
+
+.pf-linkish {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.pf-linkish:hover {
+  color: var(--accent-blue);
+  text-decoration: underline;
+}
+
+.pf-donation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+  border-radius: 12px;
+  background: var(--surface);
+  margin-bottom: 10px;
+}
+
+.pf-donation-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pf-employee-meta {
+  margin: 16px 0;
+}
+
+.pf-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+
+.pf-meta-grid dt {
+  margin: 0 0 4px;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pf-meta-grid dd {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.pf-meta-link {
+  font-family: var(--mono);
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  color: var(--muted);
+}
+
+.pf-employee-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.pf-mini-donation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: var(--surface);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.78em;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- Donate / login cards ---- */
+body[data-page="donate"] #page-body,
+body[data-page="login"] #page-body {
+  max-width: 580px;
+  min-height: min(70vh, 760px);
+  justify-content: center;
+}
+
+body[data-page="donate"] .donate-card,
+body[data-page="login"] .donate-card {
+  width: 100%;
+  padding: 36px 32px !important;
+}
+
+body[data-page="donate"] .field,
+body[data-page="login"] .field {
+  margin-bottom: 18px;
+}
+
+body[data-page="donate"] .field label,
+body[data-page="login"] .field label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+body[data-page="donate"] .field input,
+body[data-page="login"] .field input {
+  min-height: 48px;
+  padding: 12px 14px;
+}
+
+.donate-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 26px;
+  text-align: left;
+}
+
+.donate-brand h1 {
+  margin: 0;
+  font-size: 1.55rem;
+  letter-spacing: -0.04em;
+}
+
+.donate-hero-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.pf-fact,
+.pf-byline {
+  text-align: center;
+  line-height: 1.55;
+}
+
+.pf-fact {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.pf-byline {
+  margin: 0 0 20px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.amount-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 20px;
+}
+
+body[data-page="donate"] .amount-pills .pill {
+  padding: 10px 16px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+body[data-page="donate"] .amount-pills .pill.active {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-fg);
+  border-color: var(--btn-primary-border);
+}
+
+.money-wrap {
+  position: relative;
+}
+
+.money-wrap .money-symbol {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.money-wrap input {
+  padding-left: 30px;
+  min-height: 48px;
+}
+
+.success-panel {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.success-panel h2 {
+  margin: 0 0 10px;
+  font-size: 1.45rem;
+  letter-spacing: -0.04em;
+}
+
+.field-hint {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.field-error {
+  margin: 6px 0 0;
+  color: var(--red, #dc2626);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.consent-banner {
+  margin: 0 0 18px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.consent-banner p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pf-faq {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+
+.pf-faq h2 {
+  margin: 0 0 14px;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+.pf-faq h3 {
+  margin: 16px 0 6px;
+  font-size: 0.95rem;
+}
+
+.pf-faq p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.donate-legal {
+  margin: 24px 0 0;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* ---- Legal pages ---- */
+.legal-page {
+  max-width: 720px;
+  margin-inline: auto;
+  padding: 8px 0 40px;
+  text-align: left;
+}
+
+.legal-page > .page-label {
+  display: flex;
+  width: fit-content;
+  margin: 0 auto 12px;
+}
+
+.legal-page > h1,
+.legal-page > .lead {
+  text-align: center;
+}
+
+.legal-page h2 {
+  margin: 28px 0 10px;
+  font-size: 1.1rem;
+}
+
+.legal-page p,
+.legal-page li {
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.legal-page ul {
+  padding-left: 1.2rem;
+}
+
+@media (max-width: 720px) {
+  .pf-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-section-head {
+    flex-direction: column;
+  }
+}

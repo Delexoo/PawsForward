@@ -4,20 +4,56 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Donate to PawsForward — every dollar helps dogs get food, water, and shelter. Give through an employee QR link or donate generally.">
+  <link rel="canonical" href="https://delexoo.github.io/PawsForward/donate.html">
+  <meta property="og:title" content="Donate · PawsForward">
+  <meta property="og:description" content="Every dollar helps dogs get food, water, and shelter.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://delexoo.github.io/PawsForward/donate.html">
+  <meta property="og:image" content="https://delexoo.github.io/PawsForward/doc/brand-mark.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Donate · PawsForward">
+  <meta name="twitter:description" content="Every dollar helps dogs get food, water, and shelter.">
   <title>Donate · PawsForward</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="doc/brand-mark.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/fonts.css">
+  <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/site.css">
+  <link rel="stylesheet" href="css/paws.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "NGO",
+    "name": "PawsForward",
+    "url": "https://delexoo.github.io/PawsForward/donate.html",
+    "email": "hello@pawsforward.org",
+    "description": "Organization dedicated to dogs in need of food, water, and shelter. People can donate any amount — every dollar helps.",
+    "areaServed": "Worldwide"
+  }
+  </script>
 </head>
-<body data-page="donate">
-  <div class="donate-shell">
-    <div class="donate-card" id="donate-card">
+<body data-page="donate" class="site-unlocked">
+  <div id="shell"></div>
+  <div id="page-body">
+    <div class="dash-work-panels-card donate-card" id="donate-card">
       <div class="donate-brand">
-        <span class="brand-mark" aria-hidden="true">PF</span>
+        <img class="donate-hero-img" src="doc/brand-mark.png" width="56" height="56" alt="PawsForward brand mark">
         <div>
           <h1>PawsForward</h1>
           <p class="muted" style="margin:4px 0 0;font-size:13px;">Food, water, and shelter for dogs in need</p>
+        </div>
+      </div>
+
+      <p class="pf-fact">PawsForward is a dog-rescue fundraising org: 100% of demo-tracked gifts are meant for food, water, and shelter, and employee QR fundraisers earn 25% of donations attributed to their code.</p>
+      <p class="pf-byline">Operated by <strong>PawsForward</strong> · <a href="mailto:hello@pawsforward.org">hello@pawsforward.org</a></p>
+
+      <div id="consent-banner" class="consent-banner" hidden>
+        <p>We can log this visit and an approximate location (city/region) to see which places support dogs the most. Refuse anytime — you can still donate.</p>
+        <div class="btn-row">
+          <button type="button" class="btn" id="consent-accept">Accept analytics</button>
+          <button type="button" class="btn secondary" id="consent-refuse">Refuse</button>
         </div>
       </div>
 
@@ -36,17 +72,19 @@
           <button type="button" class="pill" data-amount="100">$100</button>
         </div>
 
-        <form id="donate-form">
+        <form id="donate-form" novalidate>
           <div class="field">
             <label for="donate-amount">Amount</label>
             <div class="money-wrap">
               <span class="money-symbol">$</span>
-              <input id="donate-amount" name="amount" type="number" min="1" step="0.01" value="10" required inputmode="decimal">
+              <input id="donate-amount" name="amount" type="number" min="1" step="0.01" value="10" required inputmode="decimal" aria-describedby="err-amount">
             </div>
+            <p class="field-error" id="err-amount" hidden></p>
           </div>
           <div class="field">
             <label for="donate-name">Your name <span class="muted">(optional)</span></label>
-            <input id="donate-name" name="donor_label" type="text" maxlength="80" placeholder="Anonymous friend">
+            <input id="donate-name" name="donor_label" type="text" maxlength="80" placeholder="Anonymous friend" aria-describedby="err-name">
+            <p class="field-error" id="err-name" hidden></p>
           </div>
           <button type="submit" class="btn" id="donate-submit" style="width:100%;">Donate</button>
           <p class="field-hint">Demo checkout — donations are recorded for tracking. Card processing comes later.</p>
@@ -58,12 +96,31 @@
         <p class="lead" id="donate-success-msg">Your gift helps dogs get food, water, and shelter.</p>
         <button type="button" class="btn" id="donate-again">Donate again</button>
       </div>
+
+      <section class="pf-faq" aria-labelledby="faq-heading">
+        <h2 id="faq-heading">Questions</h2>
+        <h3>Where does my donation go?</h3>
+        <p>Toward food, water, and shelter for dogs in need. Demo donations are recorded for tracking until card processing is connected.</p>
+        <h3>What is an employee QR code?</h3>
+        <p>Fundraisers share a unique link. Gifts through that link count toward their 25% attributed payout.</p>
+        <h3>How do I delete my data?</h3>
+        <p>Use the form on our <a href="privacy.html">privacy policy</a> or email <a href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a>.</p>
+      </section>
+
+      <p class="donate-legal muted"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="mailto:hello@pawsforward.org">Contact</a></p>
     </div>
   </div>
 
-  <script src="js/config.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="js/supabase-client.js" defer></script>
-  <script src="js/donate.js" defer></script>
+  <script src="js/config.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/shell.js"></script>
+  <script src="js/vendor/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/donate.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      window.PfShell && window.PfShell.renderShell("donate");
+    });
+  </script>
 </body>
 </html>

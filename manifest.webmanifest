@@ -1,0 +1,23 @@
+{
+  "name": "PawsForward",
+  "short_name": "PawsForward",
+  "description": "Donations, employee QR codes, and visit analytics for dogs in need.",
+  "start_url": "./donate.html",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "icons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "doc/brand-mark.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

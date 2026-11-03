@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Privacy policy for PawsForward: what we collect from donations, visits, and employee profiles, and how to request deletion.">
+  <link rel="canonical" href="https://delexoo.github.io/PawsForward/privacy.html">
+  <meta property="og:title" content="Privacy · PawsForward">
+  <meta property="og:description" content="What PawsForward collects, why, and how to request deletion.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Privacy · PawsForward">
+  <title>Privacy · PawsForward</title>
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="doc/brand-mark.png">
+  <link rel="stylesheet" href="css/fonts.css">
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/site.css">
+  <link rel="stylesheet" href="css/paws.css">
+</head>
+<body data-page="privacy" class="site-unlocked">
+  <div id="shell"></div>
+  <div id="page-body" class="legal-page">
+    <span class="page-label">PawsForward</span>
+    <h1>Privacy policy</h1>
+    <p class="lead">PawsForward is a dog-rescue fundraising tool. This policy explains what we collect on the donate page and admin dashboard.</p>
+
+    <h2>Who we are</h2>
+    <p>PawsForward operates this site to raise funds for dogs that need food, water, and shelter, and to track employee QR fundraising. Contact: <a href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a>.</p>
+
+    <h2>What we collect</h2>
+    <ul>
+      <li><strong>Donations (demo).</strong> Amount, optional donor name, employee referral code, and time.</li>
+      <li><strong>Visits (with consent).</strong> Page path, approximate city/region/country from an IP lookup, referral code, and time.</li>
+      <li><strong>Employees (admin).</strong> First name, last name, phone, preferred payment type, and referral code.</li>
+      <li><strong>Deletion requests.</strong> Email and optional details you send through this page.</li>
+      <li><strong>Admin accounts.</strong> Email used to sign in to the dashboard.</li>
+    </ul>
+
+    <h2>Why and who receives it</h2>
+    <p>We use this data to record gifts, attribute fundraising to employees (25% of attributed donations for payouts), improve location support insights, and run the organization. Data is stored in Supabase (hosted Postgres). Approximate location uses ipapi.co when visit analytics are accepted.</p>
+
+    <h2>Cookies and analytics</h2>
+    <p>Essential theme preference may be stored locally. Visit and geo analytics run only after you accept on the donate page. You can refuse; donations still work.</p>
+
+    <h2>Delete your personal data</h2>
+    <p>Email <a href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a> or submit a request below. We will delete or anonymize personal records we hold about you where we can identify them.</p>
+
+    <form id="deletion-form" class="dash-work-panels-card" style="padding:16px;margin:18px 0">
+      <h2 style="margin-top:0;font-size:1.05rem">Request deletion</h2>
+      <div class="field">
+        <label for="del-email">Your email</label>
+        <input id="del-email" name="email" type="email" required autocomplete="email">
+        <p class="field-error" id="err-del-email" hidden></p>
+      </div>
+      <div class="field">
+        <label for="del-details">What should we delete? <span class="muted">(optional)</span></label>
+        <textarea id="del-details" name="details" rows="3" maxlength="1000" placeholder="Donor name used, approximate date, employee code…"></textarea>
+      </div>
+      <button type="submit" class="btn" id="del-submit">Submit request</button>
+      <div id="del-status" class="status-banner" hidden style="margin-top:12px"></div>
+    </form>
+
+    <h2>Breach notice</h2>
+    <p>If personal data is breached, we will notify affected people using the contact details we have and document the incident per <a href="docs/breach-plan.md">our breach plan</a>.</p>
+
+    <p class="muted"><a href="donate.html">Donate</a> · <a href="terms.html">Terms</a> · <a href="admin.html">Admin</a></p>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/shell.js"></script>
+  <script src="js/vendor/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/privacy.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      window.PfShell && window.PfShell.renderShell("privacy");
+    });
+  </script>
+</body>
+</html>

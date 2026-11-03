@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /donate.html
+Allow: /privacy.html
+Allow: /terms.html
+Allow: /index.html
+Disallow: /admin.html
+Disallow: /login.html
+Disallow: /js/
+Disallow: /supabase/
+
+Sitemap: https://delexoo.github.io/PawsForward/sitemap.xml
