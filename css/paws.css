@@ -1492,14 +1492,28 @@ h1,
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
-  margin: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 640px;
+  justify-content: center;
 }
 
 .pf-stat {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   margin: 0;
-  padding: 8px 10px;
-  border-radius: 10px;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 12px;
   background: var(--surface-2, #f8fafc);
+  color: #0f172a;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
   outline: none;
   transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 }
@@ -1510,18 +1524,23 @@ h1,
   box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
 }
 
-.pf-stat dt {
-  margin: 0 0 2px;
-  font-size: 10px;
-  font-weight: 650;
-  color: var(--muted, #64748b);
+.pf-stat:active {
+  transform: scale(0.98);
 }
 
-.pf-stat dd {
+.pf-stat-label {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 650;
+  color: #64748b;
+}
+
+.pf-stat-value {
   margin: 0;
   font-size: 0.95rem;
   font-weight: 750;
   letter-spacing: -0.02em;
+  color: #0f172a;
 }
 
 .pf-admin-grid {
@@ -1865,14 +1884,6 @@ button.pf-stat-chip--link:focus-visible {
   outline: none;
 }
 
-.pf-emp-detail-phone {
-  margin: 4px 0 0;
-  font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: #0f172a;
-}
-
 .pf-mini-subheading {
   margin: 12px 0 6px;
   font-size: 0.64rem;
@@ -1936,70 +1947,171 @@ button.pf-stat-chip--link:focus-visible {
   white-space: nowrap;
 }
 
+.pf-emp-detail {
+  text-align: center;
+}
+
 .pf-emp-detail-head {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  margin: 0 0 12px;
+  gap: 10px;
+  margin: 0 0 16px;
+  text-align: center;
 }
 
 .pf-emp-detail-copy {
   min-width: 0;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
 }
 
 .pf-emp-detail-copy .site-leave-dialog-title {
-  margin-bottom: 2px;
+  margin: 0;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.pf-emp-detail-phone {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: #0f172a;
+}
+
+.pf-emp-detail-code {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
 }
 
 .pf-avatar--lg {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
 }
 
 .pf-emp-detail-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  margin: 0 0 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 auto 16px;
+  max-width: 420px;
 }
 
-.pf-emp-detail-stats > div {
+.pf-emp-stat {
   margin: 0;
-  padding: 8px;
-  border-radius: 10px;
+  padding: 12px 8px;
+  border-radius: 14px;
   background: #f8fafc;
-  border: 1px solid var(--border, #e2e8f0);
-  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  border: 0;
+  text-align: center;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
-.pf-emp-detail-stats > div:hover {
+.pf-emp-stat:hover {
+  background: #f1f5f9;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
 }
 
-.pf-emp-detail-stats dt {
-  margin: 0 0 2px;
-  font-size: 10px;
-  font-weight: 650;
-  color: var(--muted, #64748b);
-}
-
-.pf-emp-detail-stats dd {
-  margin: 0;
-  font-size: 0.86rem;
+.pf-emp-stat-label {
+  display: block;
+  margin: 0 0 4px;
+  font-size: 9px;
   font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.pf-emp-stat-value {
+  display: block;
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: #0f172a !important;
   word-break: break-word;
 }
 
 .pf-emp-detail-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 6px;
-  margin: 0 0 14px;
+  margin: 0 auto 16px;
+  max-width: 420px;
 }
 
-.pf-emp-detail-actions .btn-sm {
+.pf-emp-detail-foot {
+  justify-content: center !important;
+}
+
+.pf-chip-btn {
+  appearance: none;
+  border: 0;
+  background: #f1f5f9;
+  color: #0f172a;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
   min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    transform 0.14s ease,
+    box-shadow 0.16s ease,
+    color 0.16s ease;
+}
+
+.pf-chip-btn:hover {
+  background: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.pf-chip-btn:active {
+  transform: scale(0.97);
+}
+
+.pf-chip-btn--danger {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.pf-chip-btn--danger:hover {
+  background: #fee2e2;
+}
+
+.pf-donation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.pf-info-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.pf-info-list li {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  text-align: left;
 }
 
 .pf-emp-menu {
@@ -2147,10 +2259,6 @@ button.pf-stat-chip--link:focus-visible {
     padding: 8px;
   }
 
-  .pf-stat dd {
-    font-size: 0.9rem;
-  }
-
   .pf-admin-grid {
     grid-template-columns: 1fr;
     gap: 10px;
@@ -2189,6 +2297,15 @@ button.pf-stat-chip--link:focus-visible {
 
   .pf-emp-detail-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: none;
+  }
+
+  .pf-stat-strip {
+    max-width: none;
+  }
+
+  .pf-stat-value {
+    font-size: 0.88rem;
   }
 
   .pf-donation-details > div {
@@ -2219,7 +2336,8 @@ button.pf-stat-chip--link:focus-visible {
   .pf-donation-row,
   .pf-employee-row,
   .pf-stat-chip,
-  .pf-emp-detail-stats > div {
+  .pf-emp-stat,
+  .pf-chip-btn {
     animation: none !important;
     transition: none !important;
     transform: none !important;

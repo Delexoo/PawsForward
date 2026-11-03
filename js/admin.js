@@ -68,9 +68,25 @@
     detailRaised: document.getElementById("detail-raised"),
     detailOwed: document.getElementById("detail-owed"),
     detailPayout: document.getElementById("detail-payout"),
-    detailCode: document.getElementById("detail-code"),
     detailClose: document.getElementById("employee-detail-close"),
     detailAvatarFile: document.getElementById("detail-avatar-file"),
+    statsGrid: document.getElementById("stats-grid"),
+    statInfoDialog: document.getElementById("stat-info-dialog"),
+    statInfoTitle: document.getElementById("stat-info-title"),
+    statInfoLead: document.getElementById("stat-info-lead"),
+    statInfoList: document.getElementById("stat-info-list"),
+    statInfoClose: document.getElementById("stat-info-close"),
+    donationDialog: document.getElementById("donation-dialog"),
+    donationForm: document.getElementById("donation-form"),
+    donationTitle: document.getElementById("donation-dialog-title"),
+    donationLead: document.getElementById("donation-dialog-lead"),
+    donationCancel: document.getElementById("donation-cancel"),
+    donationSubmit: document.getElementById("donation-submit"),
+    donId: document.getElementById("don-id"),
+    donAmount: document.getElementById("don-amount"),
+    donDonor: document.getElementById("don-donor"),
+    donEmployee: document.getElementById("don-employee"),
+    errDonAmount: document.getElementById("err-don-amount"),
   };
 
   const DEFAULT_AVATAR = "doc/default-avatar.jpg";
@@ -78,9 +94,20 @@
 
   let currentQr = { url: "", name: "" };
   let latestEmployees = [];
+  let latestDonations = [];
+  let latestVisits = [];
   let latestVisitStats = {};
   let latestDonationStats = {};
+  let latestSnapshot = {
+    donors: 0,
+    donors24h: 0,
+    raised: 0,
+    attributedRaised: 0,
+    owed: 0,
+    visits: 0,
+  };
   let detailEmployee = null;
+  let editingDonationId = null;
   let editingEmployeeId = null;
   let pendingAvatarFile = null;
   let pendingAvatarReset = false;
@@ -536,17 +563,14 @@
       };
     }
     if (els.detailTitle) els.detailTitle.textContent = `${emp.first_name} ${emp.last_name}`.trim();
-    if (els.detailLead) {
-      els.detailLead.textContent = emp.referral_code
-        ? `Code ${emp.referral_code}`
-        : "No referral code";
-    }
     if (els.detailPhone) els.detailPhone.textContent = emp.phone || "No phone on file";
+    if (els.detailLead) {
+      els.detailLead.textContent = emp.referral_code || "No referral code";
+    }
     if (els.detailVisits) els.detailVisits.textContent = String(visits.count || 0);
     if (els.detailRaised) els.detailRaised.textContent = money(stats.raised);
     if (els.detailOwed) els.detailOwed.textContent = money(owed);
     if (els.detailPayout) els.detailPayout.textContent = payout;
-    if (els.detailCode) els.detailCode.textContent = emp.referral_code || "—";
   }
 
   function openEmployeeDetail(emp) {
@@ -648,6 +672,7 @@
       const channel = emp || d.referral_code ? "Employee QR" : "Direct";
       const li = document.createElement("li");
       li.className = "pf-donation-row";
+      li.dataset.donationId = d.id;
       li.innerHTML = `
         <div class="pf-donation-top">
           <strong>${escapeHtml(donor)}</strong>
@@ -660,9 +685,211 @@
           <div><dt>Where</dt><dd>${escapeHtml(place || "Location unknown")}</dd></div>
           ${d.referral_code ? `<div><dt>Code</dt><dd><code>${escapeHtml(d.referral_code)}</code></dd></div>` : ""}
         </dl>
+        <div class="pf-donation-actions">
+          <button type="button" class="pf-chip-btn" data-don-action="edit">Edit</button>
+          <button type="button" class="pf-chip-btn pf-chip-btn--danger" data-don-action="delete">Delete</button>
+        </div>
       `;
+      li.querySelector('[data-don-action="edit"]')?.addEventListener("click", () => openEditDonation(d));
+      li.querySelector('[data-don-action="delete"]')?.addEventListener("click", () => deleteDonation(d));
       feed.appendChild(li);
     });
+  }
+
+  function fillDonationEmployeeOptions(selectedId) {
+    if (!els.donEmployee) return;
+    const current = selectedId || "";
+    els.donEmployee.innerHTML = `<option value="">General (no employee)</option>`;
+    latestEmployees.forEach((emp) => {
+      const opt = document.createElement("option");
+      opt.value = emp.id;
+      opt.textContent = `${emp.first_name} ${emp.last_name}`.trim();
+      if (emp.id === current) opt.selected = true;
+      els.donEmployee.appendChild(opt);
+    });
+  }
+
+  function openEditDonation(donation) {
+    if (!els.donationDialog || !donation) return;
+    editingDonationId = donation.id;
+    if (els.donationTitle) els.donationTitle.textContent = "Edit donation";
+    if (els.donationLead) els.donationLead.textContent = "Update amount, donor label, or attribution.";
+    if (els.donId) els.donId.value = donation.id;
+    if (els.donAmount) els.donAmount.value = Number(donation.amount) || "";
+    if (els.donDonor) els.donDonor.value = donation.donor_label || "";
+    if (els.errDonAmount) {
+      els.errDonAmount.hidden = true;
+      els.errDonAmount.textContent = "";
+    }
+    fillDonationEmployeeOptions(donation.employee_id || "");
+    window.UiSelect?.enhance?.(els.donEmployee?.closest?.("[data-ui-select]"));
+    els.donationDialog.showModal();
+    els.donAmount?.focus();
+  }
+
+  async function saveDonation(event) {
+    event.preventDefault();
+    const id = editingDonationId || els.donId?.value;
+    if (!id) return;
+    const amount = Number(els.donAmount?.value);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      if (els.errDonAmount) {
+        els.errDonAmount.hidden = false;
+        els.errDonAmount.textContent = "Enter an amount greater than 0.";
+      }
+      return;
+    }
+    const employeeId = String(els.donEmployee?.value || "").trim() || null;
+    const emp = employeeId ? latestEmployees.find((e) => e.id === employeeId) : null;
+    const donorLabel = String(els.donDonor?.value || "").trim() || null;
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) {
+      setBanner("Supabase is not configured.", "err");
+      return;
+    }
+    if (els.donationSubmit) els.donationSubmit.disabled = true;
+    setBanner("Saving donation…");
+    try {
+      const { error } = await sb
+        .from("donations")
+        .update({
+          amount,
+          donor_label: donorLabel,
+          employee_id: employeeId,
+          referral_code: emp?.referral_code || null,
+        })
+        .eq("id", id);
+      if (error) throw error;
+      els.donationDialog?.close();
+      editingDonationId = null;
+      setBanner("Donation updated.", "ok");
+      await loadDashboard({ skipCachePaint: true });
+    } catch (err) {
+      console.error(err);
+      setBanner(err.message || "Could not update donation.", "err");
+    } finally {
+      if (els.donationSubmit) els.donationSubmit.disabled = false;
+    }
+  }
+
+  async function deleteDonation(donation) {
+    if (!donation?.id) return;
+    const label = donation.donor_label || "Anonymous";
+    const ok = await askConfirm({
+      title: `Delete ${money(donation.amount)} gift?`,
+      lead: `Remove the donation from ${label}. This cannot be undone.`,
+      confirmLabel: "Delete donation",
+    });
+    if (!ok) return;
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) {
+      setBanner("Supabase is not configured.", "err");
+      return;
+    }
+    setBanner("Deleting donation…");
+    try {
+      const { error } = await sb.from("donations").delete().eq("id", donation.id);
+      if (error) throw error;
+      setBanner("Donation deleted.", "ok");
+      await loadDashboard({ skipCachePaint: true });
+    } catch (err) {
+      console.error(err);
+      setBanner(err.message || "Could not delete donation.", "err");
+    }
+  }
+
+  function topPlaces(visits, limit = 5) {
+    const counts = new Map();
+    visits.forEach((v) => {
+      const key = formatPlace(v) || "Unknown";
+      counts.set(key, (counts.get(key) || 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit);
+  }
+
+  function openStatInfo(key) {
+    if (!els.statInfoDialog) return;
+    const rate = Math.round(COMMISSION() * 100);
+    const attributedCount = latestDonations.filter((d) => d.employee_id).length;
+    const generalCount = latestDonations.length - attributedCount;
+    const recent = [...latestDonations]
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, 5);
+    const places = topPlaces(latestVisits, 5);
+
+    const configs = {
+      donors: {
+        title: "Donors",
+        lead: "Total gift records currently loaded in Donations.",
+        items: [
+          `${latestSnapshot.donors} donation${latestSnapshot.donors === 1 ? "" : "s"} total`,
+          `${attributedCount} attributed to an employee`,
+          `${generalCount} general / unattributed`,
+          ...recent.map(
+            (d) =>
+              `${money(d.amount)} · ${d.donor_label || "Anonymous"} · ${relativeTime(d.created_at)}`
+          ),
+        ],
+      },
+      donors24h: {
+        title: "Last 24 hours",
+        lead: "Gifts recorded in the past 24 hours.",
+        items: [
+          `${latestSnapshot.donors24h} donation${latestSnapshot.donors24h === 1 ? "" : "s"} in the last 24h`,
+          `Org total still ${latestSnapshot.donors}`,
+          ...recent
+            .filter((d) => Date.now() - new Date(d.created_at).getTime() <= 24 * 60 * 60 * 1000)
+            .map((d) => `${money(d.amount)} · ${d.donor_label || "Anonymous"}`),
+        ],
+      },
+      raised: {
+        title: "Raised",
+        lead: "Sum of all donation amounts in the feed.",
+        items: [
+          `${money(latestSnapshot.raised)} total raised`,
+          `${money(latestSnapshot.attributedRaised)} attributed to employees`,
+          `${money(latestSnapshot.raised - latestSnapshot.attributedRaised)} general / unattributed`,
+          `${latestSnapshot.donors} gifts counted`,
+        ],
+      },
+      owed: {
+        title: "Owed",
+        lead: `Employee commission on attributed gifts (${rate}%).`,
+        items: [
+          `${money(latestSnapshot.owed)} currently owed`,
+          `Based on ${money(latestSnapshot.attributedRaised)} attributed raised`,
+          `Commission rate ${rate}%`,
+          "General gifts do not create employee owed balance",
+        ],
+      },
+      visits: {
+        title: "Visits",
+        lead: "QR / donate page visits with location data when available.",
+        items: [
+          `${latestSnapshot.visits} visit${latestSnapshot.visits === 1 ? "" : "s"} recorded`,
+          ...places.map(([place, count]) => `${place} · ${count}`),
+        ],
+      },
+    };
+
+    const cfg = configs[key] || {
+      title: "Activity",
+      lead: "Organization snapshot.",
+      items: [],
+    };
+    if (els.statInfoTitle) els.statInfoTitle.textContent = cfg.title;
+    if (els.statInfoLead) els.statInfoLead.textContent = cfg.lead;
+    if (els.statInfoList) {
+      els.statInfoList.innerHTML = "";
+      cfg.items.forEach((line) => {
+        const li = document.createElement("li");
+        li.textContent = line;
+        els.statInfoList.appendChild(li);
+      });
+    }
+    els.statInfoDialog.showModal();
   }
 
   function renderGeo(visits) {
@@ -746,11 +973,24 @@
       donationStats[d.employee_id].raised += Number(d.amount) || 0;
     });
     const attributedRaised = Object.values(donationStats).reduce((s, x) => s + x.raised, 0);
+    const owedTotal = attributedRaised * COMMISSION();
+
+    latestEmployees = employees;
+    latestDonations = donations;
+    latestVisits = visits;
+    latestSnapshot = {
+      donors: donations.length,
+      donors24h: donors24h ?? 0,
+      raised: raisedTotal,
+      attributedRaised,
+      owed: owedTotal,
+      visits: visits.length,
+    };
 
     if (els.totalDonors) els.totalDonors.textContent = String(donations.length);
     if (els.donors24h) els.donors24h.textContent = String(donors24h ?? 0);
     if (els.totalDonated) els.totalDonated.textContent = money(raisedTotal);
-    if (els.totalOwed) els.totalOwed.textContent = money(attributedRaised * COMMISSION());
+    if (els.totalOwed) els.totalOwed.textContent = money(owedTotal);
     if (els.totalVisits) els.totalVisits.textContent = String(visits.length);
 
     const employeeMap = Object.fromEntries(employees.map((e) => [e.id, e]));
@@ -1085,6 +1325,15 @@
     els.btnRefresh?.addEventListener("click", () => hardRefresh());
     els.visitsClose?.addEventListener("click", () => els.visitsDialog?.close());
     els.detailClose?.addEventListener("click", () => closeEmployeeDetail());
+    els.statInfoClose?.addEventListener("click", () => els.statInfoDialog?.close());
+    els.statsGrid?.querySelectorAll("[data-stat-info]").forEach((btn) => {
+      btn.addEventListener("click", () => openStatInfo(btn.getAttribute("data-stat-info")));
+    });
+    els.donationCancel?.addEventListener("click", () => {
+      editingDonationId = null;
+      els.donationDialog?.close();
+    });
+    els.donationForm?.addEventListener("submit", saveDonation);
     els.employeeCancel?.addEventListener("click", () => {
       editingEmployeeId = null;
       clearPendingAvatar();
