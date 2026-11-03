@@ -653,34 +653,90 @@ body[data-page="admin"] .owner-console-team-overview-head {
   color: var(--muted);
 }
 
-.pf-dialog.site-leave-dialog {
-  width: min(480px, calc(100vw - 40px));
-  max-width: calc(100vw - 40px);
-  max-height: calc(100dvh - 48px);
-  margin: auto;
+body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
+body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+  position: fixed !important;
+  inset: 0 !important;
+  width: min(360px, calc(100vw - 28px)) !important;
+  max-width: min(360px, calc(100vw - 28px)) !important;
+  height: fit-content !important;
+  max-height: min(82dvh, 640px) !important;
+  margin: auto !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  transform: none !important;
   border: none;
   padding: 0;
   background: transparent;
   overflow: visible;
+  box-shadow: none;
 }
 
-.pf-dialog.site-leave-dialog--wide {
-  width: min(520px, calc(100vw - 40px));
-  max-width: calc(100vw - 40px);
+body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+  width: min(400px, calc(100vw - 28px)) !important;
+  max-width: min(400px, calc(100vw - 28px)) !important;
 }
 
 .pf-dialog .site-leave-dialog-panel {
-  padding: 18px !important;
-  max-height: calc(100dvh - 48px);
+  width: 100%;
+  margin: 0 auto;
+  padding: 14px !important;
+  max-height: min(82dvh, 640px);
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   box-sizing: border-box;
+  border-radius: 16px !important;
+}
+
+.pf-dialog .site-leave-dialog-title {
+  font-size: 1.05rem !important;
+  margin-bottom: 4px;
+}
+
+.pf-dialog .site-leave-dialog-text {
+  margin-bottom: 10px !important;
+  font-size: 0.88rem !important;
+}
+
+.pf-dialog .site-leave-dialog-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .pf-dialog .field {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
+}
+
+.pf-dialog .pf-avatar-editor {
+  margin: 0 0 10px;
+  padding: 8px;
+  gap: 10px;
+}
+
+.pf-dialog .pf-avatar-preview {
+  width: 56px;
+  height: 56px;
+}
+
+.pf-dialog .pf-emp-detail-stats {
+  max-width: 100%;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.pf-dialog .pf-emp-stat {
+  padding: 8px 6px;
+}
+
+.pf-dialog .pf-emp-detail-actions {
+  margin-bottom: 10px;
 }
 
 .pf-dialog .field label {
@@ -2267,14 +2323,30 @@ button.pf-stat-chip--link:focus-visible {
 
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
-    width: calc(100vw - 40px) !important;
-    max-width: calc(100vw - 40px) !important;
-    max-height: calc(100dvh - 56px);
+    width: min(360px, calc(100vw - 24px)) !important;
+    max-width: min(360px, calc(100vw - 24px)) !important;
+    max-height: min(84dvh, 640px) !important;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+    width: min(380px, calc(100vw - 24px)) !important;
+    max-width: min(380px, calc(100vw - 24px)) !important;
   }
 
   body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel {
-    padding: 16px !important;
-    max-height: calc(100dvh - 56px);
+    padding: 12px !important;
+    max-height: min(84dvh, 640px);
+  }
+
+  .pf-dialog .pf-avatar-editor {
+    margin-bottom: 10px;
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .pf-dialog .pf-avatar-preview {
+    width: 56px;
+    height: 56px;
   }
 
   .pf-dock {

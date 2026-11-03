@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261103t">
-  <link rel="stylesheet" href="css/fonts.css?v=20261103t">
-  <script src="js/theme.js?v=20261103t"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261103t">
-  <link rel="stylesheet" href="css/paws.css?v=20261103t">
+  <link rel="manifest" href="manifest.webmanifest?v=20261103u">
+  <link rel="stylesheet" href="css/fonts.css?v=20261103u">
+  <script src="js/theme.js?v=20261103u"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261103u">
+  <link rel="stylesheet" href="css/paws.css?v=20261103u">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261103t"></script>
-  <script src="js/pin-lock.js?v=20261103t"></script>
+  <script src="js/config.js?v=20261103u"></script>
+  <script src="js/pin-lock.js?v=20261103u"></script>
   <script>
     (function () {
       try {
@@ -160,7 +160,7 @@
       </div>
       <div class="field">
         <label for="emp-payment">Preferred payment type</label>
-        <select class="pf-native-select" id="emp-payment" name="payment_type" required>
+        <select class="pf-native-select" id="emp-payment" name="payment_type" required data-modern="off">
           <option value="" disabled selected>Select payment type</option>
           <option value="cashapp">Cash App</option>
           <option value="venmo">Venmo</option>
@@ -318,7 +318,7 @@
       </div>
       <div class="field">
         <label for="don-employee">Attributed to</label>
-        <select class="pf-native-select" id="don-employee" name="employee_id">
+        <select class="pf-native-select" id="don-employee" name="employee_id" data-modern="off">
           <option value="">General (no employee)</option>
         </select>
       </div>
@@ -330,12 +330,12 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261103t"></script>
-  <script src="js/shell.js?v=20261103t"></script>
-  <script src="js/vendor/supabase.js?v=20261103t"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261103t"></script>
-  <script src="js/supabase-client.js?v=20261103t"></script>
-  <script src="js/qr.js?v=20261103t"></script>
-  <script src="js/admin.js?v=20261103t"></script>
+  <script src="js/icons.js?v=20261103u"></script>
+  <script src="js/shell.js?v=20261103u"></script>
+  <script src="js/vendor/supabase.js?v=20261103u"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261103u"></script>
+  <script src="js/supabase-client.js?v=20261103u"></script>
+  <script src="js/qr.js?v=20261103u"></script>
+  <script src="js/admin.js?v=20261103u"></script>
 </body>
 </html>
