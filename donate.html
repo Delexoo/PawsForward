@@ -14,8 +14,24 @@
   <link rel="stylesheet" href="css/site.css?v=20261103v">
   <link rel="stylesheet" href="css/paws.css?v=20261103v">
   <script src="js/config.js?v=20261103v"></script>
+  <style>
+    /* Public donate must never be blanked by the admin PIN lock CSS */
+    body[data-page="donate"] #page-body,
+    body[data-page="donate"] #page-body * {
+      visibility: visible !important;
+    }
+    body[data-page="donate"] #page-body {
+      display: grid !important;
+      pointer-events: auto !important;
+      user-select: auto !important;
+    }
+  </style>
 </head>
 <body data-page="donate" data-public="1">
+  <script>
+    document.body.setAttribute("data-public", "1");
+    document.body.classList.add("site-unlocked");
+  </script>
   <a class="skip-link" href="#page-body">Skip to content</a>
   <div id="page-body" class="donate-shell">
     <div class="pf-donate-card" id="donate-card">
