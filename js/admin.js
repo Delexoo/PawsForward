@@ -62,11 +62,13 @@
     detailDialog: document.getElementById("employee-detail-dialog"),
     detailTitle: document.getElementById("employee-detail-title"),
     detailLead: document.getElementById("employee-detail-lead"),
+    detailPhone: document.getElementById("employee-detail-phone"),
     detailAvatar: document.getElementById("detail-avatar"),
     detailVisits: document.getElementById("detail-visits"),
     detailRaised: document.getElementById("detail-raised"),
     detailOwed: document.getElementById("detail-owed"),
     detailPayout: document.getElementById("detail-payout"),
+    detailCode: document.getElementById("detail-code"),
     detailClose: document.getElementById("employee-detail-close"),
     detailAvatarFile: document.getElementById("detail-avatar-file"),
   };
@@ -84,13 +86,19 @@
   let pendingAvatarReset = false;
   const ADMIN_PAGE_KEY = "pf_admin_page_v1";
 
-  function setAdminPage(pageId) {
-    const next = ["employees", "activity", "inbox"].includes(pageId) ? pageId : "employees";
-    document.querySelectorAll(".pf-admin-page").forEach((panel) => {
-      const active = panel.getAttribute("data-admin-page") === next;
-      panel.classList.toggle("is-active", active);
-      panel.hidden = !active;
-    });
+  const ADMIN_PAGES = ["employees", "activity", "donations"];
+  let adminPageBusy = false;
+
+  function normalizeAdminPage(pageId) {
+    if (pageId === "inbox") return "donations";
+    return ADMIN_PAGES.includes(pageId) ? pageId : "employees";
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  }
+
+  function syncAdminNav(next) {
     document.querySelectorAll("[data-admin-nav]").forEach((btn) => {
       const active = btn.getAttribute("data-admin-nav") === next;
       btn.classList.toggle("is-active", active);
@@ -103,6 +111,51 @@
     }
   }
 
+  function showAdminPageInstant(next) {
+    document.querySelectorAll(".pf-admin-page").forEach((panel) => {
+      const active = panel.getAttribute("data-admin-page") === next;
+      panel.classList.remove("is-enter", "is-exit");
+      panel.classList.toggle("is-active", active);
+      panel.hidden = !active;
+    });
+    syncAdminNav(next);
+  }
+
+  async function setAdminPage(pageId, { instant = false } = {}) {
+    const next = normalizeAdminPage(pageId);
+    const current = document.querySelector(".pf-admin-page.is-active");
+    const incoming = document.querySelector(`.pf-admin-page[data-admin-page="${next}"]`);
+    if (!incoming) return;
+    if (current?.getAttribute("data-admin-page") === next) {
+      syncAdminNav(next);
+      return;
+    }
+    if (adminPageBusy) return;
+
+    if (instant || !current || prefersReducedMotion()) {
+      showAdminPageInstant(next);
+      return;
+    }
+
+    adminPageBusy = true;
+    syncAdminNav(next);
+    current.classList.add("is-exit");
+    current.classList.remove("is-active");
+    await new Promise((resolve) => {
+      window.setTimeout(resolve, 180);
+    });
+    current.hidden = true;
+    current.classList.remove("is-exit");
+
+    incoming.hidden = false;
+    incoming.classList.add("is-active", "is-enter");
+    await new Promise((resolve) => {
+      window.setTimeout(resolve, 280);
+    });
+    incoming.classList.remove("is-enter");
+    adminPageBusy = false;
+  }
+
   function wireAdminNav() {
     document.querySelectorAll("[data-admin-nav]").forEach((btn) => {
       btn.addEventListener("click", () => setAdminPage(btn.getAttribute("data-admin-nav")));
@@ -113,7 +166,7 @@
     } catch {
       /* ignore */
     }
-    setAdminPage(initial);
+    setAdminPage(normalizeAdminPage(initial), { instant: true });
   }
 
   function avatarUrl(emp) {
@@ -483,11 +536,17 @@
       };
     }
     if (els.detailTitle) els.detailTitle.textContent = `${emp.first_name} ${emp.last_name}`.trim();
-    if (els.detailLead) els.detailLead.textContent = `${emp.phone || "No phone"} · code ${emp.referral_code || "—"}`;
+    if (els.detailLead) {
+      els.detailLead.textContent = emp.referral_code
+        ? `Code ${emp.referral_code}`
+        : "No referral code";
+    }
+    if (els.detailPhone) els.detailPhone.textContent = emp.phone || "No phone on file";
     if (els.detailVisits) els.detailVisits.textContent = String(visits.count || 0);
     if (els.detailRaised) els.detailRaised.textContent = money(stats.raised);
     if (els.detailOwed) els.detailOwed.textContent = money(owed);
     if (els.detailPayout) els.detailPayout.textContent = payout;
+    if (els.detailCode) els.detailCode.textContent = emp.referral_code || "—";
   }
 
   function openEmployeeDetail(emp) {
@@ -548,11 +607,10 @@
           <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="36" height="36" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
           <div class="pf-employee-main">
             <strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong>
-            <span class="pf-employee-meta">${escapeHtml(emp.phone || "—")}</span>
-            <div class="pf-employee-stats">
-              <span class="pf-stat-chip">${visits.count} visit${visits.count === 1 ? "" : "s"}</span>
-              <span class="pf-stat-chip">${money(stats.raised)} raised</span>
-              <span class="pf-stat-chip">${money(owed)} owed</span>
+            <div class="pf-employee-stats" aria-label="Employee snapshot">
+              <span class="pf-stat-chip"><span class="pf-stat-chip-label">Visits</span><span class="pf-stat-chip-value">${visits.count}</span></span>
+              <span class="pf-stat-chip"><span class="pf-stat-chip-label">Raised</span><span class="pf-stat-chip-value">${money(stats.raised)}</span></span>
+              <span class="pf-stat-chip"><span class="pf-stat-chip-label">Owed</span><span class="pf-stat-chip-value">${money(owed)}</span></span>
             </div>
           </div>
         </div>
@@ -998,7 +1056,7 @@
     const label = `${emp.first_name} ${emp.last_name}`.trim();
     const ok = await askConfirm({
       title: `Delete ${label}?`,
-      lead: "This permanently removes their profile, QR attribution, inbox gifts, and visit history.",
+      lead: "This permanently removes their profile, QR attribution, donations, and visit history.",
       confirmLabel: "Delete everything",
     });
     if (!ok) return;
