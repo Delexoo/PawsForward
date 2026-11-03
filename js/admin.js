@@ -1024,7 +1024,7 @@
     wireDialogBackdropClose();
     wireAdminNav();
     els.btnNew?.addEventListener("click", openNewEmployee);
-    els.btnRefresh?.addEventListener("click", () => loadDashboard({ skipCachePaint: true }));
+    els.btnRefresh?.addEventListener("click", () => hardRefresh());
     els.visitsClose?.addEventListener("click", () => els.visitsDialog?.close());
     els.detailClose?.addEventListener("click", () => closeEmployeeDetail());
     els.employeeCancel?.addEventListener("click", () => {
@@ -1129,18 +1129,32 @@
     });
   }
 
+  async function hardRefresh() {
+    setBanner("Hard refreshing…");
+    try {
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+      if (navigator.serviceWorker?.getRegistrations) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((reg) => reg.unregister()));
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+    const next = new URL(location.href);
+    next.searchParams.set("_", String(Date.now()));
+    location.replace(next.toString());
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
     if (!window.SitePin?.requireUnlock?.()) return;
 
     document.body.classList.add("site-unlocked");
     window.PfShell?.renderShell("dashboard");
     wireDialogs();
-    window.PfInstall?.init?.({
-      button: document.getElementById("btn-install"),
-      dialog: document.getElementById("install-dialog"),
-      closeBtn: document.getElementById("install-close"),
-      status: setBanner,
-    });
+    window.SiteIcons?.initIcons?.();
     window.UiSelect?.initAll();
     await loadDashboard();
   });

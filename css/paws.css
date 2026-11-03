@@ -275,6 +275,20 @@ body[data-page="admin"] #page-body.pf-admin-minimal {
   cursor: pointer;
 }
 
+.pf-dock-tool--icon {
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pf-dock-tool--icon .ico {
+  width: 16px;
+  height: 16px;
+}
+
 .pf-dock-tool:hover {
   background: #f8fafc;
 }
