@@ -672,7 +672,10 @@ body[data-page="admin"] .owner-console-team-overview-head {
 .pf-dialog .site-leave-dialog-panel {
   padding: 18px !important;
   max-height: calc(100dvh - 48px);
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   box-sizing: border-box;
 }
 
@@ -688,11 +691,25 @@ body[data-page="admin"] .owner-console-team-overview-head {
 }
 
 .pf-dialog .field input,
-.pf-dialog .field select {
+.pf-dialog .field select,
+.pf-native-select,
+.pf-donate-input {
   width: 100%;
   box-sizing: border-box;
   min-height: 46px;
   padding: 10px 12px;
+  font-size: 16px !important; /* prevents iOS focus zoom */
+}
+
+.pf-native-select {
+  appearance: none;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  background:
+    linear-gradient(45deg, transparent 50%, #64748b 50%) calc(100% - 18px) calc(1em + 4px) / 6px 6px no-repeat,
+    linear-gradient(135deg, #64748b 50%, transparent 50%) calc(100% - 12px) calc(1em + 4px) / 6px 6px no-repeat,
+    #fff;
+  color: #0f172a;
 }
 
 .qr-box {
@@ -2367,4 +2384,115 @@ body[data-page="admin"] .btn:hover {
 
 body[data-page="admin"] .btn:active {
   transform: scale(0.97);
+}
+
+/* ---- Public donate (Stripe Checkout) ---- */
+.donate-shell {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, #e2e8f0 0%, transparent 60%),
+    #f8fafc;
+}
+
+.pf-donate-card {
+  width: min(420px, 100%);
+  padding: 28px 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.pf-donate-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+
+.pf-donate-title {
+  margin: 0 0 6px;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+}
+
+.pf-donate-lead,
+.pf-donate-attr,
+.pf-donate-note {
+  margin: 0 0 10px;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.pf-donate-attr {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pf-amount-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 14px;
+}
+
+.pf-amount-btn {
+  appearance: none;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  min-height: 42px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.14s ease;
+}
+
+.pf-amount-btn:hover {
+  background: #f1f5f9;
+}
+
+.pf-amount-btn.is-active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #fff;
+}
+
+.pf-amount-btn:active {
+  transform: scale(0.97);
+}
+
+.pf-donate-label {
+  display: block;
+  margin: 10px 0 6px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.pf-donate-submit {
+  width: 100%;
+  margin-top: 16px;
+  min-height: 48px;
+}
+
+.pf-donate-success h2 {
+  margin: 0 0 8px;
+  color: #0f172a;
+}
+
+.pf-donate-success p {
+  margin: 0;
+  color: #64748b;
 }

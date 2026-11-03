@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261103q">
-  <link rel="stylesheet" href="css/fonts.css?v=20261103q">
-  <script src="js/theme.js?v=20261103q"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261103q">
-  <link rel="stylesheet" href="css/paws.css?v=20261103q">
+  <link rel="manifest" href="manifest.webmanifest?v=20261103r">
+  <link rel="stylesheet" href="css/fonts.css?v=20261103r">
+  <script src="js/theme.js?v=20261103r"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261103r">
+  <link rel="stylesheet" href="css/paws.css?v=20261103r">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261103q"></script>
-  <script src="js/pin-lock.js?v=20261103q"></script>
+  <script src="js/config.js?v=20261103r"></script>
+  <script src="js/pin-lock.js?v=20261103r"></script>
   <script>
     (function () {
       try {
@@ -135,10 +135,9 @@
       <div class="pf-avatar-editor" id="emp-avatar-editor">
         <img id="emp-avatar-preview" class="pf-avatar-preview" src="doc/default-avatar.jpg" alt="Employee photo preview" width="72" height="72">
         <div class="pf-avatar-editor-actions">
-          <label class="pf-tool-btn pf-tool-btn--file" for="emp-avatar-file">Change photo</label>
+          <label class="pf-tool-btn pf-tool-btn--file" for="emp-avatar-file">Photo</label>
           <input id="emp-avatar-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
-          <button type="button" class="pf-tool-btn" id="emp-avatar-reset">Use default</button>
-          <p class="field-hint" style="margin:6px 0 0;text-align:left">JPG, PNG, or WebP up to 2MB. Saved when you keep editing or create the employee.</p>
+          <button type="button" class="pf-tool-btn" id="emp-avatar-reset">Default</button>
         </div>
       </div>
 
@@ -159,23 +158,37 @@
       </div>
       <div class="field">
         <label for="emp-payment">Preferred payment type</label>
-        <div class="ui-select" data-ui-select>
-          <select class="ui-select-native" id="emp-payment" name="payment_type" required>
-            <option value="" disabled selected>Select payment type</option>
-            <option value="cashapp">Cash App</option>
-            <option value="venmo">Venmo</option>
-            <option value="paypal">PayPal</option>
-            <option value="zelle">Zelle</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
+        <select class="pf-native-select" id="emp-payment" name="payment_type" required>
+          <option value="" disabled selected>Select payment type</option>
+          <option value="cashapp">Cash App</option>
+          <option value="venmo">Venmo</option>
+          <option value="paypal">PayPal</option>
+          <option value="zelle">Zelle</option>
+          <option value="apple_cash">Apple Cash</option>
+          <option value="apple_pay">Apple Pay</option>
+          <option value="google_pay">Google Pay</option>
+          <option value="chime">Chime</option>
+          <option value="cash">Cash</option>
+          <option value="check">Check</option>
+          <option value="bank_transfer">Bank transfer</option>
+          <option value="wire">Wire</option>
+          <option value="wise">Wise</option>
+          <option value="revolut">Revolut</option>
+          <option value="stripe">Stripe</option>
+          <option value="square">Square</option>
+          <option value="bitcoin">Bitcoin</option>
+          <option value="ethereum">Ethereum</option>
+          <option value="usdc">USDC</option>
+          <option value="paypal_friends">PayPal Friends</option>
+          <option value="cashapp_business">Cash App Business</option>
+          <option value="other">Other</option>
+        </select>
         <p class="field-error" id="err-emp-payment" hidden></p>
       </div>
       <div class="field">
         <label for="emp-payment-handle">Payout handle</label>
-        <input id="emp-payment-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @venmo, paypal.me name…">
+        <input id="emp-payment-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, wallet, email…">
         <p class="field-error" id="err-emp-handle" hidden></p>
-        <p class="field-hint" style="margin:6px 0 0">Required. Used by Pay to open their Cash App, Venmo, PayPal, or Zelle destination.</p>
       </div>
 
       <div class="site-leave-dialog-actions">
@@ -188,7 +201,7 @@
   <dialog class="site-leave-dialog pf-dialog site-leave-dialog--wide" id="qr-dialog" aria-labelledby="qr-dialog-title">
     <div class="site-leave-dialog-panel">
       <h2 class="site-leave-dialog-title" id="qr-dialog-title">Employee QR</h2>
-      <p class="site-leave-dialog-text" id="qr-dialog-lead">Share this code for this employee’s referral.</p>
+      <p class="site-leave-dialog-text" id="qr-dialog-lead">Share this code. It opens Stripe Checkout and tracks the gift to this employee.</p>
       <div class="qr-box">
         <div id="qr-canvas-host"></div>
         <p class="qr-link" id="qr-link-text"></p>
@@ -303,11 +316,9 @@
       </div>
       <div class="field">
         <label for="don-employee">Attributed to</label>
-        <div class="ui-select" data-ui-select>
-          <select class="ui-select-native" id="don-employee" name="employee_id">
-            <option value="">General (no employee)</option>
-          </select>
-        </div>
+        <select class="pf-native-select" id="don-employee" name="employee_id">
+          <option value="">General (no employee)</option>
+        </select>
       </div>
 
       <div class="site-leave-dialog-actions">
@@ -317,13 +328,12 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261103q"></script>
-  <script src="js/shell.js?v=20261103q"></script>
-  <script src="js/vendor/supabase.js?v=20261103q"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261103q"></script>
-  <script src="js/supabase-client.js?v=20261103q"></script>
-  <script src="js/ui-select.js?v=20261103q"></script>
-  <script src="js/qr.js?v=20261103q"></script>
-  <script src="js/admin.js?v=20261103q"></script>
+  <script src="js/icons.js?v=20261103r"></script>
+  <script src="js/shell.js?v=20261103r"></script>
+  <script src="js/vendor/supabase.js?v=20261103r"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261103r"></script>
+  <script src="js/supabase-client.js?v=20261103r"></script>
+  <script src="js/qr.js?v=20261103r"></script>
+  <script src="js/admin.js?v=20261103r"></script>
 </body>
 </html>

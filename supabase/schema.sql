@@ -10,7 +10,11 @@ create table if not exists public.employees (
   first_name text not null,
   last_name text not null,
   phone text not null,
-  payment_type text not null check (payment_type in ('cashapp', 'venmo', 'paypal', 'zelle', 'other')),
+  payment_type text not null check (payment_type in (
+    'cashapp','venmo','paypal','zelle','apple_cash','google_pay','chime','cash',
+    'check','bank_transfer','wire','wise','revolut','stripe','square','bitcoin',
+    'ethereum','usdc','paypal_friends','cashapp_business','apple_pay','other'
+  )),
   payment_handle text,
   referral_code text not null unique,
   avatar_url text,
@@ -23,6 +27,8 @@ create table if not exists public.donations (
   referral_code text,
   amount numeric(12, 2) not null check (amount > 0),
   donor_label text,
+  stripe_session_id text,
+  stripe_payment_intent text,
   created_at timestamptz not null default now()
 );
 

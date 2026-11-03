@@ -288,7 +288,9 @@
   }
 
   function employeeShareUrl(code) {
-    const u = new URL("admin.html", window.location.href);
+    const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
+    const base = origin ? `${origin}/donate.html` : new URL("donate.html", window.location.href).href;
+    const u = new URL(base);
     const ref = String(code || "").trim();
     if (ref) u.searchParams.set("ref", ref);
     return u.href;
@@ -300,6 +302,23 @@
       venmo: "Venmo",
       paypal: "PayPal",
       zelle: "Zelle",
+      apple_cash: "Apple Cash",
+      apple_pay: "Apple Pay",
+      google_pay: "Google Pay",
+      chime: "Chime",
+      cash: "Cash",
+      check: "Check",
+      bank_transfer: "Bank transfer",
+      wire: "Wire",
+      wise: "Wise",
+      revolut: "Revolut",
+      stripe: "Stripe",
+      square: "Square",
+      bitcoin: "Bitcoin",
+      ethereum: "Ethereum",
+      usdc: "USDC",
+      paypal_friends: "PayPal Friends",
+      cashapp_business: "Cash App Business",
       other: "Other",
     };
     return map[type] || type || "—";
@@ -489,7 +508,7 @@
       url,
       name: `${employee.first_name}-${employee.last_name}`.replace(/\s+/g, "-"),
     };
-    els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Shares their referral code (${employee.referral_code}).`;
+    els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Opens Stripe Checkout and attributes the gift to code ${employee.referral_code}.`;
     els.qrLinkText.textContent = url;
     els.qrHost.innerHTML = "";
     els.qrDialog.showModal();
@@ -722,9 +741,10 @@
       els.errDonAmount.textContent = "";
     }
     fillDonationEmployeeOptions(donation.employee_id || "");
-    window.UiSelect?.enhance?.(els.donEmployee?.closest?.("[data-ui-select]"));
     els.donationDialog.showModal();
-    els.donAmount?.focus();
+    if (window.matchMedia && window.matchMedia("(min-width: 700px)").matches) {
+      els.donAmount?.focus();
+    }
   }
 
   async function saveDonation(event) {
@@ -1109,7 +1129,6 @@
   function setPaymentSelect(value) {
     if (!els.empPayment) return;
     els.empPayment.value = value || "";
-    window.UiSelect?.initAll(els.employeeForm);
   }
 
   function openNewEmployee() {
@@ -1120,12 +1139,15 @@
     clearEmployeeErrors();
     setAvatarPreview(DEFAULT_AVATAR);
     if (els.employeeTitle) els.employeeTitle.textContent = "New employee";
-    if (els.employeeLead) els.employeeLead.textContent = "Add a hire and generate their donation QR.";
+    if (els.employeeLead) els.employeeLead.textContent = "Add a hire and generate their Stripe donation QR.";
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Create & generate QR";
     setPaymentSelect("");
     if (els.empPaymentHandle) els.empPaymentHandle.value = "";
     els.employeeDialog.showModal();
-    els.empFirst?.focus();
+    // Avoid iOS input zoom jump: don't autofocus on small screens.
+    if (window.matchMedia && window.matchMedia("(min-width: 700px)").matches) {
+      els.empFirst?.focus();
+    }
   }
 
   function openEditEmployee(emp) {
@@ -1145,7 +1167,9 @@
     }
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Save changes";
     els.employeeDialog.showModal();
-    els.empFirst?.focus();
+    if (window.matchMedia && window.matchMedia("(min-width: 700px)").matches) {
+      els.empFirst?.focus();
+    }
   }
 
   async function saveEmployee(e) {
@@ -1462,7 +1486,6 @@
     window.PfShell?.renderShell("dashboard");
     wireDialogs();
     window.SiteIcons?.initIcons?.();
-    window.UiSelect?.initAll();
     await loadDashboard();
   });
 })();
