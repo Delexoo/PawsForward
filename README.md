@@ -7,14 +7,15 @@ Admin dashboard and public donate page for **PawsForward**, a dog-rescue fundrai
 | Path | Role |
 |------|------|
 | `admin.html` | Signed-in admin dashboard |
-| `login.html` | Admin sign-in |
+| `login.html` | Admin email/password sign-in + reset |
 | `donate.html` | Public donate + QR landing |
 | `privacy.html` / `terms.html` / `404.html` | Legal + not found |
 | `css/` | `fonts.css`, shared `site.css`, `paws.css` extras |
 | `fonts/` | Self-hosted DM Sans + IBM Plex Mono |
 | `js/` | Page scripts, `vendor/supabase.js`, shell/icons/theme |
 | `supabase/schema.sql` | Tables, RLS, rate-limited RPCs |
-| `docs/` | Breach plan, backups note |
+| `docs/` | Breach plan, backups, security headers |
+| `_headers` | CSP / nosniff / frame policy for Cloudflare or Netlify |
 | `tests/` | Commission / attribution unit checks |
 | `robots.txt` / `sitemap.xml` / `manifest.webmanifest` | SEO + PWA icons |
 
@@ -57,8 +58,10 @@ node tests/commission.test.mjs
 ## Hosting notes
 
 - GitHub Pages serves HTTPS and typically gzip/brotli-compresses static text.
-- Custom security headers (CSP, etc.) are limited on plain GitHub Pages; put Cloudflare (or similar) in front if you need them.
+- Custom security headers (CSP, etc.) are limited on plain GitHub Pages; put Cloudflare (or similar) in front and apply [`_headers`](_headers) / [`docs/security-headers.md`](docs/security-headers.md).
 - Enable Supabase backups in the project dashboard (see `docs/backups.md`).
+- Enable Auth **leaked password protection** (and optional MFA) — see `docs/breach-plan.md`.
+- Admin auth sessions stay **in memory** (not `localStorage`); sign in again after a full page reload.
 
 ## Contact
 

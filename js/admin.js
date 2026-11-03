@@ -33,7 +33,7 @@
     empAvatarFile: document.getElementById("emp-avatar-file"),
     empAvatarReset: document.getElementById("emp-avatar-reset"),
     btnNew: document.getElementById("btn-new-employee"),
-    btnRefresh: document.getElementById("btn-refresh"),
+    pullIndicator: document.getElementById("pull-refresh-indicator"),
     inboxCountHint: document.getElementById("inbox-count-hint"),
     dock: document.querySelector(".pf-dock"),
     errFirst: document.getElementById("err-emp-first"),
@@ -113,12 +113,12 @@
   let pendingAvatarReset = false;
   const ADMIN_PAGE_KEY = "pf_admin_page_v1";
 
-  const ADMIN_PAGES = ["employees", "activity", "donations"];
+  const ADMIN_PAGES = ["activity", "employees", "donations"];
   let adminPageBusy = false;
 
   function normalizeAdminPage(pageId) {
     if (pageId === "inbox") return "donations";
-    return ADMIN_PAGES.includes(pageId) ? pageId : "employees";
+    return ADMIN_PAGES.includes(pageId) ? pageId : "activity";
   }
 
   function prefersReducedMotion() {
@@ -187,9 +187,9 @@
     document.querySelectorAll("[data-admin-nav]").forEach((btn) => {
       btn.addEventListener("click", () => setAdminPage(btn.getAttribute("data-admin-nav")));
     });
-    let initial = "employees";
+    let initial = "activity";
     try {
-      initial = sessionStorage.getItem(ADMIN_PAGE_KEY) || "employees";
+      initial = sessionStorage.getItem(ADMIN_PAGE_KEY) || "activity";
     } catch {
       /* ignore */
     }
@@ -1345,8 +1345,8 @@
   function wireDialogs() {
     wireDialogBackdropClose();
     wireAdminNav();
+    wirePullToHardRefresh();
     els.btnNew?.addEventListener("click", openNewEmployee);
-    els.btnRefresh?.addEventListener("click", () => hardRefresh());
     els.visitsClose?.addEventListener("click", () => els.visitsDialog?.close());
     els.detailClose?.addEventListener("click", () => closeEmployeeDetail());
     els.statInfoClose?.addEventListener("click", () => els.statInfoDialog?.close());
@@ -1462,6 +1462,7 @@
 
   async function hardRefresh() {
     setBanner("Hard refreshing…");
+    document.body.classList.add("pf-pull-refreshing");
     try {
       if ("caches" in window) {
         const keys = await caches.keys();
@@ -1475,8 +1476,101 @@
       console.warn(err);
     }
     const next = new URL(location.href);
+    next.searchParams.delete("_");
     next.searchParams.set("_", String(Date.now()));
     location.replace(next.toString());
+  }
+
+  function wirePullToHardRefresh() {
+    const indicator = els.pullIndicator;
+    const THRESHOLD = 96;
+    const MAX_PULL = 140;
+    let startY = 0;
+    let pulling = false;
+    let armed = false;
+    let triggered = false;
+
+    function scrollTop() {
+      return window.scrollY || document.documentElement.scrollTop || 0;
+    }
+
+    function setPull(distance) {
+      const progress = Math.min(1, distance / THRESHOLD);
+      document.body.style.setProperty("--pf-pull", `${Math.min(MAX_PULL, distance)}px`);
+      document.body.style.setProperty("--pf-pull-progress", String(progress));
+      document.body.classList.toggle("pf-pulling", distance > 8);
+      document.body.classList.toggle("pf-pull-ready", distance >= THRESHOLD);
+      if (indicator) {
+        const label = indicator.querySelector(".pf-pull-indicator-label");
+        if (label) {
+          label.textContent =
+            distance >= THRESHOLD ? "Release to hard reset" : "Pull to hard reset";
+        }
+      }
+    }
+
+    function endPull() {
+      pulling = false;
+      armed = false;
+      document.body.classList.remove("pf-pulling", "pf-pull-ready");
+      document.body.style.removeProperty("--pf-pull");
+      document.body.style.removeProperty("--pf-pull-progress");
+    }
+
+    const onStart = (clientY) => {
+      if (triggered || scrollTop() > 2) return;
+      if (document.querySelector("dialog[open]")) return;
+      startY = clientY;
+      pulling = true;
+      armed = false;
+    };
+
+    const onMove = (clientY, event) => {
+      if (!pulling || triggered) return;
+      if (scrollTop() > 2 && !armed) {
+        endPull();
+        return;
+      }
+      const delta = clientY - startY;
+      if (delta <= 0) {
+        setPull(0);
+        return;
+      }
+      armed = true;
+      if (event?.cancelable) event.preventDefault();
+      setPull(delta * 0.55);
+    };
+
+    const onEnd = () => {
+      if (!pulling || triggered) return;
+      const distance = Number.parseFloat(document.body.style.getPropertyValue("--pf-pull")) || 0;
+      if (distance >= THRESHOLD) {
+        triggered = true;
+        document.body.classList.add("pf-pull-refreshing");
+        void hardRefresh();
+        return;
+      }
+      endPull();
+    };
+
+    window.addEventListener(
+      "touchstart",
+      (event) => {
+        if (event.touches.length !== 1) return;
+        onStart(event.touches[0].clientY);
+      },
+      { passive: true }
+    );
+    window.addEventListener(
+      "touchmove",
+      (event) => {
+        if (event.touches.length !== 1) return;
+        onMove(event.touches[0].clientY, event);
+      },
+      { passive: false }
+    );
+    window.addEventListener("touchend", onEnd, { passive: true });
+    window.addEventListener("touchcancel", endPull, { passive: true });
   }
 
   document.addEventListener("DOMContentLoaded", async () => {

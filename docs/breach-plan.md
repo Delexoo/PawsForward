@@ -1,5 +1,11 @@
 # Breach response plan
 
+**Auth hardening (operator checklist)**
+
+1. Supabase Dashboard → Authentication → Providers / Attack Protection: enable **Leaked password protection** (Have I Been Pwned) for password sign-in.
+2. Optionally enable MFA for the `admin@pawsforward.local` operator (or replace that seed account) under Authentication → Users.
+3. Confirm redirect URLs include `https://delexoo.github.io/PawsForward/login.html` for password recovery.
+
 1. **Detect.** Watch Supabase Auth sign-in failures, dashboard error banners, and project logs/advisors.
 2. **Contain.** Rotate the anon key if abused, revoke admin sessions, tighten RLS, and pause public RPCs if needed.
 3. **Assess.** List tables touched (employees, donations, visits, deletion requests, auth.users).
