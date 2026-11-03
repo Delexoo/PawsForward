@@ -15,7 +15,7 @@
     employeesEmpty: document.getElementById("employees-empty"),
     donationsFeed: document.getElementById("donations-feed"),
     donationsEmpty: document.getElementById("donations-empty"),
-    geoList: document.getElementById("geo-list"),
+    geoChart: document.getElementById("geo-chart"),
     geoEmpty: document.getElementById("geo-empty"),
     employeeDialog: document.getElementById("employee-dialog"),
     employeeForm: document.getElementById("employee-form"),
@@ -24,8 +24,6 @@
     btnNew: document.getElementById("btn-new-employee"),
     btnNewSecondary: document.getElementById("btn-new-employee-secondary"),
     btnRefresh: document.getElementById("btn-refresh"),
-    btnCommand: document.getElementById("btn-command"),
-    btnAccount: document.getElementById("btn-account-settings"),
     btnSignOut: document.getElementById("btn-sign-out"),
     errFirst: document.getElementById("err-emp-first"),
     errLast: document.getElementById("err-emp-last"),
@@ -38,23 +36,10 @@
     qrCopy: document.getElementById("qr-copy-link"),
     qrDownload: document.getElementById("qr-download"),
     qrClose: document.getElementById("qr-close"),
-    commandDialog: document.getElementById("command-dialog"),
-    commandInput: document.getElementById("command-input"),
-    commandList: document.getElementById("command-list"),
-    accountDialog: document.getElementById("account-dialog"),
-    accountForm: document.getElementById("account-form"),
-    accountEmail: document.getElementById("account-email"),
-    accountPassword: document.getElementById("account-password"),
-    accountPasswordConfirm: document.getElementById("account-password-confirm"),
-    accountCancel: document.getElementById("account-cancel"),
-    accountSubmit: document.getElementById("account-submit"),
-    errAccountPassword: document.getElementById("err-account-password"),
-    errAccountPasswordConfirm: document.getElementById("err-account-password-confirm"),
   };
 
   let currentQr = { url: "", name: "" };
   let latestEmployees = [];
-  let currentUser = null;
 
   function money(n) {
     return new Intl.NumberFormat("en-US", {
@@ -116,6 +101,60 @@
     const h = Math.floor(m / 60);
     if (h < 24) return `${h}h ago`;
     return `${Math.floor(h / 24)}d ago`;
+  }
+
+  function absoluteTime(iso) {
+    const d = new Date(iso);
+    if (!Number.isFinite(d.getTime())) return "";
+    return d.toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
+  function formatPlace(parts) {
+    const cleaned = [parts.city, parts.region, parts.country].filter(Boolean);
+    return cleaned.length ? cleaned.join(", ") : "";
+  }
+
+  function buildLocationIndex(visits) {
+    const byCode = new Map();
+    const byEmployee = new Map();
+    visits.forEach((v) => {
+      const place = formatPlace(v);
+      if (!place) return;
+      const code = String(v.referral_code || "").trim();
+      if (code) {
+        const list = byCode.get(code) || [];
+        list.push(place);
+        byCode.set(code, list);
+      }
+      if (v.employee_id) {
+        const list = byEmployee.get(v.employee_id) || [];
+        list.push(place);
+        byEmployee.set(v.employee_id, list);
+      }
+    });
+    function pick(map, key) {
+      const list = map.get(key);
+      if (!list?.length) return "";
+      const counts = new Map();
+      list.forEach((p) => counts.set(p, (counts.get(p) || 0) + 1));
+      return Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0][0];
+    }
+    return {
+      forDonation(d) {
+        if (d.referral_code && pick(byCode, String(d.referral_code).trim())) {
+          return pick(byCode, String(d.referral_code).trim());
+        }
+        if (d.employee_id && pick(byEmployee, d.employee_id)) {
+          return pick(byEmployee, d.employee_id);
+        }
+        return "";
+      },
+    };
   }
 
   function escapeHtml(s) {
@@ -181,24 +220,22 @@
     employees.forEach((emp) => {
       const stats = donationStats[emp.id] || { count: 0, raised: 0 };
       const owed = stats.raised * COMMISSION();
-      const tr = document.createElement("tr");
-      tr.dataset.employeeId = emp.id;
-      tr.innerHTML = `
-        <td><strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong></td>
-        <td>${escapeHtml(emp.phone)}</td>
-        <td><span class="badge">${escapeHtml(paymentLabel(emp.payment_type))}</span></td>
-        <td>${stats.count}</td>
-        <td class="money">${money(stats.raised)}</td>
-        <td class="money">${money(owed)}</td>
-        <td>
-          <div class="row-actions">
-            <button type="button" class="btn secondary btn-sm" data-action="view-qr">View QR</button>
-            <button type="button" class="btn secondary btn-sm" data-action="copy-link">Copy link</button>
-          </div>
-        </td>
+      const li = document.createElement("li");
+      li.className = "pf-employee-row";
+      li.dataset.employeeId = emp.id;
+      li.innerHTML = `
+        <div class="pf-employee-main">
+          <strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong>
+          <span class="pf-employee-meta">${escapeHtml(paymentLabel(emp.payment_type))} · ${escapeHtml(emp.phone)}</span>
+          <span class="pf-employee-meta">${stats.count} gifts · ${money(stats.raised)} raised · ${money(owed)} owed</span>
+        </div>
+        <div class="pf-employee-actions">
+          <button type="button" class="btn secondary btn-sm" data-action="view-qr">QR</button>
+          <button type="button" class="btn secondary btn-sm" data-action="copy-link">Link</button>
+        </div>
       `;
-      tr.querySelector('[data-action="view-qr"]').addEventListener("click", () => openQrDialog(emp));
-      tr.querySelector('[data-action="copy-link"]').addEventListener("click", async () => {
+      li.querySelector('[data-action="view-qr"]').addEventListener("click", () => openQrDialog(emp));
+      li.querySelector('[data-action="copy-link"]').addEventListener("click", async () => {
         try {
           await navigator.clipboard.writeText(donateUrl(emp.referral_code));
           setBanner(`Copied donate link for ${emp.first_name}.`, "ok");
@@ -206,11 +243,11 @@
           setBanner("Could not copy link.", "err");
         }
       });
-      body.appendChild(tr);
+      body.appendChild(li);
     });
   }
 
-  function renderDonations(rows, employeeMap) {
+  function renderDonations(rows, employeeMap, locationIndex) {
     const feed = els.donationsFeed;
     if (!feed) return;
     feed.innerHTML = "";
@@ -219,21 +256,30 @@
       return;
     }
     if (els.donationsEmpty) els.donationsEmpty.hidden = true;
-    rows.slice(0, 12).forEach((d) => {
+    rows.slice(0, 40).forEach((d) => {
       const emp = d.employee_id ? employeeMap[d.employee_id] : null;
-      const who = emp
+      const attributed = emp
         ? `${emp.first_name} ${emp.last_name}`
         : d.referral_code
-          ? `code ${d.referral_code}`
-          : "General";
+          ? `Code ${d.referral_code}`
+          : "General (no employee)";
       const donor = d.donor_label || "Anonymous";
+      const place = locationIndex?.forDonation(d) || "";
+      const channel = emp || d.referral_code ? "Employee QR" : "Public donate page";
       const li = document.createElement("li");
+      li.className = "pf-donation-row";
       li.innerHTML = `
-        <div>
+        <div class="pf-donation-top">
           <strong>${escapeHtml(donor)}</strong>
-          <div class="feed-meta">${escapeHtml(who)} · ${relativeTime(d.created_at)}</div>
+          <span class="feed-amount">${money(d.amount)}</span>
         </div>
-        <span class="feed-amount">${money(d.amount)}</span>
+        <dl class="pf-donation-details">
+          <div><dt>When</dt><dd>${escapeHtml(absoluteTime(d.created_at))} <span class="pf-muted">(${escapeHtml(relativeTime(d.created_at))})</span></dd></div>
+          <div><dt>Attributed to</dt><dd>${escapeHtml(attributed)}</dd></div>
+          <div><dt>Via</dt><dd>${escapeHtml(channel)}</dd></div>
+          <div><dt>Where</dt><dd>${escapeHtml(place || "Location unknown")}</dd></div>
+          ${d.referral_code ? `<div><dt>Code</dt><dd><code>${escapeHtml(d.referral_code)}</code></dd></div>` : ""}
+        </dl>
       `;
       feed.appendChild(li);
     });
@@ -242,30 +288,71 @@
   function renderGeo(visits) {
     const counts = new Map();
     visits.forEach((v) => {
-      const parts = [v.city, v.region, v.country].filter(Boolean);
-      const key = parts.length ? parts.join(", ") : "Unknown";
+      const key = formatPlace(v) || "Unknown";
       counts.set(key, (counts.get(key) || 0) + 1);
     });
-    const ranked = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8);
-    if (!els.geoList) return;
-    els.geoList.innerHTML = "";
+    const ranked = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 7);
+    if (!els.geoChart) return;
+    els.geoChart.innerHTML = "";
     if (!ranked.length) {
       if (els.geoEmpty) els.geoEmpty.hidden = false;
       return;
     }
     if (els.geoEmpty) els.geoEmpty.hidden = true;
+
     const max = ranked[0][1] || 1;
-    ranked.forEach(([label, count]) => {
-      const row = document.createElement("div");
-      row.className = "geo-bar-row";
-      const pct = Math.max(8, Math.round((count / max) * 100));
-      row.innerHTML = `
-        <span title="${escapeHtml(label)}">${escapeHtml(label)}</span>
-        <div class="geo-bar-track"><div class="geo-bar-fill" style="width:${pct}%"></div></div>
-        <span class="geo-count">${count}</span>
-      `;
-      els.geoList.appendChild(row);
+    const rowH = 28;
+    const labelW = 118;
+    const gap = 10;
+    const chartW = 320;
+    const barMax = chartW - labelW - 36;
+    const height = ranked.length * rowH + 8;
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", `0 0 ${chartW} ${height}`);
+    svg.setAttribute("class", "pf-geo-svg");
+    svg.setAttribute("role", "presentation");
+
+    ranked.forEach(([label, count], i) => {
+      const y = i * rowH + 4;
+      const barW = Math.max(4, Math.round((count / max) * barMax));
+      const short = label.length > 18 ? label.slice(0, 16) + "…" : label;
+
+      const text = document.createElementNS(ns, "text");
+      text.setAttribute("x", "0");
+      text.setAttribute("y", String(y + 14));
+      text.setAttribute("class", "pf-geo-label");
+      text.textContent = short;
+      text.appendChild(document.createElementNS(ns, "title")).textContent = `${label}: ${count}`;
+      svg.appendChild(text);
+
+      const track = document.createElementNS(ns, "rect");
+      track.setAttribute("x", String(labelW));
+      track.setAttribute("y", String(y + 4));
+      track.setAttribute("width", String(barMax));
+      track.setAttribute("height", "12");
+      track.setAttribute("rx", "6");
+      track.setAttribute("class", "pf-geo-track");
+      svg.appendChild(track);
+
+      const bar = document.createElementNS(ns, "rect");
+      bar.setAttribute("x", String(labelW));
+      bar.setAttribute("y", String(y + 4));
+      bar.setAttribute("width", String(barW));
+      bar.setAttribute("height", "12");
+      bar.setAttribute("rx", "6");
+      bar.setAttribute("class", "pf-geo-bar");
+      svg.appendChild(bar);
+
+      const countText = document.createElementNS(ns, "text");
+      countText.setAttribute("x", String(labelW + barW + gap));
+      countText.setAttribute("y", String(y + 14));
+      countText.setAttribute("class", "pf-geo-count");
+      countText.textContent = String(count);
+      svg.appendChild(countText);
     });
+
+    els.geoChart.appendChild(svg);
   }
 
   function applyDashboardData({ employees, donations, visits, donors24h }) {
@@ -287,8 +374,9 @@
     if (els.totalVisits) els.totalVisits.textContent = String(visits.length);
 
     const employeeMap = Object.fromEntries(employees.map((e) => [e.id, e]));
+    const locationIndex = buildLocationIndex(visits);
     renderEmployees(employees, donationStats);
-    renderDonations(donations, employeeMap);
+    renderDonations(donations, employeeMap, locationIndex);
     renderGeo(visits);
   }
 
@@ -316,7 +404,7 @@
         Promise.all([
           sb.from("employees").select("*").order("created_at", { ascending: false }),
           sb.from("donations").select("*").order("created_at", { ascending: false }).limit(200),
-          sb.from("visits").select("city,region,country,created_at").order("created_at", { ascending: false }).limit(1000),
+          sb.from("visits").select("city,region,country,created_at,referral_code,employee_id").order("created_at", { ascending: false }).limit(1000),
           sb.from("donations").select("id", { count: "exact", head: true }).gte("created_at", since24h),
         ]),
         new Promise((_, reject) =>
@@ -444,99 +532,6 @@
     location.href = "login.html";
   }
 
-  function openAccountSettings() {
-    if (els.accountEmail) els.accountEmail.value = currentUser?.email || "";
-    if (els.accountPassword) els.accountPassword.value = "";
-    if (els.accountPasswordConfirm) els.accountPasswordConfirm.value = "";
-    setFieldError(els.errAccountPassword, "");
-    setFieldError(els.errAccountPasswordConfirm, "");
-    els.accountDialog?.showModal();
-  }
-
-  async function updatePassword(e) {
-    e.preventDefault();
-    setFieldError(els.errAccountPassword, "");
-    setFieldError(els.errAccountPasswordConfirm, "");
-
-    const password = String(els.accountPassword?.value || "");
-    const confirm = String(els.accountPasswordConfirm?.value || "");
-    let bad = false;
-    if (password.length < 10) {
-      setFieldError(els.errAccountPassword, "Use at least 10 characters.");
-      bad = true;
-    }
-    if (password !== confirm) {
-      setFieldError(els.errAccountPasswordConfirm, "Passwords do not match.");
-      bad = true;
-    }
-    if (bad) return;
-
-    const sb = window.SiteSupabase.getClient();
-    if (!sb) {
-      setBanner("Supabase is not configured.", "err");
-      return;
-    }
-
-    els.accountSubmit.disabled = true;
-    const { error } = await sb.auth.updateUser({ password });
-    els.accountSubmit.disabled = false;
-
-    if (error) {
-      setFieldError(els.errAccountPassword, error.message || "Could not update password.");
-      return;
-    }
-
-    els.accountDialog.close();
-    setBanner("Password updated.", "ok");
-  }
-
-  function wireCommandMenu() {
-    const commands = [
-      { id: "new", label: "New employee", run: () => openNewEmployee() },
-      { id: "employees", label: "Go to employees", run: () => (location.hash = "#employees") },
-      { id: "geo", label: "Go to geography", run: () => (location.hash = "#geography") },
-      { id: "donate", label: "Open donate page", run: () => window.open("donate.html", "_blank") },
-      { id: "refresh", label: "Refresh dashboard", run: () => loadDashboard({ skipCachePaint: true }) },
-      { id: "account", label: "Account settings", run: () => openAccountSettings() },
-      { id: "signout", label: "Lock site", run: () => doSignOut() },
-    ];
-
-    function renderList(filter) {
-      const q = String(filter || "").toLowerCase();
-      els.commandList.innerHTML = "";
-      commands
-        .filter((c) => !q || c.label.toLowerCase().includes(q))
-        .forEach((c) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "command-item";
-          btn.setAttribute("role", "option");
-          btn.textContent = c.label;
-          btn.addEventListener("click", () => {
-            els.commandDialog.close();
-            c.run();
-          });
-          els.commandList.appendChild(btn);
-        });
-    }
-
-    function openCommand() {
-      renderList("");
-      els.commandInput.value = "";
-      els.commandDialog.showModal();
-      els.commandInput.focus();
-    }
-
-    document.addEventListener("keydown", (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        openCommand();
-      }
-    });
-    els.commandInput?.addEventListener("input", () => renderList(els.commandInput.value));
-    els.btnCommand?.addEventListener("click", openCommand);
-  }
-
   function wireDialogs() {
     els.btnNew?.addEventListener("click", openNewEmployee);
     els.btnNewSecondary?.addEventListener("click", openNewEmployee);
@@ -564,30 +559,15 @@
     });
 
     els.btnSignOut?.addEventListener("click", () => doSignOut());
-    els.btnAccount?.addEventListener("click", () => openAccountSettings());
-    els.accountCancel?.addEventListener("click", () => els.accountDialog.close());
-    els.accountForm?.addEventListener("submit", updatePassword);
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
     if (!window.SitePin?.requireUnlock?.()) return;
 
     document.body.classList.add("site-unlocked");
-    window.PfShell?.renderShell("overview");
+    window.PfShell?.renderShell("dashboard");
     wireDialogs();
-    wireCommandMenu();
     window.UiSelect?.initAll();
-
-    window.addEventListener("hashchange", () => {
-      const go = () => {
-        const id = location.hash.replace(/^#/, "");
-        if (!id) return;
-        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-      };
-      if (document.startViewTransition) document.startViewTransition(go);
-      else go();
-    });
-
     await loadDashboard();
   });
 })();

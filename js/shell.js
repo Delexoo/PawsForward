@@ -119,23 +119,20 @@
   function detectActiveId(explicit) {
     if (explicit) return explicit;
     const page = document.body?.getAttribute("data-page") || "";
+    if (page === "admin") return "dashboard";
     if (page === "donate") return "donate";
     if (page === "privacy") return "privacy";
     if (page === "terms") return "terms";
     if (page === "login") return "login";
-    const hash = (location.hash || "").replace("#", "");
-    if (hash === "donations" || hash === "employees" || hash === "geography" || hash === "overview") {
-      return hash;
-    }
-    return "overview";
+    return "dashboard";
   }
 
   function brandSub(activeId) {
     if (activeId === "donate") return "Donate";
     if (activeId === "privacy") return "Privacy";
     if (activeId === "terms") return "Terms";
-    if (activeId === "login") return "Sign in";
-    return "Admin console";
+    if (activeId === "login") return "Unlock";
+    return "Dashboard";
   }
 
   function initSidebarResizer(handle) {
@@ -201,13 +198,14 @@
         `<span class="brand-mark" aria-hidden="true">PF</span>` +
         `<span class="brand-text"><strong>${appName}</strong><span class="brand-sub">${brandSub(active)}</span></span>` +
         `</a>` +
-        `<div class="nav-group nav-group-home" data-nav-group="overview">` +
+        `<div class="nav-group nav-group-home" data-nav-group="dashboard">` +
         `<ul class="nav-list nav-list-standalone">` +
-        navItem("admin.html#overview", "Overview", "layout-dashboard", active === "overview") +
-        navItem("admin.html#donations", "Donations", "banknote", active === "donations") +
-        navItem("admin.html#employees", "Employees", "users", active === "employees") +
-        navItem("admin.html#geography", "Geography", "globe", active === "geography") +
-        navItem("donate.html", "Donate", "heart", active === "donate") +
+        (document.body?.getAttribute("data-page") === "admin"
+          ? navItem("admin.html", "Dashboard", "layout-dashboard", true)
+          : navItem("admin.html", "Dashboard", "layout-dashboard", active === "dashboard")) +
+        (document.body?.getAttribute("data-page") === "admin"
+          ? ""
+          : navItem("donate.html", "Donate", "heart", active === "donate")) +
         navItem("privacy.html", "Privacy", "help-circle", active === "privacy") +
         navItem("terms.html", "Terms", "info", active === "terms") +
         (document.body?.getAttribute("data-page") === "admin"

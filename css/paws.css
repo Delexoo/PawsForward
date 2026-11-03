@@ -1058,3 +1058,227 @@ h1,
     flex-wrap: wrap;
   }
 }
+
+/* ---- Minimal admin dashboard ---- */
+.pf-admin-minimal .pf-admin-hero {
+  margin-bottom: 4px;
+}
+
+.pf-admin-minimal .pf-admin-hero h1 {
+  margin: 0;
+  font-size: 1.55rem;
+  letter-spacing: -0.03em;
+}
+
+.pf-admin-minimal .pf-page-hero-actions {
+  gap: 8px;
+}
+
+.pf-admin-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pf-mini-panel {
+  margin: 0;
+  padding: 18px 20px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 16px;
+  background: var(--surface, #fff);
+  box-shadow: none;
+}
+
+.pf-mini-heading {
+  margin: 0 0 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted, #64748b);
+}
+
+.pf-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.pf-stat {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2, #f8fafc);
+}
+
+.pf-stat dt {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted, #64748b);
+}
+
+.pf-stat dd {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.pf-admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.pf-donation-list,
+.pf-employee-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.pf-donation-row,
+.pf-employee-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border, #eef2f7);
+}
+
+.pf-donation-row:last-child,
+.pf-employee-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.pf-donation-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.pf-donation-details {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.pf-donation-details > div {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.pf-donation-details dt {
+  margin: 0;
+  color: var(--muted, #64748b);
+  font-weight: 600;
+}
+
+.pf-donation-details dd {
+  margin: 0;
+  color: var(--text, #0f172a);
+}
+
+.pf-donation-details code {
+  font-size: 11px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--surface-2, #f1f5f9);
+}
+
+.pf-muted {
+  color: var(--muted, #94a3b8);
+  font-weight: 500;
+}
+
+.pf-geo-chart {
+  width: 100%;
+  min-height: 120px;
+}
+
+.pf-geo-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.pf-geo-label {
+  fill: var(--text, #334155);
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.pf-geo-track {
+  fill: var(--surface-2, #e2e8f0);
+}
+
+.pf-geo-bar {
+  fill: var(--accent, #0f172a);
+}
+
+.pf-geo-count {
+  fill: var(--muted, #64748b);
+  font-size: 11px;
+  font-weight: 650;
+  font-family: inherit;
+}
+
+.pf-section-head--compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.pf-section-head--compact .pf-mini-heading {
+  margin: 0;
+}
+
+.pf-employee-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+}
+
+.pf-employee-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pf-employee-meta {
+  font-size: 12px;
+  color: var(--muted, #64748b);
+}
+
+.pf-employee-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .pf-stat-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pf-admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-donation-details > div {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+}
