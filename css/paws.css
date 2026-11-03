@@ -182,7 +182,9 @@ body[data-page="admin"] #page-body.pf-admin-minimal {
   max-width: 860px;
   width: 100%;
   margin-inline: auto;
-  gap: 8px;
+  gap: 10px;
+  padding-inline: 4px;
+  box-sizing: border-box;
 }
 
 .pf-btn-danger {
@@ -469,15 +471,26 @@ body[data-page="admin"] .owner-console-team-overview-head {
 }
 
 .pf-dialog.site-leave-dialog {
-  width: min(480px, calc(100vw - 32px));
+  width: min(480px, calc(100vw - 40px));
+  max-width: calc(100vw - 40px);
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  border: none;
+  padding: 0;
+  background: transparent;
+  overflow: visible;
 }
 
 .pf-dialog.site-leave-dialog--wide {
-  width: min(540px, calc(100vw - 32px));
+  width: min(520px, calc(100vw - 40px));
+  max-width: calc(100vw - 40px);
 }
 
 .pf-dialog .site-leave-dialog-panel {
-  padding: 22px !important;
+  padding: 18px !important;
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  box-sizing: border-box;
 }
 
 .pf-dialog .field {
@@ -1157,11 +1170,15 @@ h1,
   align-items: center;
   justify-content: space-between;
   gap: 12px 16px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   margin: 0;
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 14px;
   background: #fff;
+}
+
+.pf-stat {
+  outline: none;
 }
 
 .pf-admin-brand {
@@ -1259,7 +1276,7 @@ h1,
 
 .pf-mini-panel {
   margin: 0;
-  padding: 8px 10px;
+  padding: 12px 14px;
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 12px;
   background: var(--surface, #fff);
@@ -1267,7 +1284,7 @@ h1,
 }
 
 .pf-mini-heading {
-  margin: 0 0 4px;
+  margin: 0 0 8px;
   font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1317,20 +1334,54 @@ h1,
   padding: 0;
   display: grid;
   gap: 0;
-  max-height: 420px;
+  max-height: min(360px, 52vh);
   overflow: auto;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.pf-donation-list::-webkit-scrollbar,
+.pf-employee-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pf-donation-list::-webkit-scrollbar-thumb,
+.pf-employee-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.pf-donation-list::-webkit-scrollbar-track,
+.pf-employee-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .pf-donation-row,
 .pf-employee-row {
-  padding: 5px 0;
+  padding: 10px 2px;
   border-bottom: 1px solid var(--border, #eef2f7);
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pf-donation-row:focus,
+.pf-donation-row:focus-visible,
+.pf-employee-row:focus,
+.pf-employee-row:focus-visible,
+.pf-donation-list:focus,
+.pf-donation-list:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .pf-donation-row:last-child,
 .pf-employee-row:last-child {
   border-bottom: none;
-  padding-bottom: 0;
+  padding-bottom: 2px;
 }
 
 .pf-donation-top {
@@ -1338,22 +1389,22 @@ h1,
   justify-content: space-between;
   gap: 10px;
   align-items: baseline;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .pf-donation-top strong {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
 }
 
 .pf-donation-details {
   margin: 0;
   display: grid;
-  gap: 2px;
+  gap: 3px;
 }
 
 .pf-donation-details > div {
   display: grid;
-  grid-template-columns: 78px minmax(0, 1fr);
+  grid-template-columns: 72px minmax(0, 1fr);
   gap: 6px;
   font-size: 11px;
   line-height: 1.35;
@@ -1384,18 +1435,25 @@ h1,
 
 .pf-geo-chart {
   width: 100%;
-  min-height: 120px;
+  max-width: 420px;
+  min-height: 0;
+  max-height: 180px;
+  margin: 0;
+  padding: 4px 2px 2px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .pf-geo-svg {
   width: 100%;
+  max-height: 168px;
   height: auto;
   display: block;
 }
 
 .pf-geo-label {
   fill: var(--text, #334155);
-  font-size: 11px;
+  font-size: 10px;
   font-family: inherit;
 }
 
@@ -1404,12 +1462,12 @@ h1,
 }
 
 .pf-geo-bar {
-  fill: var(--accent, #0f172a);
+  fill: #0f172a;
 }
 
 .pf-geo-count {
   fill: var(--muted, #64748b);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 650;
   font-family: inherit;
 }
@@ -1720,7 +1778,7 @@ button.pf-stat-chip--link:focus-visible {
 @media (max-width: 900px) {
   body.pf-no-sidebar .main,
   body[data-page="admin"] .main {
-    padding: 12px 10px 56px !important;
+    padding: 14px 14px 64px !important;
   }
 
   body[data-page="admin"] #page-body.pf-admin-minimal {
@@ -1729,9 +1787,21 @@ button.pf-stat-chip--link:focus-visible {
     gap: 10px;
   }
 
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+    width: calc(100vw - 40px) !important;
+    max-width: calc(100vw - 40px) !important;
+    max-height: calc(100dvh - 56px);
+  }
+
+  body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel {
+    padding: 16px !important;
+    max-height: calc(100dvh - 56px);
+  }
+
   .pf-admin-topbar {
     flex-wrap: wrap;
-    padding: 10px;
+    padding: 10px 12px;
     gap: 10px;
   }
 

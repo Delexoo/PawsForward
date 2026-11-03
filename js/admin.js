@@ -583,12 +583,12 @@
     if (els.geoEmpty) els.geoEmpty.hidden = true;
 
     const max = ranked[0][1] || 1;
-    const rowH = 28;
-    const labelW = 118;
-    const gap = 10;
-    const chartW = 320;
-    const barMax = chartW - labelW - 36;
-    const height = ranked.length * rowH + 8;
+    const rowH = 22;
+    const labelW = 108;
+    const gap = 8;
+    const chartW = 300;
+    const barMax = chartW - labelW - 28;
+    const height = ranked.length * rowH + 4;
     const ns = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(ns, "svg");
     svg.setAttribute("viewBox", `0 0 ${chartW} ${height}`);
@@ -596,13 +596,13 @@
     svg.setAttribute("role", "presentation");
 
     ranked.forEach(([label, count], i) => {
-      const y = i * rowH + 4;
+      const y = i * rowH + 2;
       const barW = Math.max(4, Math.round((count / max) * barMax));
-      const short = label.length > 22 ? label.slice(0, 20) + "…" : label;
+      const short = label.length > 18 ? label.slice(0, 16) + "…" : label;
 
       const text = document.createElementNS(ns, "text");
       text.setAttribute("x", "0");
-      text.setAttribute("y", String(y + 14));
+      text.setAttribute("y", String(y + 12));
       text.setAttribute("class", "pf-geo-label");
       text.textContent = short;
       text.appendChild(document.createElementNS(ns, "title")).textContent = `${label}: ${count}`;
@@ -612,8 +612,8 @@
       track.setAttribute("x", String(labelW));
       track.setAttribute("y", String(y + 4));
       track.setAttribute("width", String(barMax));
-      track.setAttribute("height", "12");
-      track.setAttribute("rx", "6");
+      track.setAttribute("height", "9");
+      track.setAttribute("rx", "5");
       track.setAttribute("class", "pf-geo-track");
       svg.appendChild(track);
 
@@ -621,14 +621,14 @@
       bar.setAttribute("x", String(labelW));
       bar.setAttribute("y", String(y + 4));
       bar.setAttribute("width", String(barW));
-      bar.setAttribute("height", "12");
-      bar.setAttribute("rx", "6");
+      bar.setAttribute("height", "9");
+      bar.setAttribute("rx", "5");
       bar.setAttribute("class", "pf-geo-bar");
       svg.appendChild(bar);
 
       const countText = document.createElementNS(ns, "text");
       countText.setAttribute("x", String(labelW + barW + gap));
-      countText.setAttribute("y", String(y + 14));
+      countText.setAttribute("y", String(y + 12));
       countText.setAttribute("class", "pf-geo-count");
       countText.textContent = String(count);
       svg.appendChild(countText);
