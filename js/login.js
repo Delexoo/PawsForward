@@ -22,8 +22,9 @@
   function nextUrl() {
     const params = new URLSearchParams(location.search);
     const next = String(params.get("next") || "admin.html").replace(/[^a-z0-9._-]/gi, "");
-    if (!next || next === "login.html") return "admin.html";
-    return next;
+    const page = !next || next === "login.html" ? "admin.html" : next;
+    const bust = String(window.SITE_CONFIG?.assetVersion || Date.now());
+    return `${page}?v=${encodeURIComponent(bust)}`;
   }
 
   function attempt() {

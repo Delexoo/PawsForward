@@ -119,7 +119,8 @@
     }
     if (isLoginPage()) {
       if (isUnlocked()) {
-        location.replace("admin.html");
+        const bust = String(global.SITE_CONFIG?.assetVersion || Date.now());
+        location.replace(`admin.html?v=${encodeURIComponent(bust)}`);
         return false;
       }
       // Keep login form visible; do not apply the full lock hide.
