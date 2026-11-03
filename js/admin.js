@@ -922,7 +922,10 @@
       if (els.confirmLead) els.confirmLead.textContent = lead;
       if (els.confirmOk) els.confirmOk.textContent = confirmLabel;
 
+      let settled = false;
       const finish = (ok) => {
+        if (settled) return;
+        settled = true;
         dialog.removeEventListener("close", onClose);
         els.confirmCancel?.removeEventListener("click", onCancel);
         els.confirmOk?.removeEventListener("click", onOk);
@@ -933,9 +936,9 @@
       const onOk = () => finish(true);
       const onClose = () => finish(false);
 
-      els.confirmCancel?.addEventListener("click", onCancel, { once: true });
-      els.confirmOk?.addEventListener("click", onOk, { once: true });
-      dialog.addEventListener("close", onClose, { once: true });
+      els.confirmCancel?.addEventListener("click", onCancel);
+      els.confirmOk?.addEventListener("click", onOk);
+      dialog.addEventListener("close", onClose);
       dialog.showModal();
       els.confirmCancel?.focus();
     });
