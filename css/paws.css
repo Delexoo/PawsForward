@@ -173,13 +173,14 @@ body[data-page="admin"] .main {
   margin-left: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
-  padding: 28px 24px 80px !important;
+  padding: 18px 18px 64px !important;
 }
 
 body[data-page="admin"] #page-body.pf-admin-minimal {
-  max-width: 960px;
+  max-width: 920px;
   width: 100%;
   margin-inline: auto;
+  gap: 12px;
 }
 
 .pf-btn-danger {
@@ -1137,56 +1138,121 @@ h1,
 }
 
 /* ---- Minimal admin dashboard ---- */
-.pf-admin-minimal .pf-admin-hero {
-  margin-bottom: 4px;
+.pf-admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 10px 12px;
+  margin: 0;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 14px;
+  background: #fff;
 }
 
 .pf-admin-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
 }
 
 .pf-admin-logo {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
   border-radius: 999px;
   object-fit: contain;
   background: #fff;
   border: 1px solid var(--border, #e2e8f0);
-  padding: 4px;
+  padding: 3px;
   box-sizing: border-box;
 }
 
-.pf-admin-minimal .pf-admin-hero h1 {
-  margin: 0;
-  font-size: 1.55rem;
-  letter-spacing: -0.03em;
+.pf-admin-brand-copy {
+  min-width: 0;
 }
 
-.pf-admin-minimal .pf-page-hero-actions {
+.pf-admin-eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted, #64748b);
+  line-height: 1.1;
+}
+
+.pf-admin-topbar h1 {
+  margin: 1px 0 0;
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #0f172a;
+}
+
+.pf-admin-toolbar {
+  display: flex;
+  align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+}
+
+.pf-tool-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #d7dde7;
+  background: #fff;
+  color: #0f172a;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.pf-tool-btn:hover {
+  background: #f8fafc;
+  border-color: #c5cedb;
+}
+
+.pf-tool-btn--primary {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #fff;
+}
+
+.pf-tool-btn--primary:hover {
+  background: #1e293b;
+  border-color: #1e293b;
+  color: #fff;
 }
 
 .pf-admin-stack {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 }
 
 .pf-mini-panel {
   margin: 0;
-  padding: 18px 20px;
+  padding: 12px 14px;
   border: 1px solid var(--border, #e2e8f0);
-  border-radius: 16px;
+  border-radius: 14px;
   background: var(--surface, #fff);
   box-shadow: none;
 }
 
 .pf-mini-heading {
-  margin: 0 0 14px;
-  font-size: 0.72rem;
+  margin: 0 0 10px;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1196,27 +1262,27 @@ h1,
 .pf-stat-strip {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   margin: 0;
 }
 
 .pf-stat {
   margin: 0;
-  padding: 10px 12px;
-  border-radius: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
   background: var(--surface-2, #f8fafc);
 }
 
 .pf-stat dt {
-  margin: 0 0 4px;
-  font-size: 11px;
-  font-weight: 600;
+  margin: 0 0 2px;
+  font-size: 10px;
+  font-weight: 650;
   color: var(--muted, #64748b);
 }
 
 .pf-stat dd {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 750;
   letter-spacing: -0.02em;
 }
@@ -1224,7 +1290,7 @@ h1,
 .pf-admin-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 18px;
+  gap: 12px;
   align-items: start;
 }
 
@@ -1234,14 +1300,14 @@ h1,
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
-  max-height: 520px;
+  gap: 0;
+  max-height: 420px;
   overflow: auto;
 }
 
 .pf-donation-row,
 .pf-employee-row {
-  padding: 12px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--border, #eef2f7);
 }
 
@@ -1254,23 +1320,27 @@ h1,
 .pf-donation-top {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   align-items: baseline;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.pf-donation-top strong {
+  font-size: 0.92rem;
 }
 
 .pf-donation-details {
   margin: 0;
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .pf-donation-details > div {
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  gap: 8px;
-  font-size: 12px;
-  line-height: 1.4;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 6px;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .pf-donation-details dt {
@@ -1332,8 +1402,8 @@ h1,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 4px;
+  gap: 10px;
+  margin-bottom: 2px;
 }
 
 .pf-section-head--compact .pf-mini-heading {
@@ -1343,89 +1413,96 @@ h1,
 .pf-employee-row {
   display: flex;
   justify-content: space-between;
-  gap: 14px;
+  gap: 10px;
   align-items: center;
 }
 
 .pf-employee-main {
   display: grid;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
 }
 
+.pf-employee-main strong {
+  font-size: 0.92rem;
+}
+
 .pf-employee-meta {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted, #64748b);
 }
 
 .pf-employee-actions {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
+}
+
+.pf-employee-actions .btn-sm {
+  min-height: 28px;
+  padding: 0 8px;
+  font-size: 11px;
+  border-radius: 8px;
+}
+
+.feed-amount {
+  font-size: 0.92rem;
 }
 
 @media (max-width: 900px) {
   body.pf-no-sidebar .main,
   body[data-page="admin"] .main {
-    padding: 16px 12px 72px !important;
+    padding: 12px 10px 56px !important;
   }
 
   body[data-page="admin"] #page-body.pf-admin-minimal {
     max-width: 100%;
     padding-inline: 0;
+    gap: 10px;
   }
 
-  .pf-admin-minimal .pf-page-hero-row {
-    gap: 12px;
+  .pf-admin-topbar {
+    flex-wrap: wrap;
+    padding: 10px;
+    gap: 10px;
   }
 
-  .pf-admin-minimal .pf-admin-hero h1 {
-    font-size: 1.3rem;
-  }
-
-  .pf-admin-logo {
-    width: 34px;
-    height: 34px;
-  }
-
-  .pf-admin-minimal .pf-page-hero-actions {
+  .pf-admin-toolbar {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
   }
 
-  .pf-admin-minimal .pf-page-hero-actions .btn {
+  .pf-tool-btn {
     width: 100%;
-    min-height: 40px;
-    justify-content: center;
+    min-height: 36px;
   }
 
   .pf-mini-panel {
-    padding: 14px 14px;
-    border-radius: 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
   }
 
   .pf-admin-stack {
-    gap: 12px;
+    gap: 10px;
   }
 
   .pf-stat-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
   }
 
   .pf-stat {
-    padding: 10px;
+    padding: 8px;
   }
 
   .pf-stat dd {
-    font-size: 0.98rem;
+    font-size: 0.9rem;
   }
 
   .pf-admin-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
   }
 
   .pf-donation-list,
@@ -1436,7 +1513,7 @@ h1,
   .pf-employee-row {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    gap: 8px;
   }
 
   .pf-employee-actions {
@@ -1444,23 +1521,19 @@ h1,
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
+    gap: 4px;
   }
 
   .pf-employee-actions .btn {
     width: 100%;
     justify-content: center;
-    padding-inline: 6px;
-    font-size: 12px;
+    padding-inline: 4px;
+    font-size: 11px;
   }
 
   .pf-donation-details > div {
-    grid-template-columns: 64px minmax(0, 1fr);
-    gap: 6px;
-  }
-
-  .pf-geo-svg {
-    min-height: 140px;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 4px;
   }
 
   .menu-btn {
