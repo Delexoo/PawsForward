@@ -4,6 +4,7 @@
     form: document.getElementById("join-form"),
     submit: document.getElementById("join-submit"),
     success: document.getElementById("join-success"),
+    successTitle: document.getElementById("join-success-title"),
     successName: document.getElementById("join-success-name"),
     successLead: document.getElementById("join-success-lead"),
     successMsg: document.getElementById("join-success-msg"),
@@ -205,8 +206,8 @@
   function validate(payload) {
     clearErrors();
     let bad = false;
-    if (!payload.first_name) {
-      setFieldError(els.errFirst, "Enter a first name.");
+    if (payload.first_name && payload.first_name.length > 80) {
+      setFieldError(els.errFirst, "First name is too long.");
       bad = true;
     }
     if (payload.last_name && payload.last_name.length > 80) {
@@ -232,8 +233,14 @@
     return !bad;
   }
 
+  function cleanName(value) {
+    return String(value || "").replace(/\u00A0/g, " ").trim();
+  }
+
   async function showSuccess(row, phone) {
-    const name = `${row.first_name || ""} ${row.last_name || ""}`.trim() || "promoter";
+    const first = cleanName(row.first_name);
+    const last = cleanName(row.last_name);
+    const name = `${first} ${last}`.trim() || "promoter";
     const url = shareUrlFor(row.referral_code);
     const code = row.referral_code || "";
     const qrPage = qrPageUrlFor(code);
@@ -241,11 +248,13 @@
 
     if (els.form) els.form.hidden = true;
     if (els.success) els.success.hidden = false;
-    if (els.successName) els.successName.textContent = row.first_name || name;
+    if (els.successTitle) {
+      els.successTitle.textContent = first ? `You’re in, ${first}` : "You’re in";
+    }
     if (els.shareUrl) els.shareUrl.value = url;
     if (els.code) els.code.textContent = code || "—";
 
-    const msg = welcomeMessage(row.first_name || name, url, code || "—", qrPage);
+    const msg = welcomeMessage(first, url, code || "—", qrPage);
     if (els.successMsg) els.successMsg.textContent = msg;
     if (els.successLead) {
       els.successLead.textContent =
@@ -297,8 +306,10 @@
     if (els.submit) els.submit.disabled = true;
     setBanner("Creating your QR…");
 
+    // Empty first name → NBSP so older signup RPCs that still require a name succeed;
+    // UI trims it back to blank. New RPC accepts '' and stores ''.
     const { data, error } = await sb.rpc("public_signup_promoter", {
-      p_first_name: payload.first_name,
+      p_first_name: payload.first_name || "\u00A0",
       p_last_name: payload.last_name,
       p_phone: payload.phone,
       p_payment_type: payload.payment_type,

@@ -234,8 +234,8 @@ declare
   v_phone_count int;
   v_row public.employees;
 begin
-  if v_first is null or char_length(v_first) > 80 then
-    raise exception 'Enter a valid first name.' using errcode = '22023';
+  if v_first is not null and char_length(v_first) > 80 then
+    raise exception 'First name is too long.' using errcode = '22023';
   end if;
   if v_last is not null and char_length(v_last) > 80 then
     raise exception 'Last name is too long.' using errcode = '22023';
@@ -279,7 +279,7 @@ begin
   insert into public.employees (
     first_name, last_name, phone, payment_type, payment_handle, referral_code, avatar_url
   ) values (
-    v_first, coalesce(v_last, ''), v_phone, v_type, v_handle, v_code, null
+    coalesce(v_first, ''), coalesce(v_last, ''), v_phone, v_type, v_handle, v_code, null
   )
   returning * into v_row;
 

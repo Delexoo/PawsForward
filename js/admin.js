@@ -1034,7 +1034,7 @@
         els.detailAvatar.src = DEFAULT_AVATAR;
       };
     }
-    if (els.detailTitle) els.detailTitle.textContent = `${emp.first_name} ${emp.last_name}`.trim();
+    if (els.detailTitle) els.detailTitle.textContent = personLabel(emp);
     if (els.detailPhone) els.detailPhone.textContent = phone || "No phone on file";
     if (els.detailVisits) els.detailVisits.textContent = String(visits.count || 0);
     if (els.detailRaised) els.detailRaised.textContent = money(stats.raised);
@@ -1122,7 +1122,7 @@
         <div class="pf-employee-identity">
           <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="36" height="36" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
           <div class="pf-employee-main">
-            <strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong>
+            <strong>${escapeHtml(personLabel(emp))}</strong>
             <div class="pf-employee-stats" aria-label="Volunteer snapshot">
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Visits</span><span class="pf-stat-chip-value">${visits.count}</span></span>
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Raised</span><span class="pf-stat-chip-value">${money(stats.raised)}</span></span>
@@ -1603,6 +1603,12 @@
     setFieldError(els.errHandle, "");
   }
 
+  function personLabel(emp, fallback = "Volunteer") {
+    const first = String(emp?.first_name || "").replace(/\u00A0/g, " ").trim();
+    const last = String(emp?.last_name || "").replace(/\u00A0/g, " ").trim();
+    return `${first} ${last}`.trim() || fallback;
+  }
+
   function readEmployeeForm() {
     const fd = new FormData(els.employeeForm);
     const handle = normalizeHandle(fd.get("payment_handle"));
@@ -1618,8 +1624,8 @@
   function validateEmployeeForm(payload) {
     clearEmployeeErrors();
     let bad = false;
-    if (!payload.first_name) {
-      setFieldError(els.errFirst, "Enter a first name.");
+    if (payload.first_name && payload.first_name.length > 80) {
+      setFieldError(els.errFirst, "First name is too long.");
       bad = true;
     }
     if (payload.last_name && payload.last_name.length > 80) {
@@ -1713,7 +1719,8 @@
 
     const isEdit = !!editingEmployeeId;
     els.employeeSubmit.disabled = true;
-    setBanner(isEdit ? "Saving…" : `Creating ${payload.first_name}…`);
+    const createLabel = `${payload.first_name || ""} ${payload.last_name || ""}`.trim() || "volunteer";
+    setBanner(isEdit ? "Saving…" : `Creating ${createLabel}…`);
 
     let data;
     let error;
@@ -1751,12 +1758,7 @@
     await closeAdminDialog(els.employeeDialog);
     editingEmployeeId = null;
     clearPendingAvatar();
-    setBanner(
-      isEdit
-        ? `Updated ${data.first_name} ${data.last_name}.`
-        : `Created ${data.first_name} ${data.last_name}.`,
-      "ok"
-    );
+    setBanner(isEdit ? `Updated ${personLabel(data)}.` : `Created ${personLabel(data)}.`, "ok");
     await loadDashboard({ skipCachePaint: true });
     if (!isEdit) await openQrDialog(data);
   }
