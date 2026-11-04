@@ -449,7 +449,7 @@
       els.errPayAmount.hidden = true;
       els.errPayAmount.textContent = "";
     }
-    els.payoutDialog.showModal();
+    openAdminDialog(els.payoutDialog);
     if (window.matchMedia && window.matchMedia("(min-width: 700px)").matches) {
       els.payAmount?.focus();
       els.payAmount?.select?.();
@@ -482,7 +482,7 @@
         note: note || null,
       });
       if (error) throw error;
-      els.payoutDialog?.close();
+      await closeAdminDialog(els.payoutDialog);
       setBanner(`Recorded ${money(amount)} paid to ${emp.first_name}.`, "ok");
       await loadDashboard({ skipCachePaint: true });
       const refreshed = latestEmployees.find((e) => e.id === emp.id);
@@ -495,16 +495,175 @@
     }
   }
 
+  function isMobileSheetViewport() {
+    return window.matchMedia && window.matchMedia("(max-width: 900px)").matches;
+  }
+
+  function dialogPanel(dialog) {
+    return dialog?.querySelector?.(".site-leave-dialog-panel") || null;
+  }
+
+  function openAdminDialog(dialog) {
+    if (!dialog) return;
+    dialog.classList.remove("is-closing", "is-dragging");
+    const panel = dialogPanel(dialog);
+    if (panel) {
+      panel.style.transform = "";
+      panel.style.transition = "";
+    }
+    if (typeof dialog.showModal === "function" && !dialog.open) {
+      dialog.showModal();
+    }
+    if (!isMobileSheetViewport()) return;
+    dialog.classList.add("is-sheet");
+    dialog.classList.add("is-entering");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        dialog.classList.remove("is-entering");
+        dialog.classList.add("is-open");
+      });
+    });
+  }
+
+  function closeAdminDialog(dialog) {
+    if (!dialog?.open) return Promise.resolve();
+    if (!isMobileSheetViewport()) {
+      dialog.classList.remove("is-sheet", "is-open", "is-entering", "is-closing", "is-dragging");
+      dialog.close();
+      return Promise.resolve();
+    }
+    if (dialog.classList.contains("is-closing")) {
+      return new Promise((resolve) => {
+        dialog.addEventListener("close", () => resolve(), { once: true });
+      });
+    }
+    return new Promise((resolve) => {
+      const panel = dialogPanel(dialog);
+      const finish = () => {
+        dialog.classList.remove("is-closing", "is-open", "is-entering", "is-dragging", "is-sheet");
+        if (panel) {
+          panel.style.transform = "";
+          panel.style.transition = "";
+        }
+        if (dialog.open) dialog.close();
+        resolve();
+      };
+      dialog.classList.add("is-closing");
+      dialog.classList.remove("is-open", "is-entering");
+      if (panel) {
+        panel.style.transition = "transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)";
+        panel.style.transform = "translate3d(0, 110%, 0)";
+      }
+      const onEnd = (e) => {
+        if (e.target !== panel || e.propertyName !== "transform") return;
+        panel.removeEventListener("transitionend", onEnd);
+        finish();
+      };
+      panel?.addEventListener("transitionend", onEnd);
+      window.setTimeout(finish, 340);
+    });
+  }
+
   function enableDialogBackdropClose(dialog) {
     if (!dialog || dialog.dataset.backdropClose === "1") return;
     dialog.dataset.backdropClose = "1";
     dialog.addEventListener("click", (e) => {
-      if (e.target === dialog) dialog.close();
+      if (e.target === dialog) closeAdminDialog(dialog);
     });
   }
 
+  function enableDialogSheetDrag(dialog) {
+    if (!dialog || dialog.dataset.sheetDrag === "1") return;
+    dialog.dataset.sheetDrag = "1";
+    const panel = dialogPanel(dialog);
+    if (!panel) return;
+
+    let startY = 0;
+    let lastY = 0;
+    let lastT = 0;
+    let dragging = false;
+    let moved = false;
+    let velocity = 0;
+
+    const DRAG_ZONE = 64;
+    const DISMISS_PX = 110;
+    const DISMISS_V = 0.85;
+
+    function canStartDrag(clientY) {
+      if (!isMobileSheetViewport() || !dialog.open) return false;
+      const rect = panel.getBoundingClientRect();
+      const inHandle = clientY - rect.top <= DRAG_ZONE;
+      return inHandle || panel.scrollTop <= 0;
+    }
+
+    function onPointerDown(e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (!canStartDrag(e.clientY)) return;
+      if (e.target.closest("input, textarea, select, button, a, .ui-select, label")) {
+        // Still allow handle-bar drag near the top even over empty chrome.
+        const rect = panel.getBoundingClientRect();
+        if (e.clientY - rect.top > DRAG_ZONE) return;
+      }
+      dragging = true;
+      moved = false;
+      startY = e.clientY;
+      lastY = e.clientY;
+      lastT = performance.now();
+      velocity = 0;
+      dialog.classList.add("is-dragging");
+      panel.style.transition = "none";
+      try {
+        panel.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+    }
+
+    function onPointerMove(e) {
+      if (!dragging) return;
+      const dy = Math.max(0, e.clientY - startY);
+      if (dy > 4) moved = true;
+      const now = performance.now();
+      const dt = Math.max(1, now - lastT);
+      velocity = (e.clientY - lastY) / dt;
+      lastY = e.clientY;
+      lastT = now;
+      panel.style.transform = `translate3d(0, ${dy}px, 0)`;
+      if (moved && e.cancelable) e.preventDefault();
+    }
+
+    function onPointerUp() {
+      if (!dragging) return;
+      dragging = false;
+      dialog.classList.remove("is-dragging");
+      const dy = Math.max(0, lastY - startY);
+      const shouldClose = moved && (dy >= DISMISS_PX || velocity >= DISMISS_V);
+      if (shouldClose) {
+        closeAdminDialog(dialog);
+        return;
+      }
+      panel.style.transition = "transform 0.24s cubic-bezier(0.32, 0.72, 0, 1)";
+      panel.style.transform = "translate3d(0, 0, 0)";
+      const clear = () => {
+        panel.style.transition = "";
+        panel.style.transform = "";
+        panel.removeEventListener("transitionend", clear);
+      };
+      panel.addEventListener("transitionend", clear);
+      window.setTimeout(clear, 280);
+    }
+
+    panel.addEventListener("pointerdown", onPointerDown, { passive: true });
+    panel.addEventListener("pointermove", onPointerMove, { passive: false });
+    panel.addEventListener("pointerup", onPointerUp);
+    panel.addEventListener("pointercancel", onPointerUp);
+  }
+
   function wireDialogBackdropClose() {
-    document.querySelectorAll("dialog.pf-dialog, dialog.site-leave-dialog").forEach(enableDialogBackdropClose);
+    document.querySelectorAll("dialog.pf-dialog, dialog.site-leave-dialog").forEach((dialog) => {
+      enableDialogBackdropClose(dialog);
+      enableDialogSheetDrag(dialog);
+    });
   }
 
   function referralCode() {
@@ -617,7 +776,7 @@
     els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Short link opens Stripe Checkout (any amount) and attributes the gift to code ${employee.referral_code}.`;
     els.qrLinkText.textContent = url;
     els.qrHost.innerHTML = "";
-    els.qrDialog.showModal();
+    openAdminDialog(els.qrDialog);
     try {
       await window.PfQr.renderInto(els.qrHost, url, 220);
     } catch (err) {
@@ -668,7 +827,7 @@
         list.appendChild(li);
       });
     }
-    els.visitsDialog.showModal();
+    openAdminDialog(els.visitsDialog);
   }
 
   function fillEmployeeDetail(emp) {
@@ -707,12 +866,12 @@
   function openEmployeeDetail(emp) {
     if (!els.detailDialog) return;
     fillEmployeeDetail(emp);
-    els.detailDialog.showModal();
+    openAdminDialog(els.detailDialog);
   }
 
   function closeEmployeeDetail() {
     detailEmployee = null;
-    if (els.detailDialog?.open) els.detailDialog.close();
+    closeAdminDialog(els.detailDialog);
   }
 
   async function changeEmployeePhoto(emp, file) {
@@ -795,8 +954,8 @@
     if (els.donationsEmpty) els.donationsEmpty.hidden = true;
     rows.slice(0, 40).forEach((d) => {
       const emp = d.employee_id ? employeeMap[d.employee_id] : null;
-      const attributed = emp
-        ? `${emp.first_name} ${emp.last_name}`.trim()
+      const employeeName = emp
+        ? `${emp.first_name || ""} ${emp.last_name || ""}`.trim()
         : "";
       const donor = d.donor_label || "Anonymous";
       const place = String(locationIndex?.forDonation(d) || "").trim();
@@ -804,37 +963,48 @@
       const channel = viaQr ? "Employee QR" : "Direct";
       const whenAbs = absoluteTime(d.created_at);
       const whenRel = relativeTime(d.created_at);
-      const tags = [
-        `<span class="pf-don-tag ${viaQr ? "pf-don-tag--qr" : "pf-don-tag--direct"}">${escapeHtml(channel)}</span>`,
-      ];
-      if (attributed) {
-        tags.push(`<span class="pf-don-tag pf-don-tag--person">${escapeHtml(attributed)}</span>`);
-      } else if (!viaQr) {
-        tags.push(`<span class="pf-don-tag">Unattributed</span>`);
-      }
-      if (place) {
-        tags.push(`<span class="pf-don-tag pf-don-tag--place">${escapeHtml(place)}</span>`);
-      }
-      if (d.referral_code) {
-        tags.push(`<span class="pf-don-tag pf-don-tag--code"><code>${escapeHtml(d.referral_code)}</code></span>`);
-      }
       const li = document.createElement("li");
       li.className = "pf-donation-row";
       li.dataset.donationId = d.id;
       li.innerHTML = `
-        <div class="pf-donation-top">
-          <div class="pf-donation-identity">
-            <strong class="pf-donation-donor">${escapeHtml(donor)}</strong>
-            <p class="pf-donation-when">${escapeHtml(whenAbs)}${whenRel ? ` · ${escapeHtml(whenRel)}` : ""}</p>
+        <div class="pf-donation-main">
+          <div class="pf-donation-top">
+            <div class="pf-donation-identity">
+              <strong class="pf-donation-donor">${escapeHtml(donor)}</strong>
+              <p class="pf-donation-when">${escapeHtml(whenAbs)}${whenRel ? ` · ${escapeHtml(whenRel)}` : ""}</p>
+              <p class="pf-donation-employee">Employee: ${escapeHtml(employeeName || "None")}</p>
+            </div>
+            <span class="feed-amount">${money(d.amount)}</span>
           </div>
-          <span class="feed-amount">${money(d.amount)}</span>
+          <button type="button" class="pf-don-more" data-don-action="more" aria-expanded="false">View more</button>
         </div>
-        <div class="pf-donation-tags" aria-label="Donation details">${tags.join("")}</div>
-        <div class="pf-donation-actions">
-          <button type="button" class="pf-chip-btn" data-don-action="edit">Edit</button>
-          <button type="button" class="pf-chip-btn pf-chip-btn--danger" data-don-action="delete">Delete</button>
+        <div class="pf-donation-more" hidden>
+          <dl class="pf-donation-details">
+            <div><dt>Via</dt><dd>${escapeHtml(channel)}</dd></div>
+            <div><dt>Where</dt><dd>${escapeHtml(place || "Location unknown")}</dd></div>
+            ${
+              d.referral_code
+                ? `<div><dt>Code</dt><dd><code>${escapeHtml(d.referral_code)}</code></dd></div>`
+                : ""
+            }
+          </dl>
+          <div class="pf-donation-actions">
+            <button type="button" class="pf-chip-btn" data-don-action="edit">Edit</button>
+            <button type="button" class="pf-chip-btn pf-chip-btn--danger" data-don-action="delete">Delete</button>
+          </div>
         </div>
       `;
+      const moreBtn = li.querySelector('[data-don-action="more"]');
+      const morePanel = li.querySelector(".pf-donation-more");
+      moreBtn?.addEventListener("click", () => {
+        const open = morePanel?.hidden === false;
+        if (morePanel) morePanel.hidden = open;
+        li.classList.toggle("is-expanded", !open);
+        if (moreBtn) {
+          moreBtn.setAttribute("aria-expanded", open ? "false" : "true");
+          moreBtn.textContent = open ? "View more" : "View less";
+        }
+      });
       li.querySelector('[data-don-action="edit"]')?.addEventListener("click", () => openEditDonation(d));
       li.querySelector('[data-don-action="delete"]')?.addEventListener("click", () => deleteDonation(d));
       feed.appendChild(li);
@@ -867,7 +1037,7 @@
       els.errDonAmount.textContent = "";
     }
     fillDonationEmployeeOptions(donation.employee_id || "");
-    els.donationDialog.showModal();
+    openAdminDialog(els.donationDialog);
     if (window.matchMedia && window.matchMedia("(min-width: 700px)").matches) {
       els.donAmount?.focus();
     }
@@ -906,7 +1076,7 @@
         })
         .eq("id", id);
       if (error) throw error;
-      els.donationDialog?.close();
+      await closeAdminDialog(els.donationDialog);
       editingDonationId = null;
       setBanner("Donation updated.", "ok");
       await loadDashboard({ skipCachePaint: true });
@@ -1036,7 +1206,7 @@
         els.statInfoList.appendChild(li);
       });
     }
-    els.statInfoDialog.showModal();
+    openAdminDialog(els.statInfoDialog);
   }
 
   function renderGeo(visits) {
@@ -1293,7 +1463,7 @@
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Create & generate QR";
     setPaymentSelect("");
     if (els.empPaymentHandle) els.empPaymentHandle.value = "";
-    els.employeeDialog.showModal();
+    openAdminDialog(els.employeeDialog);
     // Avoid iOS input zoom jump: don't autofocus on small screens.
     if (window.matchMedia && window.matchMedia("(min-width: 700px)").matches) {
       els.empFirst?.focus();
@@ -1316,7 +1486,7 @@
       els.employeeLead.textContent = "Rename, update payout details, or change their photo. QR code stays the same.";
     }
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Save changes";
-    els.employeeDialog.showModal();
+    openAdminDialog(els.employeeDialog);
     if (window.matchMedia && window.matchMedia("(min-width: 700px)").matches) {
       els.empFirst?.focus();
     }
@@ -1370,7 +1540,7 @@
       return;
     }
 
-    els.employeeDialog.close();
+    await closeAdminDialog(els.employeeDialog);
     editingEmployeeId = null;
     clearPendingAvatar();
     setBanner(
@@ -1497,20 +1667,20 @@
     wireAdminNav();
     wirePullToHardRefresh();
     els.btnNew?.addEventListener("click", openNewEmployee);
-    els.visitsClose?.addEventListener("click", () => els.visitsDialog?.close());
+    els.visitsClose?.addEventListener("click", () => closeAdminDialog(els.visitsDialog));
     els.detailClose?.addEventListener("click", () => closeEmployeeDetail());
-    els.statInfoClose?.addEventListener("click", () => els.statInfoDialog?.close());
+    els.statInfoClose?.addEventListener("click", () => closeAdminDialog(els.statInfoDialog));
     els.statsGrid?.querySelectorAll("[data-stat-info]").forEach((btn) => {
       btn.addEventListener("click", () => openStatInfo(btn.getAttribute("data-stat-info")));
     });
     els.donationCancel?.addEventListener("click", () => {
       editingDonationId = null;
-      els.donationDialog?.close();
+      closeAdminDialog(els.donationDialog);
     });
     els.donationForm?.addEventListener("submit", saveDonation);
     els.payoutCancel?.addEventListener("click", () => {
       payoutEmployee = null;
-      els.payoutDialog?.close();
+      closeAdminDialog(els.payoutDialog);
     });
     els.payoutForm?.addEventListener("submit", recordPayout);
     els.payoutOpenApp?.addEventListener("click", async () => {
@@ -1524,7 +1694,7 @@
     els.employeeCancel?.addEventListener("click", () => {
       editingEmployeeId = null;
       clearPendingAvatar();
-      els.employeeDialog.close();
+      closeAdminDialog(els.employeeDialog);
     });
     els.employeeForm?.addEventListener("submit", saveEmployee);
     els.empAvatarFile?.addEventListener("change", () => {
@@ -1603,7 +1773,7 @@
       });
     });
 
-    els.qrClose?.addEventListener("click", () => els.qrDialog.close());
+    els.qrClose?.addEventListener("click", () => closeAdminDialog(els.qrDialog));
     els.qrCopy?.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(currentQr.url);
