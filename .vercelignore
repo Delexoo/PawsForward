@@ -1,0 +1,5 @@
+supabase/functions/welcome-promoter
+supabase/functions/welcome-promoter/**
+.env
+.git
+node_modules
