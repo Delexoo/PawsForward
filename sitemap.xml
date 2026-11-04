@@ -4,12 +4,15 @@
     <loc>https://delexoo.github.io/PawsForward/</loc>
   </url>
   <url>
-    <loc>https://delexoo.github.io/PawsForward/donate.html</loc>
-  </url>
-  <url>
     <loc>https://delexoo.github.io/PawsForward/join.html</loc>
   </url>
   <url>
-    <loc>https://delexoo.github.io/PawsForward/login.html</loc>
+    <loc>https://delexoo.github.io/PawsForward/donate.html</loc>
+  </url>
+  <url>
+    <loc>https://delexoo.github.io/PawsForward/privacy.html</loc>
+  </url>
+  <url>
+    <loc>https://delexoo.github.io/PawsForward/terms.html</loc>
   </url>
 </urlset>

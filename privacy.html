@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff9f3">
+  <meta name="description" content="Privacy policy for Paws Forward — what we collect, why we collect it, and how to request deletion.">
+  <link rel="canonical" href="https://delexoo.github.io/PawsForward/privacy.html">
+  <title>Privacy · Paws Forward</title>
+  <link rel="icon" href="icons/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="doc/brand-mark.png">
+  <link rel="stylesheet" href="css/fonts.css?v=20261105k">
+  <script src="js/theme.js?v=20261105k"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261105k">
+  <link rel="stylesheet" href="css/paws.css?v=20261105k">
+  <script src="js/config.js?v=20261105k"></script>
+  <script src="js/canonical.js?v=20261105k"></script>
+</head>
+<body data-page="legal" data-public="1">
+  <script>
+    document.body.setAttribute("data-public", "1");
+    document.body.classList.add("site-unlocked");
+  </script>
+  <a class="skip-link" href="#page-body">Skip to content</a>
+  <div id="page-body" class="pf-legal-page">
+    <header class="pf-legal-top">
+      <a class="pf-legal-brand" href="index.html">
+        <img src="doc/brand-mark.png" width="40" height="40" alt="">
+        <span>Paws Forward</span>
+      </a>
+      <nav class="pf-legal-nav" aria-label="Legal">
+        <a href="privacy.html" aria-current="page">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </header>
+
+    <article class="pf-legal-article">
+      <p class="pf-legal-kicker">Legal</p>
+      <h1>Privacy policy</h1>
+      <p class="pf-legal-updated">Last updated: November 4, 2026</p>
+
+      <p>
+        Paws Forward (“we”) is a dog-rescue fundraising organization. This policy explains what information
+        we collect on joinpawsforward.com and related pages, how we use it, and how you can reach us.
+      </p>
+
+      <h2>What we collect</h2>
+      <ul>
+        <li><strong>Promoter profiles.</strong> When you create a QR, we store your name, phone number, payout type, payout handle, and a referral code.</li>
+        <li><strong>Donations.</strong> Stripe processes payments. We store donation amount, time, optional donor label, attribution to a referral code when present, and Stripe session identifiers needed to confirm payment.</li>
+        <li><strong>Visit / scan data.</strong> Opening a QR or donate link may record a visit with referral code, path, time, and coarse location fields when available.</li>
+        <li><strong>Technical data.</strong> Standard server and browser logs (IP address, user agent) may be processed by our hosts (for example GitHub Pages and Supabase).</li>
+        <li><strong>Operator access.</strong> Dashboard access uses a session PIN stored only in your browser session after unlock — we do not collect account emails on the public site for that gate.</li>
+      </ul>
+
+      <h2>How we use information</h2>
+      <ul>
+        <li>To attribute donations to the promoter whose QR was shared.</li>
+        <li>To pay out commissions and operate the rescue fundraising program.</li>
+        <li>To improve reliability, prevent abuse, and confirm Stripe payments.</li>
+        <li>To respond to privacy or support requests you send us.</li>
+      </ul>
+
+      <h2>Who processes data for us</h2>
+      <ul>
+        <li><strong>Stripe</strong> — payment processing.</li>
+        <li><strong>Supabase</strong> — database and edge functions.</li>
+        <li><strong>GitHub Pages</strong> (or our domain host) — static site hosting.</li>
+      </ul>
+      <p>These providers process data under their own terms and privacy policies.</p>
+
+      <h2>Sharing</h2>
+      <p>
+        We do not sell personal information. We share data with processors needed to run payments and hosting,
+        and when required by law.
+      </p>
+
+      <h2>Retention</h2>
+      <p>
+        Donation and promoter records are kept as long as needed for accounting, payouts, and legal obligations.
+        Visit logs may be retained for analytics and fraud prevention, then deleted or aggregated.
+      </p>
+
+      <h2>Your choices</h2>
+      <p>
+        Email <a id="privacy-mail" href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a> to ask what we hold about you,
+        correct it, or request deletion. We may need to verify your request and keep limited records where the law requires it.
+      </p>
+
+      <h2>Children</h2>
+      <p>This service is not directed at children under 13. Do not submit children’s personal information.</p>
+
+      <h2>Contact</h2>
+      <p>
+        General: <a id="privacy-hello" href="mailto:hello@pawsforward.org">hello@pawsforward.org</a><br>
+        Privacy: <a href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a>
+      </p>
+    </article>
+
+    <footer class="pf-legal-foot">
+      <a href="index.html">Home</a>
+      ·
+      <a href="terms.html">Terms</a>
+      ·
+      <a href="join.html">Get your QR</a>
+    </footer>
+  </div>
+  <script>
+    (function () {
+      var cfg = window.SITE_CONFIG || {};
+      var privacy = String(cfg.privacyEmail || "privacy@pawsforward.org");
+      var hello = String(cfg.contactEmail || "hello@pawsforward.org");
+      var a = document.getElementById("privacy-mail");
+      var b = document.getElementById("privacy-hello");
+      if (a) { a.href = "mailto:" + privacy; a.textContent = privacy; }
+      if (b) { b.href = "mailto:" + hello; b.textContent = hello; }
+    })();
+  </script>
+</body>
+</html>

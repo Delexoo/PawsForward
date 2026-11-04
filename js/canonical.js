@@ -13,6 +13,8 @@
     "admin.html": `${origin}/admin.html`,
     "donate.html": `${origin}/donate.html`,
     "join.html": `${origin}/join.html`,
+    "privacy.html": `${origin}/privacy.html`,
+    "terms.html": `${origin}/terms.html`,
     "login.html": `${origin}/login.html`,
     "404.html": `${origin}/404.html`,
   };

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff9f3">
+  <meta name="description" content="Terms of use for Paws Forward — donations, promoter QRs, and site rules.">
+  <link rel="canonical" href="https://delexoo.github.io/PawsForward/terms.html">
+  <title>Terms · Paws Forward</title>
+  <link rel="icon" href="icons/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="doc/brand-mark.png">
+  <link rel="stylesheet" href="css/fonts.css?v=20261105k">
+  <script src="js/theme.js?v=20261105k"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261105k">
+  <link rel="stylesheet" href="css/paws.css?v=20261105k">
+  <script src="js/config.js?v=20261105k"></script>
+  <script src="js/canonical.js?v=20261105k"></script>
+</head>
+<body data-page="legal" data-public="1">
+  <script>
+    document.body.setAttribute("data-public", "1");
+    document.body.classList.add("site-unlocked");
+  </script>
+  <a class="skip-link" href="#page-body">Skip to content</a>
+  <div id="page-body" class="pf-legal-page">
+    <header class="pf-legal-top">
+      <a class="pf-legal-brand" href="index.html">
+        <img src="doc/brand-mark.png" width="40" height="40" alt="">
+        <span>Paws Forward</span>
+      </a>
+      <nav class="pf-legal-nav" aria-label="Legal">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html" aria-current="page">Terms</a>
+      </nav>
+    </header>
+
+    <article class="pf-legal-article">
+      <p class="pf-legal-kicker">Legal</p>
+      <h1>Terms of use</h1>
+      <p class="pf-legal-updated">Last updated: November 4, 2026</p>
+
+      <p>
+        By using the Paws Forward website, joining as a promoter, or making a donation, you agree to these terms.
+        If you do not agree, do not use the site.
+      </p>
+
+      <h2>Who we are</h2>
+      <p>
+        Paws Forward is a dog-rescue fundraising organization. We raise money for food, water, and shelter for dogs
+        and operate a QR sharing program where promoters can earn a commission on attributed gifts.
+      </p>
+
+      <h2>Donations</h2>
+      <ul>
+        <li>Donations are processed by Stripe. You choose the amount on Stripe Checkout.</li>
+        <li>Direct donations (no QR) support Paws Forward without promoter attribution.</li>
+        <li>Donations made through a promoter QR are attributed to that promoter’s referral code.</li>
+        <li>Donations are generally final once Stripe confirms payment, except where Stripe or the card issuer requires otherwise.</li>
+      </ul>
+
+      <h2>Promoter QRs</h2>
+      <ul>
+        <li>You must provide accurate name, phone, and payout details when creating a QR.</li>
+        <li>Unless we publish a different rate, promoters earn <strong>50%</strong> of donations attributed to their QR; the rest supports the rescue.</li>
+        <li>Payouts are handled by operators and may require valid payout information and identity checks.</li>
+        <li>Do not spam, misrepresent Paws Forward, or use QRs for unlawful activity. We may disable codes that violate these terms.</li>
+      </ul>
+
+      <h2>Acceptable use</h2>
+      <p>
+        Do not attempt to break into the site, abuse payment flows, scrape personal data, or interfere with other users.
+        We may suspend access that looks abusive.
+      </p>
+
+      <h2>Employee portal</h2>
+      <p>
+        The employee / operator dashboard is private. Access is limited to authorized people through the
+        <a href="login.html">Employee portal</a> on the homepage. Unauthorized access is prohibited.
+      </p>
+
+      <h2>Disclaimer</h2>
+      <p>
+        The site is provided “as is.” We work to keep donations and attribution accurate, but we do not guarantee
+        uninterrupted service or that every third-party payment will succeed.
+      </p>
+
+      <h2>Limitation of liability</h2>
+      <p>
+        To the fullest extent allowed by law, Paws Forward is not liable for indirect or consequential damages arising
+        from use of the site, including lost commissions caused by misuse of a QR, network issues, or Stripe declines.
+      </p>
+
+      <h2>Changes</h2>
+      <p>We may update these terms. Continued use after changes means you accept the updated terms.</p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions: <a id="terms-hello" href="mailto:hello@pawsforward.org">hello@pawsforward.org</a><br>
+        Privacy: see our <a href="privacy.html">privacy policy</a>.
+      </p>
+    </article>
+
+    <footer class="pf-legal-foot">
+      <a href="index.html">Home</a>
+      ·
+      <a href="privacy.html">Privacy</a>
+      ·
+      <a href="join.html">Get your QR</a>
+    </footer>
+  </div>
+  <script>
+    (function () {
+      var hello = String((window.SITE_CONFIG || {}).contactEmail || "hello@pawsforward.org");
+      var a = document.getElementById("terms-hello");
+      if (a) { a.href = "mailto:" + hello; a.textContent = hello; }
+    })();
+  </script>
+</body>
+</html>
