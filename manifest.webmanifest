@@ -1,8 +1,8 @@
 {
   "name": "Paws Forward",
   "short_name": "Paws Forward",
-  "description": "Dog-rescue fundraising — donate or get your QR.",
-  "start_url": "./index.html",
+  "description": "Employee portal for Paws Forward operators.",
+  "start_url": "./login.html",
   "scope": "./",
   "id": "./",
   "display": "standalone",

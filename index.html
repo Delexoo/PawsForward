@@ -6,6 +6,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Paws Forward">
   <meta name="theme-color" content="#fff9f3">
+  <script>
+    /* Home-screen / installed app opens the employee portal, not the public landing. */
+    (function () {
+      var standalone =
+        (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+        window.navigator.standalone === true;
+      if (standalone) location.replace("login.html");
+    })();
+  </script>
   <meta name="description" content="Paws Forward is a dog-rescue fundraising organization. Donate directly, or get your own QR — every gift helps dogs get food, water, and shelter.">
   <meta property="og:title" content="Paws Forward">
   <meta property="og:description" content="Donate to help dogs — or get your QR and earn 50% of every gift shared through it.">
@@ -14,17 +23,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://joinpawsforward.com/">
   <title>Paws Forward</title>
-  <link rel="icon" href="icons/favicon.png?v=20261107c" type="image/png" sizes="64x64">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261107c" sizes="180x180">
+  <link rel="icon" href="icons/favicon.png?v=20261107d" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261107d" sizes="180x180">
   <link rel="preload" href="media/hero-poster.jpg" as="image">
   <link rel="preload" href="media/hero-fast.mp4" as="video" type="video/mp4">
-  <link rel="manifest" href="manifest.webmanifest?v=20261107c">
-  <link rel="stylesheet" href="css/fonts.css?v=20261107c">
-  <script src="js/theme.js?v=20261107c"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261107c">
-  <link rel="stylesheet" href="css/paws.css?v=20261107c">
-  <script src="js/config.js?v=20261107c"></script>
-  <script src="js/canonical.js?v=20261107c"></script>
+  <link rel="manifest" href="manifest.webmanifest?v=20261107d">
+  <link rel="stylesheet" href="css/fonts.css?v=20261107d">
+  <script src="js/theme.js?v=20261107d"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261107d">
+  <link rel="stylesheet" href="css/paws.css?v=20261107d">
+  <script src="js/config.js?v=20261107d"></script>
+  <script src="js/canonical.js?v=20261107d"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -222,6 +231,6 @@
     </footer>
   </div>
 
-  <script src="js/home.js?v=20261107c"></script>
+  <script src="js/home.js?v=20261107d"></script>
 </body>
 </html>
