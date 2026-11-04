@@ -4588,7 +4588,7 @@ body[data-page="home"] a.btn.pf-home-cta {
   min-height: 48px;
   min-width: 148px;
   padding: 12px 28px !important;
-  border-radius: 999px !important;
+  border-radius: 12px !important;
   border-width: 1px !important;
   border-style: solid !important;
   font-family: "DM Sans", system-ui, sans-serif !important;
