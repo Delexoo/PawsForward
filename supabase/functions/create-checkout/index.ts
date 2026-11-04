@@ -169,16 +169,62 @@ async function buildCheckout(input: {
   return { url: session.url, session_id: session.id, employee: emp };
 }
 
-async function recordQrVisit(referralCode: string, employeeId: string | null) {
+function clientIp(req: Request): string | null {
+  const forwarded = String(req.headers.get("x-forwarded-for") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const candidates = [
+    req.headers.get("cf-connecting-ip"),
+    req.headers.get("true-client-ip"),
+    req.headers.get("x-real-ip"),
+    ...forwarded,
+  ]
+    .map((v) => String(v || "").trim())
+    .filter(Boolean);
+
+  for (const raw of candidates) {
+    const ip = raw.replace(/^::ffff:/i, "");
+    if (!ip) continue;
+    if (ip === "127.0.0.1" || ip === "::1") continue;
+    if (ip.startsWith("10.") || ip.startsWith("192.168.") || ip.startsWith("169.254.")) continue;
+    if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(ip)) continue;
+    return ip;
+  }
+  return null;
+}
+
+async function lookupGeo(ip: string | null) {
+  if (!ip) return { city: null as string | null, region: null as string | null, country: null as string | null };
   try {
+    const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) throw new Error(`geo ${res.status}`);
+    const data = await res.json();
+    if (!data?.success) return { city: null, region: null, country: null };
+    return {
+      city: String(data.city || "").trim() || null,
+      region: String(data.region || data.region_code || "").trim() || null,
+      country: String(data.country || data.country_code || "").trim() || null,
+    };
+  } catch (err) {
+    console.warn("geo lookup failed", err);
+    return { city: null, region: null, country: null };
+  }
+}
+
+async function recordQrVisit(req: Request, referralCode: string, employeeId: string | null) {
+  try {
+    const geo = await lookupGeo(clientIp(req));
     const supabase = adminClient();
     await supabase.rpc("record_visit", {
       p_referral_code: referralCode,
       p_employee_id: employeeId,
       p_path: `/functions/v1/create-checkout?ref=${encodeURIComponent(referralCode)}`,
-      p_city: null,
-      p_region: null,
-      p_country: null,
+      p_city: geo.city,
+      p_region: geo.region,
+      p_country: geo.country,
     });
   } catch (err) {
     console.warn("record_visit failed", err);
@@ -211,7 +257,7 @@ Deno.serve(async (req) => {
         siteOrigin: siteDefault,
       });
       if (!result.url) return json({ error: "No checkout URL." }, 500);
-      await recordQrVisit(referralCode, result.employee?.id ? String(result.employee.id) : null);
+      await recordQrVisit(req, referralCode, result.employee?.id ? String(result.employee.id) : null);
       return Response.redirect(result.url, 303);
     }
 

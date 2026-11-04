@@ -80,17 +80,27 @@
 
   async function recordScan() {
     if (!referralCode) return;
-    const sb = window.SiteSupabase?.getClient?.();
-    if (!sb) return;
+    const base = functionsBase();
+    const key = anonKey();
+    if (!base || !key) return;
     try {
-      await sb.rpc("record_visit", {
-        p_referral_code: referralCode,
-        p_employee_id: employee?.id || null,
-        p_path: location.pathname + location.search,
-        p_city: null,
-        p_region: null,
-        p_country: null,
+      const res = await fetch(`${base}/record-visit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: key,
+          Authorization: "Bearer " + key,
+        },
+        body: JSON.stringify({
+          referral_code: referralCode,
+          employee_id: employee?.id || null,
+          path: location.pathname + location.search,
+        }),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `record-visit ${res.status}`);
+      }
     } catch (err) {
       console.warn(err);
     }
