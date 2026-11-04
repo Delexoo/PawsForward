@@ -4669,7 +4669,10 @@ body.pf-home-video-failed .pf-home-fallback {
 
 body[data-page="home"] a.btn.pf-home-cta {
   flex: 0 0 auto;
-  min-width: 148px;
+  min-width: 132px;
+  min-height: 42px;
+  padding: 9px 20px !important;
+  font-size: 0.9rem !important;
 }
 
 body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--primary,
@@ -4850,10 +4853,10 @@ body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--secondary:hover {
   }
 
   body[data-page="home"] a.btn.pf-home-cta {
-    min-height: 70px;
-    min-width: 196px;
-    padding: 20px 34px !important;
-    font-size: 1.18rem !important;
+    min-height: 48px;
+    min-width: 156px;
+    padding: 11px 26px !important;
+    font-size: 1rem !important;
   }
 }
 
