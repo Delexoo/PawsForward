@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff9f3">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="Donate to Paws Forward — opens secure Stripe Checkout.">
   <meta name="robots" content="noindex">
   <link rel="canonical" href="https://joinpawsforward.com/donate">
   <title>Donate · Paws Forward</title>
-  <link rel="icon" href="icons/favicon.png?v=20261107m" type="image/png" sizes="64x64">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261107m" sizes="180x180">
+  <link rel="icon" href="icons/favicon.png?v=20261108z" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261108z" sizes="180x180">
   <script>
     /* Instant Stripe — no interstitial. Only success/cancel return stays on this page. */
     (function () {
@@ -23,61 +23,45 @@
       location.replace(u.href);
     })();
   </script>
-  <script src="js/config.js?v=20261107m"></script>
-  <script src="js/canonical.js?v=20261107m"></script>
-  <style>
-    :root { --cream: #fff9f3; --ink: #2d312b; --green: #6b8361; --taupe: #ada496; }
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0; min-height: 100%;
-      background: var(--cream); color: var(--ink);
-      font-family: "DM Sans", system-ui, sans-serif;
-    }
-    body { display: grid; place-items: center; min-height: 100dvh; padding: 24px; }
-    .skip-link { position: absolute; left: -9999px; }
-    .skip-link:focus { left: 12px; top: 12px; z-index: 2; background: #fff; padding: 8px 12px; }
-    .pf-donate-panel { width: min(420px, 100%); text-align: center; }
-    .pf-donate-panel[hidden] { display: none !important; }
-    .pf-donate-panel h1 {
-      margin: 0 0 12px;
-      font-size: clamp(1.6rem, 4vw, 2rem);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-    }
-    .pf-donate-panel p {
-      margin: 0 0 22px;
-      font-size: 1.05rem;
-      font-weight: 550;
-      line-height: 1.45;
-    }
-    .pf-donate-panel .muted { color: var(--taupe); font-weight: 500; }
-    .pf-donate-home {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-height: 48px; padding: 0 22px; border-radius: 12px;
-      background: var(--green); color: #fff !important; font-weight: 700; text-decoration: none;
-    }
-    .pf-donate-retry {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-height: 48px; padding: 0 22px; border-radius: 12px; margin-top: 8px;
-      background: var(--ink); color: #fff !important; font-weight: 700; text-decoration: none;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/pf-site.css?v=20261108y">
+  <link rel="stylesheet" href="css/pf-donate.css?v=20261108y">
+  <script src="js/config.js?v=20261108y"></script>
+  <script src="js/canonical.js?v=20261108y"></script>
 </head>
-<body data-page="donate" data-public="1">
-  <a class="skip-link" href="#page-body">Skip to content</a>
-  <div id="page-body">
-    <div class="pf-donate-panel" id="donate-success" hidden>
+<body class="donate-page" data-page="donate" data-public="1">
+  <a class="skip" href="#content">Skip to content</a>
+
+  <header class="topbar donate-topbar">
+    <a class="logo" href="/">
+      <img src="doc/brand-mark.png" width="24" height="24" alt="">
+      Paws Forward
+    </a>
+  </header>
+
+  <main id="content" class="donate-main">
+    <div class="donate-card" id="donate-success" hidden>
+      <p class="donate-kicker">Donation received</p>
       <h1>Thank you</h1>
-      <p id="donate-success-text">Your donation went through. Thank you for supporting the rescue.</p>
-      <a class="pf-donate-home" href="/">Back to Paws Forward</a>
+      <p class="donate-copy" id="donate-success-text">Your donation went through. Thank you for supporting the rescue.</p>
+      <div class="donate-actions">
+        <a class="btn btn-primary" href="/">Back home</a>
+      </div>
     </div>
-    <div class="pf-donate-panel" id="donate-cancelled" hidden>
+
+    <div class="donate-card" id="donate-cancelled" hidden>
+      <p class="donate-kicker">No charge made</p>
       <h1>Checkout cancelled</h1>
-      <p class="muted">No charge was made. You can donate whenever you’re ready.</p>
-      <a class="pf-donate-retry" id="donate-retry" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate with Stripe</a>
-      <p style="margin-top:18px"><a class="pf-donate-home" href="/">Back home</a></p>
+      <p class="donate-copy">You left Stripe before paying. Donate whenever you’re ready — every gift helps dogs get food, water, and shelter.</p>
+      <div class="donate-actions">
+        <a class="btn btn-primary" id="donate-retry" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Try again</a>
+        <a class="btn btn-ghost" href="/">Back home</a>
+      </div>
     </div>
-  </div>
-  <script src="js/donate.js?v=20261107m"></script>
+  </main>
+
+  <script src="js/donate.js?v=20261108y"></script>
 </body>
 </html>
