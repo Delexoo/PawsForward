@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fff9f3">
-  <meta name="description" content="Privacy policy for Paws Forward — what we collect, why we collect it, and how to request deletion.">
+  <meta name="description" content="Privacy policy for Paws Forward — detailed explanation of what we collect, how Stripe and Supabase process data, retention, and your rights.">
   <link rel="canonical" href="https://delexoo.github.io/PawsForward/privacy.html">
   <title>Privacy · Paws Forward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="stylesheet" href="css/fonts.css?v=20261105k">
-  <script src="js/theme.js?v=20261105k"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261105k">
-  <link rel="stylesheet" href="css/paws.css?v=20261105k">
-  <script src="js/config.js?v=20261105k"></script>
-  <script src="js/canonical.js?v=20261105k"></script>
+  <link rel="stylesheet" href="css/fonts.css?v=20261105u">
+  <script src="js/theme.js?v=20261105u"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261105u">
+  <link rel="stylesheet" href="css/paws.css?v=20261105u">
+  <script src="js/config.js?v=20261105u"></script>
+  <script src="js/canonical.js?v=20261105u"></script>
 </head>
 <body data-page="legal" data-public="1">
   <script>
@@ -40,60 +40,423 @@
       <p class="pf-legal-updated">Last updated: November 4, 2026</p>
 
       <p>
-        Paws Forward (“we”) is a dog-rescue fundraising organization. This policy explains what information
-        we collect on joinpawsforward.com and related pages, how we use it, and how you can reach us.
+        This Privacy Policy describes how Paws Forward (“Paws Forward,” “we,” “us,” or “our”) collects,
+        uses, stores, shares, and protects personal information when you visit our website, create a
+        promoter QR, make a donation, contact us, or otherwise interact with our fundraising services
+        (collectively, the “Services”).
+      </p>
+      <p>
+        Paws Forward is a dog-rescue fundraising organization. We raise money to help dogs obtain food,
+        water, and shelter, and we operate a QR / referral program that lets supporters share a personal
+        link and earn a commission on attributed gifts. Please read this policy carefully. By using the
+        Services, you acknowledge the practices described here. If you do not agree, please do not use
+        the Services.
+      </p>
+      <p>
+        This policy is intended to be clear and detailed. If anything is unclear, email
+        <a href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a> and we will help.
       </p>
 
-      <h2>What we collect</h2>
+      <h2>1. Who we are and how to reach us</h2>
+      <p>
+        For privacy questions, access requests, correction requests, deletion requests, or complaints
+        about how we handle personal information, contact:
+      </p>
       <ul>
-        <li><strong>Promoter profiles.</strong> When you create a QR, we store your name, phone number, payout type, payout handle, and a referral code.</li>
-        <li><strong>Donations.</strong> Stripe processes payments. We store donation amount, time, optional donor label, attribution to a referral code when present, and Stripe session identifiers needed to confirm payment.</li>
-        <li><strong>Visit / scan data.</strong> Opening a QR or donate link may record a visit with referral code, path, time, and coarse location fields when available.</li>
-        <li><strong>Technical data.</strong> Standard server and browser logs (IP address, user agent) may be processed by our hosts (for example GitHub Pages and Supabase).</li>
-        <li><strong>Operator access.</strong> Dashboard access uses a session PIN stored only in your browser session after unlock — we do not collect account emails on the public site for that gate.</li>
+        <li>Privacy: <a id="privacy-mail" href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a></li>
+        <li>General: <a id="privacy-hello" href="mailto:hello@pawsforward.org">hello@pawsforward.org</a></li>
+      </ul>
+      <p>
+        We will respond within a reasonable period. We may ask you to verify your identity before
+        disclosing or changing records that contain personal information.
+      </p>
+
+      <h2>2. Scope of this policy</h2>
+      <p>This policy applies to personal information we process in connection with:</p>
+      <ul>
+        <li>Our public website and landing pages</li>
+        <li>Donation flows and Stripe Checkout sessions initiated from our site</li>
+        <li>Promoter signup (“Get your QR”) and resulting referral links / QR codes</li>
+        <li>Visit and scan attribution related to those links</li>
+        <li>Operator / employee tools used to administer the program</li>
+        <li>Email or other messages you send to our contact addresses</li>
+      </ul>
+      <p>
+        It does not control the privacy practices of third parties that you visit after leaving our
+        site, except to the extent those parties are Stripe or Supabase acting as our processors as
+        described below.
+      </p>
+
+      <h2>3. Categories of personal information we collect</h2>
+      <p>
+        The information we collect depends on how you use the Services. We only collect what we need
+        to run fundraising, attribution, payouts, security, and support.
+      </p>
+
+      <h3>3.1 Information you provide directly</h3>
+      <ul>
+        <li>
+          <strong>Promoter profile information.</strong> When you create a QR, you provide your first
+          name, last name, phone number, preferred payout method (for example Cash App, Venmo, PayPal,
+          Zelle, or another option we list), and a payout handle or identifier (such as a cashtag,
+          username, email address, or phone number used for payout). We also generate and store a
+          unique referral / promoter code tied to your profile.
+        </li>
+        <li>
+          <strong>Donation-related information you enter on our site.</strong> Before or during
+          checkout you may provide an amount and, where offered, an optional donor label or note. Card
+          numbers and full payment credentials are entered on Stripe’s checkout pages, not stored by
+          Paws Forward as raw card data.
+        </li>
+        <li>
+          <strong>Communications.</strong> If you email us, we receive the content of your message,
+          your email address, and any information you include.
+        </li>
+        <li>
+          <strong>Support or privacy requests.</strong> Information you submit so we can verify and
+          fulfill access, correction, or deletion requests.
+        </li>
       </ul>
 
-      <h2>How we use information</h2>
+      <h3>3.2 Information collected automatically</h3>
       <ul>
-        <li>To attribute donations to the promoter whose QR was shared.</li>
-        <li>To pay out commissions and operate the rescue fundraising program.</li>
-        <li>To improve reliability, prevent abuse, and confirm Stripe payments.</li>
-        <li>To respond to privacy or support requests you send us.</li>
+        <li>
+          <strong>Visit / scan / referral events.</strong> When someone opens a donate link or QR
+          associated with a promoter code, we may record the referral code, path or page, timestamp,
+          and related attribution metadata so gifts can be tied to the correct promoter.
+        </li>
+        <li>
+          <strong>Technical and device data.</strong> Standard request metadata such as IP address,
+          browser type / user agent, approximate time of access, and similar log-style fields may be
+          processed when you load pages or call our backend functions.
+        </li>
+        <li>
+          <strong>Session state in your browser.</strong> Limited data may be kept in your browser
+          session (for example an unlock state for the employee portal). That data stays on your
+          device unless you clear it.
+        </li>
       </ul>
 
-      <h2>Who processes data for us</h2>
+      <h3>3.3 Information from payment confirmation</h3>
+      <p>
+        After a donation attempt, we receive confirmation details needed to record the gift, including
+        amount, currency, time, payment status, Stripe session or payment identifiers, and referral
+        attribution when a promoter code was present. We use these records for accounting, commission
+        calculation, and fraud / duplicate prevention.
+      </p>
+
+      <h3>3.4 Information we do not intentionally collect</h3>
+      <p>
+        We do not ask donors to create a Paws Forward account to give. We do not intentionally collect
+        government ID numbers, precise GPS tracks, biometric templates, or special-category data as
+        part of ordinary public use of the site. Please do not send sensitive information we do not
+        need.
+      </p>
+
+      <h2>4. How we use personal information</h2>
+      <p>We use personal information for the following purposes:</p>
       <ul>
-        <li><strong>Stripe</strong> — payment processing.</li>
-        <li><strong>Supabase</strong> — database and edge functions.</li>
-        <li><strong>GitHub Pages</strong> (or our domain host) — static site hosting.</li>
+        <li>
+          <strong>Provide the Services.</strong> Create promoter profiles, generate QR codes and short
+          links, accept donations, attribute gifts, and show confirmation states.
+        </li>
+        <li>
+          <strong>Operate the rescue program.</strong> Track fundraising totals, allocate attributed
+          and unattributed gifts, and support food, water, and shelter for dogs.
+        </li>
+        <li>
+          <strong>Calculate and administer promoter payouts.</strong> Match donations to referral
+          codes, apply the published commission rate, and use the payout method / handle you provided.
+        </li>
+        <li>
+          <strong>Payment processing and reconciliation.</strong> Create Stripe Checkout sessions,
+          confirm successful payments, prevent double-counting, and keep records for bookkeeping.
+        </li>
+        <li>
+          <strong>Security, integrity, and abuse prevention.</strong> Detect suspicious traffic,
+          protect operator tools, investigate misuse of QR codes, and keep the Services reliable.
+        </li>
+        <li>
+          <strong>Customer and privacy support.</strong> Answer questions, handle disputes about
+          attribution or payouts, and honor privacy rights requests.
+        </li>
+        <li>
+          <strong>Legal and compliance.</strong> Keep records required for tax, accounting, audit,
+          dispute resolution, or lawful requests.
+        </li>
+        <li>
+          <strong>Improve clarity of the product.</strong> Understand which flows fail or succeed
+          (for example checkout completion) using operational records — not for selling ads.
+        </li>
       </ul>
-      <p>These providers process data under their own terms and privacy policies.</p>
-
-      <h2>Sharing</h2>
       <p>
-        We do not sell personal information. We share data with processors needed to run payments and hosting,
-        and when required by law.
+        We do not sell personal information. We do not use personal information to build advertising
+        profiles for third-party ad networks.
       </p>
 
-      <h2>Retention</h2>
+      <h2>5. Legal bases (where applicable)</h2>
       <p>
-        Donation and promoter records are kept as long as needed for accounting, payouts, and legal obligations.
-        Visit logs may be retained for analytics and fraud prevention, then deleted or aggregated.
+        Depending on where you live, we may rely on one or more of the following grounds to process
+        personal information:
+      </p>
+      <ul>
+        <li><strong>Contract / requested service</strong> — creating your QR, processing a donation you start, or paying a commission you earned</li>
+        <li><strong>Legitimate interests</strong> — securing the site, preventing fraud, attributing gifts, and improving reliability in ways that do not override your rights</li>
+        <li><strong>Legal obligation</strong> — retaining financial records or responding to lawful process</li>
+        <li><strong>Consent</strong> — where we ask for it, or where you voluntarily send us extra information</li>
+      </ul>
+      <p>
+        If you are in a jurisdiction that requires a specific legal basis and you believe we need
+        additional notice, contact us and we will clarify how we process your data for that use.
       </p>
 
-      <h2>Your choices</h2>
+      <h2>6. Service providers we use: Stripe and Supabase</h2>
       <p>
-        Email <a id="privacy-mail" href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a> to ask what we hold about you,
-        correct it, or request deletion. We may need to verify your request and keep limited records where the law requires it.
+        To run the Services we rely on two primary processors. This policy intentionally focuses on
+        these providers because they are the systems that process personal information for payments
+        and for our application database / backend.
       </p>
 
-      <h2>Children</h2>
-      <p>This service is not directed at children under 13. Do not submit children’s personal information.</p>
-
-      <h2>Contact</h2>
+      <h3>6.1 Stripe</h3>
       <p>
-        General: <a id="privacy-hello" href="mailto:hello@pawsforward.org">hello@pawsforward.org</a><br>
-        Privacy: <a href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a>
+        <strong>Stripe</strong> processes donations and related payment events. When you donate, you
+        are typically redirected to or presented with Stripe Checkout (or a Stripe-hosted payment
+        interface). Stripe collects and processes payment card data, billing details, and fraud /
+        risk signals according to Stripe’s own terms and privacy policy.
+      </p>
+      <p>In connection with Stripe, Paws Forward may store or receive:</p>
+      <ul>
+        <li>Checkout or payment session identifiers</li>
+        <li>Payment status (for example paid, incomplete, or failed)</li>
+        <li>Amount and currency</li>
+        <li>Timestamps and attribution metadata we attach to the session (such as a referral code)</li>
+        <li>Limited donor-facing labels if we collect them before checkout</li>
+      </ul>
+      <p>
+        Paws Forward does not store full payment card numbers on our own systems. Card data is handled
+        by Stripe. Stripe may also send receipts or payment communications according to its product
+        settings and your interaction with Checkout.
+      </p>
+      <p>
+        For more detail on how Stripe handles personal information, review Stripe’s privacy
+        documentation on Stripe’s website. Your use of Stripe Checkout is also subject to Stripe’s
+        terms.
+      </p>
+
+      <h3>6.2 Supabase</h3>
+      <p>
+        <strong>Supabase</strong> provides our application database and backend functions (including
+        serverless / edge functions we use to create checkout sessions, confirm donations, create
+        promoter records, and related operations). Personal information described in this policy —
+        such as promoter profiles, donation records, referral codes, and visit / attribution events —
+        is stored in or processed through Supabase infrastructure under our control and configuration.
+      </p>
+      <p>Typical categories stored or processed via Supabase include:</p>
+      <ul>
+        <li>Promoter names, phone numbers, payout type, payout handle, and referral codes</li>
+        <li>Donation amounts, times, statuses, Stripe identifiers, and attribution fields</li>
+        <li>Visit / scan events used for attribution and operational analytics</li>
+        <li>Operational logs produced by our functions while fulfilling requests</li>
+      </ul>
+      <p>
+        Access to production data in Supabase is limited to authorized operators and automated
+        processes that need it to run the Services. Supabase processes data under its terms and
+        privacy policy as our infrastructure provider.
+      </p>
+
+      <h3>6.3 No other processors named in this policy</h3>
+      <p>
+        For purposes of this Privacy Policy’s description of third-party processors that handle
+        personal information for core fundraising and data storage, we identify only Stripe and
+        Supabase. If our processing stack changes in a material way, we will update this policy.
+      </p>
+
+      <h2>7. How we share information</h2>
+      <p>We share personal information only as needed to operate the Services or as required by law:</p>
+      <ul>
+        <li>
+          <strong>With Stripe</strong> — to create and complete payment sessions and reconcile
+          donations.
+        </li>
+        <li>
+          <strong>With Supabase</strong> — to store and process application data as our database and
+          backend provider.
+        </li>
+        <li>
+          <strong>Within our operating team</strong> — authorized employees / operators who need
+          access to administer payouts, support, fraud review, or rescue accounting.
+        </li>
+        <li>
+          <strong>For legal reasons</strong> — if we believe disclosure is required to comply with
+          law, regulation, legal process, or governmental request; to protect the rights, safety, or
+          property of Paws Forward, our users, animals in our care programs, or the public; or to
+          detect, prevent, or address fraud and security issues.
+        </li>
+        <li>
+          <strong>Business continuity</strong> — if we reorganize how the program is operated, data
+          may transfer to a successor that continues the same fundraising purpose, subject to this
+          policy or a successor policy with equivalent protections.
+        </li>
+      </ul>
+      <p>
+        We do not sell personal information. We do not share personal information with third parties
+        for their independent marketing.
+      </p>
+
+      <h2>8. Cookies, local storage, and similar technologies</h2>
+      <p>
+        Our public site is primarily a static experience plus calls to our backend. We may use
+        browser storage or session mechanisms that are necessary for the site to function (for
+        example remembering that an authorized operator unlocked the employee portal in the current
+        browser session). We do not run third-party advertising cookies as part of the core
+        fundraising experience described here.
+      </p>
+      <p>
+        Stripe may set its own cookies or similar technologies on Checkout pages it hosts. Those
+        technologies are governed by Stripe’s policies.
+      </p>
+      <p>
+        You can control cookies and site data through your browser settings. Blocking necessary
+        storage may prevent parts of the Services (including operator unlock or checkout) from
+        working correctly.
+      </p>
+
+      <h2>9. Retention</h2>
+      <p>
+        We keep personal information only as long as needed for the purposes described in this
+        policy, unless a longer period is required or permitted by law.
+      </p>
+      <ul>
+        <li>
+          <strong>Promoter profiles.</strong> Retained while your QR / referral code remains active
+          and for a reasonable period afterward to handle payouts, disputes, and accounting.
+        </li>
+        <li>
+          <strong>Donation and payment records.</strong> Retained for bookkeeping, tax, audit,
+          chargeback, and commission reconciliation needs. Financial records often must be kept for
+          multiple years under applicable rules.
+        </li>
+        <li>
+          <strong>Visit / scan logs.</strong> Retained for attribution, abuse prevention, and
+          operational review, then deleted, anonymized, or aggregated when no longer needed.
+        </li>
+        <li>
+          <strong>Support and privacy correspondence.</strong> Retained as long as needed to resolve
+          your request and to keep a record of how we responded.
+        </li>
+      </ul>
+      <p>
+        When retention ends, we delete or de-identify information in a manner consistent with our
+        systems in Supabase and with records Stripe retains under its own retention rules for payment
+        processing.
+      </p>
+
+      <h2>10. Security</h2>
+      <p>
+        We take reasonable administrative, technical, and organizational measures designed to protect
+        personal information against unauthorized access, loss, misuse, or alteration. These measures
+        include limiting operator access, using encrypted transport (HTTPS) for the site and API
+        calls, and relying on Stripe and Supabase security controls for payment and infrastructure
+        layers.
+      </p>
+      <p>
+        No method of transmission or storage is completely secure. If we become aware of a security
+        incident that affects your personal information, we will take appropriate steps, which may
+        include notification where required by law.
+      </p>
+
+      <h2>11. International processing</h2>
+      <p>
+        Paws Forward may process information in the United States or other locations where we or our
+        processors (Stripe and Supabase) operate infrastructure. If you access the Services from
+        another country, your information may be transferred to and processed in countries that may
+        have different data-protection laws than your own. Where required, we rely on appropriate
+        safeguards and processor terms for such transfers.
+      </p>
+
+      <h2>12. Your privacy choices and rights</h2>
+      <p>
+        Subject to applicable law, you may have rights to access, correct, update, delete, or obtain
+        a copy of personal information we hold about you; to object to or restrict certain processing;
+        and to appeal or lodge a complaint with a regulator where available.
+      </p>
+      <p>To exercise these rights, email <a href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a> with:</p>
+      <ul>
+        <li>The email or phone associated with your request</li>
+        <li>Whether you are a donor, promoter, or other contact</li>
+        <li>What you want us to do (access, correction, deletion, etc.)</li>
+        <li>Enough detail for us to locate records (for example a referral code or approximate donation date)</li>
+      </ul>
+      <p>
+        We may need to verify your identity. We may decline or limit a request where the law allows —
+        for example when we must keep donation records for accounting, when deletion would impair
+        fraud prevention, or when we cannot authenticate the requester. If we deny a request, we will
+        explain why when we are permitted to do so.
+      </p>
+      <p>
+        Promoters who want their QR deactivated should contact us. Deactivation stops new attribution
+        going forward but may not erase historical donation records needed for accounting.
+      </p>
+      <p>
+        Donors who need a receipt or payment question answered should contact us and, where the issue
+        is payment-rail specific, may also need to work with Stripe or their card issuer.
+      </p>
+
+      <h2>13. Children’s privacy</h2>
+      <p>
+        The Services are not directed to children under 13, and we do not knowingly collect personal
+        information from children under 13. If you believe a child has provided personal information
+        to us, contact <a href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a> and we
+        will take appropriate steps to delete it. If local law sets a higher age for digital consent,
+        we do not knowingly collect personal information from anyone under that age for promotional
+        signup.
+      </p>
+
+      <h2>14. Do Not Track and automated decision-making</h2>
+      <p>
+        Some browsers offer a “Do Not Track” signal. Our Services do not currently respond to DNT
+        signals in a differentiated way because we do not operate third-party advertising tracking as
+        part of the core experience. We do not use personal information for solely automated decisions
+        that produce legal or similarly significant effects about you without human involvement in our
+        ordinary fundraising workflows.
+      </p>
+
+      <h2>15. Links to other sites</h2>
+      <p>
+        Our site may link to external resources. Aside from Stripe Checkout and infrastructure
+        operated through Supabase as described above, those destinations have their own privacy
+        practices. We are not responsible for content or policies on sites we do not control.
+      </p>
+
+      <h2>16. Employee / operator access</h2>
+      <p>
+        Authorized operators use an employee portal to administer promoters, donations, and payouts.
+        Access is restricted. Operators are expected to use personal information only for program
+        administration. Unauthorized access or misuse of operator tools is prohibited and may result
+        in loss of access and other consequences.
+      </p>
+
+      <h2>17. Changes to this policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. When we do, we will change the “Last
+        updated” date at the top of this page. If changes are material, we may also provide additional
+        notice on the website. Continued use of the Services after an update means you acknowledge the
+        revised policy. Please review this page periodically.
+      </p>
+
+      <h2>18. Contact</h2>
+      <p>
+        Questions about privacy, data, Stripe payment records we hold, or Supabase-stored profile /
+        donation information:
+      </p>
+      <ul>
+        <li>Privacy: <a href="mailto:privacy@pawsforward.org">privacy@pawsforward.org</a></li>
+        <li>General: <a href="mailto:hello@pawsforward.org">hello@pawsforward.org</a></li>
+      </ul>
+      <p>
+        For payment disputes that Stripe alone can resolve (for example card issuer chargebacks), you
+        may also need to contact your bank or use Stripe’s consumer support channels related to the
+        charge descriptor on your statement.
       </p>
     </article>
 
