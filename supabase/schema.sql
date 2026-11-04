@@ -9,6 +9,7 @@ create table if not exists public.employees (
   id uuid primary key default gen_random_uuid(),
   first_name text not null,
   last_name text not null,
+  email text,
   phone text not null,
   payment_type text not null check (payment_type in (
     'cashapp','venmo','paypal','zelle','apple_cash','google_pay','chime','cash',
@@ -208,12 +209,14 @@ create or replace function public.public_signup_promoter(
   p_last_name text,
   p_phone text,
   p_payment_type text,
-  p_payment_handle text
+  p_payment_handle text,
+  p_email text default null
 )
 returns table (
   id uuid,
   first_name text,
   last_name text,
+  email text,
   referral_code text,
   payment_type text,
   payment_handle text,
@@ -224,21 +227,32 @@ security definer
 set search_path = public
 as $$
 declare
-  v_first text := nullif(trim(coalesce(p_first_name, '')), '');
-  v_last text := nullif(trim(coalesce(p_last_name, '')), '');
+  v_first text := nullif(trim(both from regexp_replace(coalesce(p_first_name, ''), E'[\u00A0]+', ' ', 'g')), '');
+  v_last text := nullif(trim(both from regexp_replace(coalesce(p_last_name, ''), E'[\u00A0]+', ' ', 'g')), '');
+  v_email text := lower(nullif(trim(coalesce(p_email, '')), ''));
   v_phone text := nullif(trim(coalesce(p_phone, '')), '');
   v_type text := lower(nullif(trim(coalesce(p_payment_type, '')), ''));
   v_handle text := nullif(trim(coalesce(p_payment_handle, '')), '');
   v_code text;
   v_count int;
   v_phone_count int;
+  v_email_count int;
   v_row public.employees;
 begin
-  if v_first is not null and char_length(v_first) > 80 then
-    raise exception 'First name is too long.' using errcode = '22023';
+  if v_first is null or char_length(v_first) < 1 then
+    raise exception 'Enter a valid name.' using errcode = '22023';
+  end if;
+  if char_length(v_first) > 80 then
+    raise exception 'Name is too long.' using errcode = '22023';
   end if;
   if v_last is not null and char_length(v_last) > 80 then
     raise exception 'Last name is too long.' using errcode = '22023';
+  end if;
+  if v_email is null
+     or char_length(v_email) < 5
+     or char_length(v_email) > 120
+     or v_email !~* '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+    raise exception 'Enter a valid email address.' using errcode = '22023';
   end if;
   if v_phone is null or char_length(v_phone) < 7 or char_length(v_phone) > 40 then
     raise exception 'Enter a valid phone number.' using errcode = '22023';
@@ -269,6 +283,14 @@ begin
     raise exception 'This phone already signed up today. Check with an operator if you need help.';
   end if;
 
+  select count(*) into v_email_count
+  from public.employees e
+  where lower(e.email) = v_email
+    and e.created_at > now() - interval '1 day';
+  if v_email_count >= 1 then
+    raise exception 'This email already signed up today. Check your inbox or ask an operator for help.';
+  end if;
+
   loop
     v_code := substr(replace(gen_random_uuid()::text, '-', ''), 1, 10);
     exit when not exists (
@@ -277,15 +299,16 @@ begin
   end loop;
 
   insert into public.employees (
-    first_name, last_name, phone, payment_type, payment_handle, referral_code, avatar_url
+    first_name, last_name, email, phone, payment_type, payment_handle, referral_code, avatar_url
   ) values (
-    coalesce(v_first, ''), coalesce(v_last, ''), v_phone, v_type, v_handle, v_code, null
+    v_first, coalesce(v_last, ''), v_email, v_phone, v_type, v_handle, v_code, null
   )
   returning * into v_row;
 
   id := v_row.id;
   first_name := v_row.first_name;
   last_name := v_row.last_name;
+  email := v_row.email;
   referral_code := v_row.referral_code;
   payment_type := v_row.payment_type;
   payment_handle := v_row.payment_handle;

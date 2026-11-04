@@ -17,11 +17,13 @@
     commission: document.getElementById("join-commission"),
     first: document.getElementById("join-first"),
     last: document.getElementById("join-last"),
+    email: document.getElementById("join-email"),
     phone: document.getElementById("join-phone"),
     payment: document.getElementById("join-payment"),
     handle: document.getElementById("join-handle"),
     errFirst: document.getElementById("err-join-first"),
     errLast: document.getElementById("err-join-last"),
+    errEmail: document.getElementById("err-join-email"),
     errPhone: document.getElementById("err-join-phone"),
     errPayment: document.getElementById("err-join-payment"),
     errHandle: document.getElementById("err-join-handle"),
@@ -29,7 +31,7 @@
     errAge: document.getElementById("err-join-age"),
   };
 
-  let current = { url: "", name: "", code: "", phone: "", qrPage: "" };
+  let current = { url: "", name: "", code: "", email: "", phone: "", qrPage: "" };
 
   function setBanner(msg, kind) {
     if (!els.banner) return;
@@ -54,6 +56,7 @@
   function clearErrors() {
     setFieldError(els.errFirst, "");
     setFieldError(els.errLast, "");
+    setFieldError(els.errEmail, "");
     setFieldError(els.errPhone, "");
     setFieldError(els.errPayment, "");
     setFieldError(els.errHandle, "");
@@ -114,15 +117,6 @@
     return origin ? `${origin}/qr` : new URL("/qr", location.origin).href;
   }
 
-  function toE164(phone) {
-    let d = String(phone || "").replace(/\D/g, "");
-    if (!d) return "";
-    if (d.length === 11 && d.startsWith("1")) d = d.slice(1);
-    if (d.length === 10) return `+1${d}`;
-    if (d.length >= 11 && d.length <= 15) return `+${d}`;
-    return "";
-  }
-
   function welcomeMessage(first, url, code, qrPage) {
     const who = first || "there";
     const page = qrPage || url;
@@ -135,68 +129,55 @@
     );
   }
 
-  async function qrPngFile(url, code) {
-    const dataUrl = await window.PfQr.toDataURL(url, 512);
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    return new File([blob], `pawsforward-${code || "qr"}.png`, { type: "image/png" });
+  function functionsBase() {
+    const url = String(window.SITE_CONFIG?.supabaseUrl || "").replace(/\/$/, "");
+    return url ? `${url}/functions/v1` : "";
   }
 
-  /** Open the phone's Messages app with a draft to their number (no Twilio). */
-  function openSmsDraft(phone, body) {
-    const to = toE164(phone);
-    if (!to || !body) return false;
-    const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
-    const href = ios
-      ? `sms:${to}&body=${encodeURIComponent(body)}`
-      : `sms:${to}?body=${encodeURIComponent(body)}`;
-    const a = document.createElement("a");
-    a.href = href;
-    a.rel = "noopener";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    return true;
+  function anonKey() {
+    return String(window.SITE_CONFIG?.supabaseAnonKey || "");
   }
 
-  async function deliverQr(phone) {
-    const text = welcomeMessage(current.name, current.url, current.code || "—", current.qrPage);
-    let sharedFile = false;
+  function isEmail(value) {
+    const email = String(value || "").trim();
+    return email.length >= 5 && email.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
 
-    try {
-      const file = await qrPngFile(current.url, current.code);
-      window.PfQr.downloadDataUrl(await window.PfQr.toDataURL(current.url, 512), file.name);
-
-      if (navigator.share && navigator.canShare) {
-        const withFile = { title: "Paws Forward QR", text, files: [file] };
-        if (navigator.canShare(withFile)) {
-          await navigator.share(withFile);
-          sharedFile = true;
-        }
-      }
-    } catch (err) {
-      if (err && err.name === "AbortError") {
-        // User closed the share sheet — still offer the SMS draft below.
-      } else {
-        console.warn(err);
-        try {
-          const dataUrl = await window.PfQr.toDataURL(current.url, 512);
-          window.PfQr.downloadDataUrl(dataUrl, `pawsforward-${current.code || "qr"}.png`);
-        } catch {
-          /* ignore */
-        }
-      }
+  async function emailWelcome() {
+    const base = functionsBase();
+    if (!base || !current.email || !current.code) {
+      return { ok: false, error: "Email is not ready yet." };
     }
-
-    // Draft a text to their own number with link + QR page (they tap Send).
-    const drafted = openSmsDraft(phone, text);
-    return { sharedFile, drafted };
+    try {
+      const res = await fetch(`${base}/send-promoter-welcome`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: anonKey(),
+          Authorization: "Bearer " + anonKey(),
+        },
+        body: JSON.stringify({
+          email: current.email,
+          referral_code: current.code,
+          share_url: current.url,
+          qr_page_url: current.qrPage,
+          site_origin: siteOrigin(),
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || "Could not send email.");
+      return { ok: true };
+    } catch (err) {
+      console.error(err);
+      return { ok: false, error: err?.message || "Could not send email." };
+    }
   }
 
   function readForm() {
     return {
       first_name: String(els.first?.value || "").trim(),
       last_name: String(els.last?.value || "").trim(),
+      email: String(els.email?.value || "").trim().toLowerCase(),
       phone: formatPhoneDisplay(els.phone?.value || "").trim(),
       payment_type: String(els.payment?.value || "").trim(),
       payment_handle: normalizeHandle(els.handle?.value),
@@ -206,12 +187,19 @@
   function validate(payload) {
     clearErrors();
     let bad = false;
-    if (payload.first_name && payload.first_name.length > 80) {
+    if (!payload.first_name) {
+      setFieldError(els.errFirst, "Enter a first name.");
+      bad = true;
+    } else if (payload.first_name.length > 80) {
       setFieldError(els.errFirst, "First name is too long.");
       bad = true;
     }
     if (payload.last_name && payload.last_name.length > 80) {
       setFieldError(els.errLast, "Last name is too long.");
+      bad = true;
+    }
+    if (!isEmail(payload.email)) {
+      setFieldError(els.errEmail, "Enter a valid email.");
       bad = true;
     }
     if (!payload.phone || payload.phone.length < 7) {
@@ -237,14 +225,21 @@
     return String(value || "").replace(/\u00A0/g, " ").trim();
   }
 
-  async function showSuccess(row, phone) {
+  async function showSuccess(row, email, phone) {
     const first = cleanName(row.first_name);
     const last = cleanName(row.last_name);
     const name = `${first} ${last}`.trim() || "promoter";
     const url = shareUrlFor(row.referral_code);
     const code = row.referral_code || "";
     const qrPage = qrPageUrlFor(code);
-    current = { url, name, code, phone: phone || "", qrPage };
+    current = {
+      url,
+      name,
+      code,
+      email: String(email || row.email || "").trim().toLowerCase(),
+      phone: phone || "",
+      qrPage,
+    };
 
     if (els.form) els.form.hidden = true;
     if (els.success) els.success.hidden = false;
@@ -254,11 +249,10 @@
     if (els.shareUrl) els.shareUrl.value = url;
     if (els.code) els.code.textContent = code || "—";
 
-    const msg = welcomeMessage(first, url, code || "—", qrPage);
+    const msg = welcomeMessage(name, url, code || "—", qrPage);
     if (els.successMsg) els.successMsg.textContent = msg;
     if (els.successLead) {
-      els.successLead.textContent =
-        "We’re sending your QR to your phone’s Messages app — tap Send. A PNG download starts too.";
+      els.successLead.textContent = `We’re emailing ${current.email || "you"} your link and QR.`;
     }
 
     try {
@@ -275,19 +269,18 @@
       /* optional */
     }
 
-    setBanner("Preparing your QR…");
-    const result = await deliverQr(phone);
-    if (result.drafted && result.sharedFile) {
-      setBanner("QR downloaded + share opened. Also check Messages — tap Send to keep it.", "ok");
-    } else if (result.drafted) {
-      setBanner("QR downloaded. Messages should open with your link & QR page — tap Send.", "ok");
-    } else if (result.sharedFile) {
-      setBanner("QR shared / downloaded. Save it somewhere you can find it.", "ok");
+    setBanner("Emailing your QR…");
+    const mailed = await emailWelcome();
+    if (mailed.ok) {
+      setBanner(`Sent to ${current.email}. Check your inbox (and spam).`, "ok");
+      if (els.successLead) {
+        els.successLead.textContent = "We emailed your link and QR. Save a copy here too.";
+      }
     } else {
-      setBanner("You’re set — download or share your QR below.", "ok");
+      setBanner(mailed.error || "Account created — download your QR below while email is set up.", "err");
       if (els.successLead) {
         els.successLead.textContent =
-          "Here’s your link and QR — use Download or Send to my phone.";
+          "Here’s your link and QR — use Download, or tap Resend email once mail is ready.";
       }
     }
   }
@@ -306,14 +299,15 @@
     if (els.submit) els.submit.disabled = true;
     setBanner("Creating your QR…");
 
-    // Empty first name → NBSP so older signup RPCs that still require a name succeed;
-    // UI trims it back to blank. New RPC accepts '' and stores ''.
+    // Empty last name → NBSP so older signup RPCs that still require last_name succeed;
+    // newer RPCs strip NBSP back to ''.
     const { data, error } = await sb.rpc("public_signup_promoter", {
-      p_first_name: payload.first_name || "\u00A0",
-      p_last_name: payload.last_name,
+      p_first_name: payload.first_name,
+      p_last_name: payload.last_name || "\u00A0",
       p_phone: payload.phone,
       p_payment_type: payload.payment_type,
       p_payment_handle: payload.payment_handle,
+      p_email: payload.email,
     });
 
     if (els.submit) els.submit.disabled = false;
@@ -330,7 +324,7 @@
       return;
     }
 
-    await showSuccess(row, payload.phone);
+    await showSuccess(row, payload.email, payload.phone);
   }
 
   function enhanceSelect(select) {
@@ -517,12 +511,12 @@
       }
     });
     els.share?.addEventListener("click", async () => {
-      setBanner("Opening send options…");
-      const result = await deliverQr(current.phone);
-      if (result.drafted || result.sharedFile) {
-        setBanner("Use Messages or the share sheet to save your QR.", "ok");
+      setBanner("Resending email…");
+      const mailed = await emailWelcome();
+      if (mailed.ok) {
+        setBanner(`Sent again to ${current.email}.`, "ok");
       } else {
-        setBanner("Could not open Messages — download your QR instead.", "err");
+        setBanner(mailed.error || "Could not resend email.", "err");
       }
     });
   });
