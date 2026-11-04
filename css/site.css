@@ -43,6 +43,13 @@
   --course-panel-scale: 1;
 }
 
+/* Desktop: roomier type and controls (mobile keeps 1.1). */
+@media (min-width: 901px) {
+  :root {
+    --ui-scale: 1.22;
+  }
+}
+
 /* Bold modern visual refresh for dark mode. */
 html[data-theme="dark"] {
   color-scheme: dark;
@@ -1272,13 +1279,13 @@ html {
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  zoom: var(--ui-scale, 1.1);
+  zoom: var(--ui-scale, 1);
 }
 
 /* Firefox and browsers without zoom: scale root type instead */
 @supports not (zoom: 1) {
   html {
-    font-size: calc(16px * var(--ui-scale, 1.1));
+    font-size: calc(16px * var(--ui-scale, 1));
   }
 }
 body {
@@ -1332,45 +1339,6 @@ body {
 }
 *::-webkit-scrollbar-corner {
   background: transparent;
-}
-
-/* Hide the main (window) scrollbar - replaced by the #scroll-progress bar.
-   Inner scroll areas (sidebar, lists, dialogs) keep their thin scrollbars. */
-html {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  scrollbar-gutter: auto;
-}
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
-}
-
-/* Site-wide scroll progress indicator (top of viewport). */
-#scroll-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  z-index: 99990;
-  background: transparent;
-  pointer-events: none;
-}
-#scroll-progress-fill {
-  height: 100%;
-  width: 100%;
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  background: linear-gradient(90deg, #2563eb 0%, #6366f1 60%, #8b5cf6 100%);
-  box-shadow: 0 0 8px rgba(37, 99, 235, 0.4);
-  will-change: transform;
-  transition: transform 0.08s linear;
-}
-html[data-reduce-motion="1"] #scroll-progress-fill {
-  transition: none;
 }
 
 /* Icons */
@@ -31043,7 +31011,6 @@ html[data-theme="dark"] .dashboard-redesign.owner-console-page .owner-playtest-d
 /* Print · show only the handouts content, clean for paper */
 @media print {
   body[data-page="handouts"] #shell,
-  body[data-page="handouts"] #scroll-progress,
   body[data-page="handouts"] .handout-toolbar,
   body[data-page="handouts"] .handout-print-btn,
   body[data-page="handouts"] .top-actions-float,

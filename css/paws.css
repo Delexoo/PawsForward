@@ -7,6 +7,14 @@
   --pf-soft-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
 }
 
+@media (min-width: 901px) {
+  :root {
+    --pf-page-max: 1320px;
+    --pf-section-gap: 32px;
+    --pf-card-pad: 32px;
+  }
+}
+
 /* ---- Page shell / centering ---- */
 body[data-page="admin"] #page-body.dashboard-redesign.owner-console-page,
 .main > #page-body.dashboard-redesign.owner-console-page {
@@ -185,6 +193,13 @@ body[data-page="admin"] #page-body.pf-admin-minimal {
   padding-inline: 4px;
   padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+body[data-page="admin"] #employees {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .pf-admin-page {
@@ -1151,6 +1166,42 @@ body[data-page="donate"] .amount-pills .pill.active {
   min-height: 48px;
 }
 
+/* Modern currency field (payout amount, etc.) — no native spin buttons */
+.pf-money-input {
+  display: block;
+}
+
+.pf-dialog .pf-money-input input[type="number"] {
+  width: 100%;
+  padding: 12px 14px 12px 34px;
+  min-height: 52px;
+  font-size: 1.35rem !important;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  border-radius: 12px;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.pf-dialog .pf-money-input input[type="number"]::-webkit-outer-spin-button,
+.pf-dialog .pf-money-input input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.pf-dialog .pf-money-input .money-symbol {
+  left: 14px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--muted, #64748b);
+}
+
+.pf-dialog .pf-money-input input::placeholder {
+  color: color-mix(in srgb, var(--muted, #94a3b8) 70%, transparent);
+  font-weight: 500;
+}
+
 .success-panel {
   text-align: center;
   padding: 12px 0;
@@ -1841,11 +1892,14 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   display: grid;
   gap: 0;
   max-height: min(360px, 52vh);
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   outline: none;
   -webkit-tap-highlight-color: transparent;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .pf-donation-list::-webkit-scrollbar,
@@ -1867,13 +1921,16 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
 .pf-donation-row,
 .pf-employee-row {
   padding: 10px 6px;
-  margin-inline: -4px;
+  margin-inline: 0;
   border-bottom: 1px solid var(--border, #eef2f7);
   border-radius: 10px;
   outline: none;
   box-shadow: none;
   background: transparent;
   -webkit-tap-highlight-color: transparent;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   transition:
     background 0.18s ease,
     transform 0.18s ease,
@@ -2120,6 +2177,8 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   gap: 8px;
   align-items: center;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .pf-employee-identity {
@@ -2127,7 +2186,8 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   align-items: center;
   gap: 8px;
   min-width: 0;
-  flex: 1;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .pf-employee-identity > .pf-avatar {
@@ -2266,12 +2326,16 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   gap: 3px;
   min-width: 0;
   line-height: 1.25;
+  overflow: hidden;
 }
 
 .pf-employee-main strong {
   font-size: 0.84rem;
   font-weight: 700;
   line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pf-employee-meta {
@@ -2399,57 +2463,52 @@ button.pf-stat-chip--link:focus-visible {
 }
 
 .pf-emp-detail {
-  text-align: center;
+  text-align: left;
 }
 
 .pf-emp-detail-head {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   margin: 0 0 16px;
-  text-align: center;
+  text-align: left;
 }
 
 .pf-emp-detail-copy {
   min-width: 0;
+  flex: 1 1 auto;
   display: grid;
-  gap: 2px;
-  justify-items: center;
+  gap: 4px;
+  justify-items: start;
+  align-content: center;
 }
 
 .pf-emp-detail-copy .site-leave-dialog-title {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .pf-emp-detail-phone {
   margin: 0;
-  font-size: 0.9rem;
-  font-weight: 650;
-  color: #0f172a;
-}
-
-.pf-emp-detail-code {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #475569;
   font-variant-numeric: tabular-nums;
 }
 
 .pf-avatar--lg {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
 }
 
 .pf-detail-avatar-wrap {
   position: relative;
   width: fit-content;
-  margin: 0 auto;
+  margin: 0;
+  flex: 0 0 auto;
 }
 
 .pf-detail-avatar-btn {
@@ -2549,8 +2608,9 @@ button.pf-stat-chip--link:focus-visible {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
-  margin: 0 auto 16px;
-  max-width: 420px;
+  margin: 0 0 16px;
+  max-width: none;
+  width: 100%;
 }
 
 .pf-emp-stat {
@@ -2730,9 +2790,13 @@ button.pf-stat-chip--link:focus-visible {
     gap: 10px;
   }
 
+  /* Closed sheets must stay hidden — never override UA display:none without [open] */
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog:not([open]),
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide:not([open]) {
+    display: none !important;
+  }
+
   /* Mobile: full-viewport host, sheet pinned to bottom (avoids mid-screen collapse) */
-  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
-  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide,
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog[open],
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide[open] {
     width: 100% !important;
@@ -2959,6 +3023,11 @@ button.pf-stat-chip--link:focus-visible {
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .pf-employee-stats {
+    max-width: 100%;
   }
 
   .pf-employee-actions {
@@ -2966,6 +3035,7 @@ button.pf-stat-chip--link:focus-visible {
     width: auto;
     display: flex;
     flex-wrap: nowrap;
+    flex-shrink: 0;
     gap: 4px;
   }
 
