@@ -283,8 +283,19 @@
     }).format(Number(n) || 0);
   }
 
-  function setBanner() {
-    /* Admin feedback uses dialogs/inline errors — no toast banner. */
+  function setBanner(msg, kind) {
+    const el = document.getElementById("admin-status");
+    if (!el) return;
+    const text = String(msg || "").trim();
+    if (!text) {
+      el.hidden = true;
+      el.textContent = "";
+      el.removeAttribute("data-kind");
+      return;
+    }
+    el.hidden = false;
+    el.textContent = text;
+    el.setAttribute("data-kind", kind === "err" ? "err" : kind === "ok" ? "ok" : "info");
   }
 
   function setFieldError(el, msg) {
@@ -1441,26 +1452,27 @@
     if (els.geoEmpty) els.geoEmpty.hidden = true;
 
     const max = ranked[0][1] || 1;
-    const rowH = 22;
-    const labelW = 108;
-    const gap = 8;
-    const chartW = 300;
-    const barMax = chartW - labelW - 28;
-    const height = ranked.length * rowH + 4;
+    const rowH = 18;
+    const labelW = 128;
+    const gap = 6;
+    const chartW = 360;
+    const barMax = chartW - labelW - 26;
+    const height = ranked.length * rowH + 2;
     const ns = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(ns, "svg");
     svg.setAttribute("viewBox", `0 0 ${chartW} ${height}`);
     svg.setAttribute("class", "pf-geo-svg");
     svg.setAttribute("role", "presentation");
+    svg.setAttribute("preserveAspectRatio", "xMinYMin meet");
 
     ranked.forEach(([label, count], i) => {
-      const y = i * rowH + 2;
+      const y = i * rowH;
       const barW = Math.max(4, Math.round((count / max) * barMax));
-      const short = label.length > 18 ? label.slice(0, 16) + "…" : label;
+      const short = label.length > 22 ? label.slice(0, 20) + "…" : label;
 
       const text = document.createElementNS(ns, "text");
       text.setAttribute("x", "0");
-      text.setAttribute("y", String(y + 12));
+      text.setAttribute("y", String(y + 11));
       text.setAttribute("class", "pf-geo-label");
       text.textContent = short;
       text.appendChild(document.createElementNS(ns, "title")).textContent = `${label}: ${count}`;
@@ -1470,8 +1482,8 @@
       track.setAttribute("x", String(labelW));
       track.setAttribute("y", String(y + 4));
       track.setAttribute("width", String(barMax));
-      track.setAttribute("height", "9");
-      track.setAttribute("rx", "5");
+      track.setAttribute("height", "7");
+      track.setAttribute("rx", "4");
       track.setAttribute("class", "pf-geo-track");
       svg.appendChild(track);
 
@@ -1479,14 +1491,14 @@
       bar.setAttribute("x", String(labelW));
       bar.setAttribute("y", String(y + 4));
       bar.setAttribute("width", String(barW));
-      bar.setAttribute("height", "9");
-      bar.setAttribute("rx", "5");
+      bar.setAttribute("height", "7");
+      bar.setAttribute("rx", "4");
       bar.setAttribute("class", "pf-geo-bar");
       svg.appendChild(bar);
 
       const countText = document.createElementNS(ns, "text");
       countText.setAttribute("x", String(labelW + barW + gap));
-      countText.setAttribute("y", String(y + 12));
+      countText.setAttribute("y", String(y + 11));
       countText.setAttribute("class", "pf-geo-count");
       countText.textContent = String(count);
       svg.appendChild(countText);
@@ -2101,6 +2113,10 @@
       return window.scrollY || document.documentElement.scrollTop || 0;
     }
 
+    function sectionScroller(target) {
+      return target?.closest?.(".pf-employee-list, .pf-donation-list, .site-leave-dialog-panel");
+    }
+
     function setPull(distance) {
       const progress = Math.min(1, distance / THRESHOLD);
       document.body.style.setProperty("--pf-pull", `${Math.min(MAX_PULL, distance)}px`);
@@ -2124,9 +2140,12 @@
       document.body.style.removeProperty("--pf-pull-progress");
     }
 
-    const onStart = (clientY) => {
+    const onStart = (clientY, event) => {
       if (triggered || scrollTop() > 2) return;
       if (document.querySelector("dialog[open]")) return;
+      const scroller = sectionScroller(event?.target);
+      // Never steal touch scrolling from in-panel lists.
+      if (scroller) return;
       startY = clientY;
       pulling = true;
       armed = false;
@@ -2134,6 +2153,10 @@
 
     const onMove = (clientY, event) => {
       if (!pulling || triggered) return;
+      if (sectionScroller(event?.target)) {
+        endPull();
+        return;
+      }
       if (scrollTop() > 2 && !armed) {
         endPull();
         return;
@@ -2164,7 +2187,7 @@
       "touchstart",
       (event) => {
         if (event.touches.length !== 1) return;
-        onStart(event.touches[0].clientY);
+        onStart(event.touches[0].clientY, event);
       },
       { passive: true }
     );

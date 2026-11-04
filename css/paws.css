@@ -240,6 +240,13 @@ body[data-page="admin"] .pf-admin-page.is-enter {
   overflow: hidden;
 }
 
+body[data-page="admin"] .pf-admin-page.is-active > .pf-section-head,
+body[data-page="admin"] .pf-admin-page.is-enter > .pf-section-head,
+body[data-page="admin"] .pf-admin-page.is-active > .pf-stat-strip,
+body[data-page="admin"] .pf-admin-page.is-enter > .pf-stat-strip {
+  flex: 0 0 auto;
+}
+
 body[data-page="admin"] .pf-activity-locations {
   flex: 1 1 auto;
   min-height: 0;
@@ -250,28 +257,38 @@ body[data-page="admin"] .pf-activity-locations {
 }
 
 body[data-page="admin"] .pf-geo-chart {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   max-width: none;
   max-height: none;
   min-height: 0;
+  width: 100%;
+  padding: 2px 0 0;
 }
 
 body[data-page="admin"] .pf-geo-svg {
-  max-height: none;
-  height: 100%;
+  width: 100%;
+  height: auto;
+  max-height: 168px;
+  display: block;
 }
 
 body[data-page="admin"] .pf-employee-list,
 body[data-page="admin"] .pf-donation-list {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   max-height: none;
-  min-height: 0;
+  min-height: 120px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
-body[data-page="admin"] #employees {
+body[data-page="admin"] #employees,
+body[data-page="admin"] #donations {
   min-width: 0;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .pf-admin-page {
@@ -1890,6 +1907,30 @@ h1,
   position: relative;
 }
 
+.pf-admin-status {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.pf-admin-status[data-kind="err"] {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.pf-admin-status[data-kind="ok"] {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
 .pf-pull-indicator {
   position: sticky;
   top: 0;
@@ -3327,6 +3368,12 @@ button.pf-stat-chip--link:focus-visible {
   .pf-donation-list,
   .pf-employee-list {
     max-height: none;
+  }
+
+  body[data-page="admin"] .pf-employee-list,
+  body[data-page="admin"] .pf-donation-list {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .pf-employee-row {

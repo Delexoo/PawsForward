@@ -73,6 +73,12 @@
     }, 80);
   }
 
+  function isAdminPath() {
+    if (document.body?.getAttribute("data-page") === "admin") return true;
+    const path = String(global.location?.pathname || "").replace(/\/+$/, "");
+    return path === "/admin" || path.endsWith("/admin.html");
+  }
+
   function apply(theme, reduceMotion) {
     const html = document.documentElement;
     const prevTheme = html.getAttribute("data-theme");
@@ -89,12 +95,18 @@
     }
 
     const uiColor = readUiColor();
-    const nextUiColor = uiColor === "cream" ? null : uiColor;
+    let nextUiColor = uiColor === "cream" ? null : uiColor;
 
     // Black swatch is a dark palette - use dark theme so light-mode rules do not
     // force dark nav/body text on dark surfaces.
     if (uiColor === "black") {
       nextTheme = "dark";
+    }
+
+    // Operator dashboard uses light surfaces + dark type; never apply dark here.
+    if (isAdminPath()) {
+      nextTheme = "light";
+      nextUiColor = "white";
     }
 
     const changed =
