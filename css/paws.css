@@ -728,20 +728,17 @@ body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
   margin-bottom: 12px;
 }
 
-.pf-dialog .pf-emp-identity-row {
-  margin: 0 0 12px;
+.pf-dialog .pf-emp-identity-block {
+  margin: 0 0 14px;
 }
 
 .pf-dialog .pf-avatar-editor {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  margin: 0 auto 12px;
 }
 
 .pf-dialog .pf-avatar-preview {
-  width: 72px;
-  height: 72px;
+  width: 76px;
+  height: 76px;
 }
 
 .pf-dialog .pf-emp-detail-stats {
@@ -2112,17 +2109,17 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   display: block;
 }
 
-.pf-emp-identity-row {
+.pf-emp-identity-block {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 12px 14px;
-  align-items: start;
-  margin: 0 0 12px;
+  gap: 12px;
+  margin: 0 0 14px;
+  justify-items: stretch;
 }
 
 .pf-emp-name-fields {
   display: grid;
-  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 12px;
   min-width: 0;
 }
 
@@ -2132,10 +2129,9 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
 
 .pf-avatar-editor {
   position: relative;
-  display: inline-flex;
-  flex: none;
+  display: block;
   width: fit-content;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   border: 0;
   background: transparent;
@@ -2152,6 +2148,11 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   overflow: hidden;
   line-height: 0;
   box-shadow: 0 0 0 1px var(--border, #e2e8f0);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.pf-avatar-pick:hover {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent, #0f172a) 28%, var(--border, #e2e8f0));
 }
 
 .pf-avatar-pick:focus-visible {
@@ -2159,48 +2160,40 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #0f172a) 35%, transparent);
 }
 
-.pf-avatar-preview {
-  display: block;
-  width: 72px;
-  height: 72px;
-  object-fit: cover;
-  border-radius: 50%;
+.pf-avatar-pick:active {
+  transform: scale(0.98);
 }
 
-.pf-avatar-pick-hint {
-  position: absolute;
-  inset: auto 0 0;
-  padding: 4px 0 5px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-align: center;
-  color: #fff;
-  background: rgba(15, 23, 42, 0.55);
+.pf-avatar-preview {
+  display: block;
+  width: 76px;
+  height: 76px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .pf-avatar-reset {
   appearance: none;
   position: absolute;
-  right: -2px;
-  bottom: -2px;
+  right: -1px;
+  bottom: -1px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   margin: 0;
   padding: 0;
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 50%;
   background: #fff;
-  color: #0f172a;
+  color: #334155;
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
 }
 
 .pf-avatar-reset:hover,
@@ -2208,10 +2201,17 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   outline: none;
   border-color: #94a3b8;
   background: #f8fafc;
+  color: #0f172a;
 }
 
 .pf-avatar-reset:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #0f172a) 35%, transparent);
+}
+
+@media (max-width: 420px) {
+  .pf-emp-name-fields {
+    grid-template-columns: 1fr;
+  }
 }
 
 .pf-employee-main {
@@ -2597,10 +2597,11 @@ button.pf-stat-chip--link:focus-visible {
     bottom: 0 !important;
     left: 0 !important;
     transform: none !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     padding: 0 !important;
     border: 0 !important;
     border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
   }
@@ -2631,7 +2632,9 @@ button.pf-stat-chip--link:focus-visible {
     border-top-right-radius: 22px !important;
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
-    corner-shape: initial;
+    -webkit-border-bottom-left-radius: 0 !important;
+    -webkit-border-bottom-right-radius: 0 !important;
+    corner-shape: initial !important;
     border: 1px solid var(--border, #e2e8f0);
     border-bottom: 0 !important;
     box-shadow: 0 -16px 48px rgba(15, 23, 42, 0.18);
