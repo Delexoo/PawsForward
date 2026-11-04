@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261106f">
-  <link rel="stylesheet" href="css/fonts.css?v=20261106f">
-  <script src="js/theme.js?v=20261106f"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261106f">
-  <link rel="stylesheet" href="css/paws.css?v=20261106f">
+  <link rel="manifest" href="manifest.webmanifest?v=20261106g">
+  <link rel="stylesheet" href="css/fonts.css?v=20261106g">
+  <script src="js/theme.js?v=20261106g"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261106g">
+  <link rel="stylesheet" href="css/paws.css?v=20261106g">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261106f"></script>
-  <script src="js/canonical.js?v=20261106f"></script>
+  <script src="js/config.js?v=20261106g"></script>
+  <script src="js/canonical.js?v=20261106g"></script>
   <script>
     (function () {
       try {
@@ -33,9 +33,9 @@
       } catch (e) {}
     })();
   </script>
-  <script src="js/vendor/supabase.js?v=20261106f"></script>
-  <script src="js/supabase-client.js?v=20261106f"></script>
-  <script src="js/pin-lock.js?v=20261106f"></script>
+  <script src="js/vendor/supabase.js?v=20261106g"></script>
+  <script src="js/supabase-client.js?v=20261106g"></script>
+  <script src="js/pin-lock.js?v=20261106g"></script>
   <script>
     (function () {
       try {
@@ -69,8 +69,16 @@
         <span class="pf-pull-indicator-label">Pull to hard reset</span>
       </div>
 
-      <section class="pf-mini-panel pf-admin-page is-active" id="overview" data-admin-page="activity" aria-labelledby="overview-heading">
-        <h2 class="pf-mini-heading" id="overview-heading">Activity</h2>
+      <section class="pf-mini-panel pf-admin-page is-active" id="overview" data-admin-page="dashboard" aria-labelledby="overview-heading">
+        <div class="pf-section-head pf-section-head--compact pf-dashboard-head">
+          <div class="pf-dashboard-brand">
+            <img class="pf-admin-logo" src="doc/brand-mark.png" width="32" height="32" alt="">
+            <h2 class="pf-mini-heading" id="overview-heading">Dashboard</h2>
+          </div>
+          <div class="pf-section-actions">
+            <button type="button" class="pf-tool-btn" id="admin-lock-btn" aria-label="Lock portal and sign out">Lock</button>
+          </div>
+        </div>
         <div class="pf-stat-strip" id="stats-grid" role="group" aria-label="Organization totals">
           <button type="button" class="pf-stat" data-stat-info="donors">
             <span class="pf-stat-label">Donors</span>
@@ -132,20 +140,12 @@
     </div>
 
     <nav class="pf-dock" aria-label="PawsForward admin">
-      <div class="pf-dock-brand" aria-hidden="true">
-        <img class="pf-admin-logo" src="doc/brand-mark.png" width="32" height="32" alt="">
-      </div>
       <div class="pf-dock-tabs" role="tablist" aria-label="Dashboard pages">
-        <button type="button" class="pf-dock-tab is-active" role="tab" aria-selected="true" data-admin-nav="activity"><span class="pf-dock-tab-full">Activity</span><span class="pf-dock-tab-short" aria-hidden="true">Stats</span></button>
+        <button type="button" class="pf-dock-tab is-active" role="tab" aria-selected="true" data-admin-nav="dashboard"><span class="pf-dock-tab-full">Dashboard</span><span class="pf-dock-tab-short" aria-hidden="true">Home</span></button>
         <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="employees"><span class="pf-dock-tab-full">Employees</span><span class="pf-dock-tab-short" aria-hidden="true">Team</span></button>
         <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="donations"><span class="pf-dock-tab-full">Donations</span><span class="pf-dock-tab-short" aria-hidden="true">Gifts</span></button>
-        <button type="button" class="pf-dock-tab" id="admin-lock-btn" aria-label="Lock portal and sign out">
-          <span class="pf-dock-tab-full">Lock</span>
-          <span class="pf-dock-tab-short" aria-hidden="true">Lock</span>
-        </button>
       </div>
     </nav>
-    <div id="pf-undo-toast" class="pf-undo-toast" hidden role="status" aria-live="polite"></div>
   </div>
 
   <dialog class="site-leave-dialog pf-dialog" id="employee-dialog" aria-labelledby="employee-dialog-title">
@@ -390,10 +390,10 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261106f"></script>
-  <script src="js/shell.js?v=20261106f"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261106f"></script>
-  <script src="js/qr.js?v=20261106f"></script>
-  <script src="js/admin.js?v=20261106f"></script>
+  <script src="js/icons.js?v=20261106g"></script>
+  <script src="js/shell.js?v=20261106g"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261106g"></script>
+  <script src="js/qr.js?v=20261106g"></script>
+  <script src="js/admin.js?v=20261106g"></script>
 </body>
 </html>
