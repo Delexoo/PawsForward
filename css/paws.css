@@ -338,6 +338,7 @@ body[data-page="admin"] #donations-feed {
   min-height: 0;
   max-height: none;
   height: auto;
+  gap: 6px;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
