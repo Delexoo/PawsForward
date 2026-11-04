@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="description" content="Join PawsForward as a promoter. Create your own donation QR, share it, and earn 50% of every gift attributed to your code.">
-  <meta property="og:title" content="Join · PawsForward">
-  <meta property="og:description" content="Help dogs get food, water, and shelter. Create your QR in seconds and earn 50% of attributed donations.">
+  <meta name="theme-color" content="#fff9f3">
+  <meta name="description" content="Join Paws Forward. Create your own donation QR, share it, and earn 50% of every gift attributed to your code.">
+  <meta property="og:title" content="Get your QR · Paws Forward">
+  <meta property="og:description" content="Help dogs get food, water, and shelter. Create your QR in about a minute and earn 50% of attributed donations.">
   <meta property="og:image" content="https://delexoo.github.io/PawsForward/doc/brand-mark.png">
   <meta name="twitter:card" content="summary">
   <link rel="canonical" href="https://delexoo.github.io/PawsForward/join.html">
-  <title>Join · PawsForward</title>
+  <title>Get your QR · Paws Forward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="stylesheet" href="css/fonts.css?v=20261104b">
-  <script src="js/theme.js?v=20261104s"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261104s">
-  <link rel="stylesheet" href="css/paws.css?v=20261104b">
-  <script src="js/config.js?v=20261104b"></script>
-  <script src="js/canonical.js?v=20261104b"></script>
+  <link rel="stylesheet" href="css/fonts.css?v=20261105j">
+  <script src="js/theme.js?v=20261105j"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261105j">
+  <link rel="stylesheet" href="css/paws.css?v=20261105j">
+  <script src="js/config.js?v=20261105j"></script>
+  <script src="js/canonical.js?v=20261105j"></script>
 </head>
 <body data-page="join" data-public="1">
   <script>
@@ -26,96 +26,104 @@
     document.body.classList.add("site-unlocked");
   </script>
   <a class="skip-link" href="#page-body">Skip to content</a>
-  <div id="page-body" class="donate-shell pf-join-shell">
-    <div class="pf-join-card" id="join-card">
-      <img class="pf-donate-logo" src="doc/brand-mark.png" width="56" height="56" alt="PawsForward">
-      <p class="pf-join-kicker">Public signup</p>
-      <h1 class="pf-donate-title">Help PawsForward grow</h1>
-      <p class="pf-donate-lead">
-        PawsForward is a dog-rescue fundraising org. We raise money for food, water, and shelter —
-        and promoters earn <strong id="join-commission">50%</strong> of every donation that comes through their QR.
-      </p>
 
-      <div id="status-banner" class="status-banner" hidden role="status"></div>
+  <div id="page-body" class="pf-join-page">
+    <header class="pf-join-top">
+      <a class="pf-join-brand" href="index.html">
+        <img src="doc/brand-mark.png" width="40" height="40" alt="">
+        <span>Paws Forward</span>
+      </a>
+      <a class="pf-join-top-link" href="donate.html">Donate</a>
+    </header>
 
-      <section class="pf-join-story" aria-label="About PawsForward">
-        <h2 class="pf-join-section-title">What we do</h2>
-        <p>
-          Supporters scan a promoter QR, give any amount through Stripe, and that gift is tracked to the person who shared the code.
-          Operators pay out commissions from the dashboard.
+    <main class="pf-join-main">
+      <div class="pf-join-intro">
+        <p class="pf-join-kicker">Get your QR</p>
+        <h1 class="pf-join-title">Create your link. Help dogs. Earn 50%.</h1>
+        <p class="pf-join-lead">
+          Paws Forward is a dog-rescue fundraising organization. Share your personal QR —
+          when someone donates through it, half supports food, water, and shelter, and you earn
+          <strong id="join-commission">50%</strong> for spreading the word.
         </p>
-        <ol class="pf-join-steps">
-          <li>Create your profile below — takes about a minute.</li>
-          <li>Get a personal short link and QR instantly.</li>
-          <li>Share it. Attributed donations count toward your payout.</li>
+        <ol class="pf-join-steps" aria-label="How signup works">
+          <li><span>01</span><p>Fill in your details below — about a minute.</p></li>
+          <li><span>02</span><p>Get a short link and QR instantly.</p></li>
+          <li><span>03</span><p>Share it. Attributed gifts count toward your payout.</p></li>
         </ol>
-      </section>
+      </div>
 
-      <form class="pf-join-form" id="join-form" action="#" method="post">
-        <h2 class="pf-join-section-title">Create your QR</h2>
-        <div class="field">
-          <label for="join-first">First name <span class="pf-required" aria-hidden="true">*</span></label>
-          <input id="join-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80">
-          <p class="field-error" id="err-join-first" hidden></p>
-        </div>
-        <div class="field">
-          <label for="join-last">Last name <span class="pf-required" aria-hidden="true">*</span></label>
-          <input id="join-last" name="last_name" type="text" required autocomplete="family-name" maxlength="80">
-          <p class="field-error" id="err-join-last" hidden></p>
-        </div>
-        <div class="field">
-          <label for="join-phone">Phone number <span class="pf-required" aria-hidden="true">*</span></label>
-          <input id="join-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567">
-          <p class="field-error" id="err-join-phone" hidden></p>
-        </div>
-        <div class="field">
-          <label for="join-payment">Preferred payout type <span class="pf-required" aria-hidden="true">*</span></label>
-          <select id="join-payment" name="payment_type" required>
-            <option value="" disabled selected>Select payment type</option>
-            <option value="cashapp" data-brand="cashapp" data-icon="icons/payments/cashapp.svg">Cash App</option>
-            <option value="venmo" data-brand="venmo" data-icon="icons/payments/venmo.svg">Venmo</option>
-            <option value="paypal" data-brand="paypal" data-icon="icons/payments/paypal.svg">PayPal</option>
-            <option value="zelle" data-brand="zelle" data-icon="icons/payments/zelle.svg">Zelle</option>
-            <option value="apple_cash" data-brand="applecash" data-icon="icons/payments/applecash.svg">Apple Cash</option>
-            <option value="apple_pay" data-brand="applepay" data-icon="icons/payments/applepay.svg">Apple Pay</option>
-            <option value="google_pay" data-brand="googlepay" data-icon="icons/payments/googlepay.svg">Google Pay</option>
-            <option value="chime" data-brand="chime" data-icon="icons/payments/chime.svg">Chime</option>
-            <option value="cash" data-brand="cash" data-icon="icons/payments/cash.svg">Cash</option>
-            <option value="other" data-brand="other" data-icon="icons/payments/other.svg">Other</option>
-          </select>
-          <p class="field-error" id="err-join-payment" hidden></p>
-        </div>
-        <div class="field">
-          <label for="join-handle">Payout handle <span class="pf-required" aria-hidden="true">*</span></label>
-          <input id="join-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, email…">
-          <p class="field-error" id="err-join-handle" hidden></p>
-        </div>
-        <p class="pf-join-fineprint">
-          By signing up you agree we may contact you about payouts and campaign updates.
-          Privacy requests: <a href="privacy.html">privacy policy</a>.
-        </p>
-        <button type="submit" class="btn pf-donate-submit" id="join-submit">Create my QR</button>
-      </form>
+      <div class="pf-join-panel" id="join-card">
+        <div id="status-banner" class="status-banner" hidden role="status"></div>
 
-      <section class="pf-join-success" id="join-success" hidden>
-        <h2 class="pf-join-section-title">You’re in, <span id="join-success-name">promoter</span></h2>
-        <p class="pf-donate-lead" id="join-success-lead">Share this QR or link. Donations through it are attributed to you.</p>
-        <div class="pf-join-qr" id="join-qr" role="img" aria-label="Your donation QR code"></div>
-        <label class="pf-donate-label" for="join-share-url">Your short link</label>
-        <input id="join-share-url" class="pf-donate-input" type="text" readonly>
-        <div class="pf-join-actions">
-          <button type="button" class="btn" id="join-copy">Copy link</button>
-          <button type="button" class="btn secondary" id="join-download">Download QR</button>
-        </div>
-        <p class="pf-join-fineprint">Keep this page or save the QR. Operators can also find you in the dashboard by name or code <code id="join-code"></code>.</p>
-      </section>
-    </div>
+        <form class="pf-join-form" id="join-form" action="#" method="post">
+          <h2 class="pf-join-panel-title">Your profile</h2>
+          <div class="pf-join-row">
+            <div class="field">
+              <label for="join-first">First name <span class="pf-required" aria-hidden="true">*</span></label>
+              <input id="join-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80">
+              <p class="field-error" id="err-join-first" hidden></p>
+            </div>
+            <div class="field">
+              <label for="join-last">Last name <span class="pf-required" aria-hidden="true">*</span></label>
+              <input id="join-last" name="last_name" type="text" required autocomplete="family-name" maxlength="80">
+              <p class="field-error" id="err-join-last" hidden></p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="join-phone">Phone number <span class="pf-required" aria-hidden="true">*</span></label>
+            <input id="join-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567">
+            <p class="field-error" id="err-join-phone" hidden></p>
+          </div>
+          <div class="field">
+            <label for="join-payment">Preferred payout type <span class="pf-required" aria-hidden="true">*</span></label>
+            <select id="join-payment" name="payment_type" required>
+              <option value="" disabled selected>Select payment type</option>
+              <option value="cashapp" data-brand="cashapp" data-icon="icons/payments/cashapp.svg">Cash App</option>
+              <option value="venmo" data-brand="venmo" data-icon="icons/payments/venmo.svg">Venmo</option>
+              <option value="paypal" data-brand="paypal" data-icon="icons/payments/paypal.svg">PayPal</option>
+              <option value="zelle" data-brand="zelle" data-icon="icons/payments/zelle.svg">Zelle</option>
+              <option value="apple_cash" data-brand="applecash" data-icon="icons/payments/applecash.svg">Apple Cash</option>
+              <option value="apple_pay" data-brand="applepay" data-icon="icons/payments/applepay.svg">Apple Pay</option>
+              <option value="google_pay" data-brand="googlepay" data-icon="icons/payments/googlepay.svg">Google Pay</option>
+              <option value="chime" data-brand="chime" data-icon="icons/payments/chime.svg">Chime</option>
+              <option value="cash" data-brand="cash" data-icon="icons/payments/cash.svg">Cash</option>
+              <option value="other" data-brand="other" data-icon="icons/payments/other.svg">Other</option>
+            </select>
+            <p class="field-error" id="err-join-payment" hidden></p>
+          </div>
+          <div class="field">
+            <label for="join-handle"><span id="join-handle-label">Payout handle</span> <span class="pf-required" aria-hidden="true">*</span></label>
+            <input id="join-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, email…">
+            <p class="field-error" id="err-join-handle" hidden></p>
+          </div>
+          <p class="pf-join-fineprint">
+            By continuing you agree we may contact you about payouts and updates.
+            <a href="index.html">Back to home</a>
+          </p>
+          <button type="submit" class="btn pf-join-submit" id="join-submit">Create my QR</button>
+        </form>
+
+        <section class="pf-join-success" id="join-success" hidden>
+          <p class="pf-join-kicker">You’re in</p>
+          <h2 class="pf-join-panel-title">Welcome, <span id="join-success-name">promoter</span></h2>
+          <p class="pf-join-lead" id="join-success-lead">Share this QR or link. Donations through it are attributed to you.</p>
+          <div class="pf-join-qr" id="join-qr" role="img" aria-label="Your donation QR code"></div>
+          <label class="pf-join-label" for="join-share-url">Your short link</label>
+          <input id="join-share-url" class="pf-join-share-input" type="text" readonly>
+          <div class="pf-join-actions">
+            <button type="button" class="btn pf-join-submit" id="join-copy">Copy link</button>
+            <button type="button" class="btn secondary pf-join-secondary" id="join-download">Download QR</button>
+          </div>
+          <p class="pf-join-fineprint">Save this QR. Code: <code id="join-code"></code></p>
+        </section>
+      </div>
+    </main>
   </div>
 
-  <script src="js/vendor/supabase.js?v=20261104b"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261104b"></script>
-  <script src="js/supabase-client.js?v=20261104b"></script>
-  <script src="js/qr.js?v=20261104b"></script>
-  <script src="js/join.js?v=20261104b"></script>
+  <script src="js/vendor/supabase.js?v=20261105j"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261105j"></script>
+  <script src="js/supabase-client.js?v=20261105j"></script>
+  <script src="js/qr.js?v=20261105j"></script>
+  <script src="js/join.js?v=20261105j"></script>
 </body>
 </html>
