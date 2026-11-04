@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/pf-site.css?v=20261108ae">
-  <link rel="stylesheet" href="css/pf-join.css?v=20261109e">
+  <link rel="stylesheet" href="css/pf-join.css?v=20261109f">
   <script src="js/config.js?v=20261109a"></script>
   <script src="js/canonical.js?v=20261108z"></script>
 </head>
@@ -141,19 +141,13 @@
 
           <div class="join-detail">
             <label class="join-label" for="join-share-url">Donation link</label>
-            <input id="join-share-url" class="join-share-input" type="text" readonly>
-          </div>
-          <div class="join-detail">
-            <label class="join-label" for="join-qr-url">QR page link</label>
-            <input id="join-qr-url" class="join-share-input" type="text" readonly>
-          </div>
-          <div class="join-detail">
-            <label class="join-label" for="join-share-msg">Share message</label>
-            <textarea id="join-share-msg" class="join-share-msg" readonly rows="5"></textarea>
+            <div class="join-link-row">
+              <input id="join-share-url" class="join-share-input" type="text" readonly>
+              <button type="button" class="btn btn-primary join-copy-btn" id="join-copy">Copy</button>
+            </div>
           </div>
 
           <div class="join-actions">
-            <button type="button" class="btn btn-primary" id="join-copy">Copy donation link</button>
             <button type="button" class="btn btn-ghost" id="join-download">Download QR</button>
             <button type="button" class="btn btn-ghost" id="join-share">Share</button>
           </div>
@@ -201,6 +195,6 @@
   <script src="js/vendor/qrcode.min.js?v=20261108z" defer></script>
   <script src="js/supabase-client.js?v=20261108z" defer></script>
   <script src="js/qr.js?v=20261108z" defer></script>
-  <script src="js/join.js?v=20261109d" defer></script>
+  <script src="js/join.js?v=20261109f" defer></script>
 </body>
 </html>

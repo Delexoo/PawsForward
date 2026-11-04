@@ -191,9 +191,10 @@ body.join-page {
   font-weight: 600;
 }
 
-.join-share-input,
-.join-share-msg {
+.join-share-input {
   width: 100%;
+  min-width: 0;
+  height: 2.85rem;
   padding: 0.75rem 0.9rem;
   border: 1px solid #d2d2d7;
   border-radius: 0.85rem;
@@ -203,14 +204,17 @@ body.join-page {
   line-height: 1.4;
 }
 
-.join-share-input {
-  height: 2.85rem;
+.join-link-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.55rem;
+  align-items: center;
 }
 
-.join-share-msg {
-  min-height: 7.5rem;
-  resize: vertical;
-  font-family: inherit;
+.join-copy-btn {
+  height: 2.85rem;
+  padding: 0 1.1rem;
+  white-space: nowrap;
 }
 
 .join-actions {

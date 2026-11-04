@@ -9,8 +9,6 @@
     successLead: document.getElementById("join-success-lead"),
     qr: document.getElementById("join-qr"),
     shareUrl: document.getElementById("join-share-url"),
-    qrUrl: document.getElementById("join-qr-url"),
-    shareMsg: document.getElementById("join-share-msg"),
     code: document.getElementById("join-code"),
     copy: document.getElementById("join-copy"),
     download: document.getElementById("join-download"),
@@ -112,11 +110,20 @@
     return origin ? `${origin}/qr` : new URL("/qr", location.origin).href;
   }
 
-  function shareMessage(url, qrPage) {
-    return (
-      `Help dogs with Paws Forward — donate any amount here:\n${url}\n\n` +
-      `Or open / save my QR:\n${qrPage || url}`
-    );
+  function shareMessage(url) {
+    return `Help this dog charity, donate any amount here:\n${url}`;
+  }
+
+  async function qrShareFile(url, code) {
+    try {
+      const dataUrl = await window.PfQr.toDataURL(url, 512);
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const name = `pawsforward-${code || "qr"}.png`;
+      return new File([blob], name, { type: "image/png" });
+    } catch {
+      return null;
+    }
   }
 
   function functionsBase() {
@@ -221,7 +228,7 @@
     const url = shareUrlFor(row.referral_code);
     const code = row.referral_code || "";
     const qrPage = qrPageUrlFor(code);
-    const shareText = shareMessage(url, qrPage);
+    const shareText = shareMessage(url);
     current = {
       url,
       name,
@@ -239,11 +246,9 @@
       els.successTitle.textContent = name ? `You’re in, ${name}` : "You’re in";
     }
     if (els.successLead) {
-      els.successLead.textContent = "Here’s your donation link and QR. Share either one.";
+      els.successLead.textContent = "Here’s your donation link and QR.";
     }
     if (els.shareUrl) els.shareUrl.value = url;
-    if (els.qrUrl) els.qrUrl.value = qrPage;
-    if (els.shareMsg) els.shareMsg.value = shareText;
     if (els.code) els.code.textContent = code || "—";
     setBanner("You’re set — copy, download, or share below.", "ok");
 
@@ -251,7 +256,7 @@
       await window.PfQr.renderInto(els.qr, url, 220);
     } catch (err) {
       console.error(err);
-      setBanner("Account created. QR image failed — use your donation link or QR page link below.", "err");
+      setBanner("Account created. QR image failed — use your donation link below.", "err");
     }
 
     // Skip welcome email until send-promoter-welcome is deployed (avoids Safari TypeError: Load failed).
@@ -511,15 +516,28 @@
       }
     });
     els.share?.addEventListener("click", async () => {
-      const text = current.shareText || shareMessage(current.url, current.qrPage);
+      const text = current.shareText || shareMessage(current.url);
       const url = current.url;
       try {
         if (navigator.share) {
-          await navigator.share({
-            title: "Help dogs with Paws Forward",
-            text,
-            url,
-          });
+          const file = await qrShareFile(url, current.code);
+          const canFiles =
+            file &&
+            navigator.canShare &&
+            navigator.canShare({ files: [file] });
+          if (canFiles) {
+            await navigator.share({
+              title: "Help this dog charity",
+              text,
+              files: [file],
+            });
+          } else {
+            await navigator.share({
+              title: "Help this dog charity",
+              text,
+              url,
+            });
+          }
           setBanner("Share sheet opened.", "ok");
           return;
         }
@@ -530,16 +548,8 @@
       try {
         await navigator.clipboard.writeText(text);
         setBanner("Share message copied — paste it anywhere.", "ok");
-        if (els.shareMsg) {
-          els.shareMsg.focus();
-          els.shareMsg.select();
-        }
       } catch {
-        if (els.shareMsg) {
-          els.shareMsg.focus();
-          els.shareMsg.select();
-        }
-        setBanner("Select and copy the share message above.", "err");
+        setBanner("Could not share — copy your donation link instead.", "err");
       }
     });
   });
