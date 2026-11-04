@@ -5,7 +5,7 @@ window.SITE_CONFIG = {
   commissionRate: 0.5,
   appName: "PawsForward",
   /** Bump when shipping UI so browsers skip stale JS/CSS. */
-  assetVersion: "20261108k",
+  assetVersion: "20261108l",
   contactEmail: "hello@pawsforward.org",
   privacyEmail: "privacy@pawsforward.org",
   siteOrigin: "https://joinpawsforward.com",
