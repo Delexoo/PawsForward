@@ -728,18 +728,20 @@ body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
   margin-bottom: 12px;
 }
 
+.pf-dialog .pf-emp-identity-row {
+  margin: 0 0 12px;
+}
+
 .pf-dialog .pf-avatar-editor {
-  margin: 0 0 14px;
-  padding: 10px 12px;
-  gap: 12px;
-  border: 1px solid var(--border, #e2e8f0);
-  border-radius: 12px;
-  background: var(--surface-2, #f8fafc);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .pf-dialog .pf-avatar-preview {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
 }
 
 .pf-dialog .pf-emp-detail-stats {
@@ -2104,31 +2106,106 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   display: block;
 }
 
-.pf-avatar-preview {
-  width: 72px;
-  height: 72px;
+.pf-emp-identity-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px 14px;
+  align-items: start;
+  margin: 0 0 12px;
+}
+
+.pf-emp-name-fields {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.pf-emp-name-fields .field {
+  margin-bottom: 0;
 }
 
 .pf-avatar-editor {
-  display: flex;
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  width: fit-content;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.pf-avatar-pick {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  overflow: hidden;
+  line-height: 0;
+  box-shadow: 0 0 0 1px var(--border, #e2e8f0);
+}
+
+.pf-avatar-pick:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #0f172a) 35%, transparent);
+}
+
+.pf-avatar-preview {
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.pf-avatar-pick-hint {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 4px 0 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: #fff;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.pf-avatar-reset {
+  appearance: none;
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  z-index: 2;
+  display: inline-flex;
   align-items: center;
-  gap: 14px;
-  margin: 0 0 14px;
-  padding: 10px;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  padding: 0;
   border: 1px solid var(--border, #e2e8f0);
-  border-radius: 12px;
+  border-radius: 50%;
+  background: #fff;
+  color: #0f172a;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+.pf-avatar-reset:hover,
+.pf-avatar-reset:focus-visible {
+  outline: none;
+  border-color: #94a3b8;
   background: #f8fafc;
 }
 
-.pf-avatar-editor-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.pf-tool-btn--file {
-  cursor: pointer;
+.pf-avatar-reset:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #0f172a) 35%, transparent);
 }
 
 .pf-employee-main {
@@ -2601,15 +2678,15 @@ button.pf-stat-chip--link:focus-visible {
     flex: 1 1 auto;
   }
 
-  .pf-dialog .pf-avatar-editor {
-    margin-bottom: 12px;
-    padding: 10px 12px;
-    gap: 10px;
+  .pf-dialog .pf-avatar-preview {
+    width: 64px;
+    height: 64px;
   }
 
-  .pf-dialog .pf-avatar-preview {
-    width: 52px;
-    height: 52px;
+  .pf-dialog .pf-avatar-reset {
+    width: 24px;
+    height: 24px;
+    font-size: 13px;
   }
 
   .pf-dialog .ui-select-menu {
@@ -2706,11 +2783,6 @@ button.pf-stat-chip--link:focus-visible {
     flex-direction: row;
     align-items: center;
     gap: 8px;
-  }
-
-  .pf-avatar-editor {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .pf-employee-actions {
