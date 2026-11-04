@@ -8,17 +8,18 @@ body.join-page {
   min-height: 100svh;
   min-height: 100dvh;
   margin: 0;
-  padding: 5.5rem 1.25rem 2.5rem;
+  padding: 5rem 1.25rem 2.5rem;
   display: grid;
-  place-items: center;
+  align-content: start;
+  justify-items: center;
   box-sizing: border-box;
 }
 
 .join-shell {
   width: min(1080px, 100%);
   display: grid;
-  gap: 1.75rem;
-  align-items: center;
+  gap: 1.25rem;
+  align-items: start;
 }
 
 .join-hero {
@@ -93,13 +94,13 @@ body.join-page {
 
 @media (min-width: 900px) {
   .join-main {
-    padding: 6rem 1.5rem 3rem;
+    padding: 5.25rem 1.5rem 2.5rem;
   }
 
   .join-shell {
     grid-template-columns: minmax(15rem, 0.9fr) minmax(22rem, 1.15fr);
-    gap: 3.25rem;
-    align-items: center;
+    gap: 2.5rem;
+    align-items: start;
   }
 
   .join-hero h1 {
@@ -228,12 +229,12 @@ body.join-page {
   padding: 0 1.05rem;
 }
 
-/* Mobile: hero fills first screen, centered X+Y; form stacks underneath */
+/* Mobile: compact hero, form card close underneath */
 @media (max-width: 899px) {
   .join-main {
     display: block;
     min-height: 0;
-    padding: 0 0.875rem 2.75rem;
+    padding: 8.5rem 0.875rem 2.5rem;
   }
 
   .join-shell {
@@ -243,30 +244,31 @@ body.join-page {
   }
 
   .join-hero {
-    min-height: 100svh;
-    min-height: 100dvh;
-    display: grid;
-    place-content: center;
-    place-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    padding: 5.5rem 0.35rem 2rem;
+    padding: 0 0.35rem;
     box-sizing: border-box;
   }
 
   .join-hero h1 {
     white-space: normal;
     text-align: center;
+    font-size: clamp(2rem, 8.5vw, 2.6rem);
   }
 
   .join-points {
-    margin: 1.25rem auto 0;
-    display: inline-grid;
+    margin: 0.85rem 0 0;
+    display: grid;
+    width: max-content;
+    max-width: 100%;
     justify-items: start;
     text-align: left;
   }
 
   .join-panel {
-    margin-top: 0.25rem;
+    margin-top: 0.35rem;
   }
 }
 
