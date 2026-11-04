@@ -272,10 +272,10 @@
     if (els.submit) els.submit.disabled = true;
     setBanner("Creating your QR…");
 
-    // Live DB may not have p_email yet — try with email, then fall back.
+    // Live DB still requires last_name and may not accept p_email yet.
     const argsWithEmail = {
       p_first_name: payload.name,
-      p_last_name: "\u00A0",
+      p_last_name: "-",
       p_phone: payload.phone,
       p_payment_type: payload.payment_type,
       p_payment_handle: payload.payment_handle,
@@ -283,7 +283,7 @@
     };
     const argsWithoutEmail = {
       p_first_name: payload.name,
-      p_last_name: "\u00A0",
+      p_last_name: "-",
       p_phone: payload.phone,
       p_payment_type: payload.payment_type,
       p_payment_handle: payload.payment_handle,
