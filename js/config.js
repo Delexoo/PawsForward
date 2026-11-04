@@ -5,8 +5,19 @@ window.SITE_CONFIG = {
   commissionRate: 0.5,
   appName: "PawsForward",
   /** Bump when shipping UI so browsers skip stale JS/CSS. */
-  assetVersion: "20261106x",
+  assetVersion: "20261106y",
   contactEmail: "hello@pawsforward.org",
   privacyEmail: "privacy@pawsforward.org",
   siteOrigin: "https://joinpawsforward.com",
+};
+
+/** Stripe Checkout URL — donors go here directly (no donate interstitial). */
+window.SITE_CONFIG.checkoutUrl = function (ref) {
+  const base = String(window.SITE_CONFIG.supabaseUrl || "").replace(/\/$/, "");
+  const origin = String(window.SITE_CONFIG.siteOrigin || "").replace(/\/$/, "");
+  const u = new URL(`${base}/functions/v1/create-checkout`);
+  if (origin) u.searchParams.set("site_origin", origin);
+  const code = String(ref || "").trim();
+  if (code) u.searchParams.set("ref", code);
+  return u.href;
 };

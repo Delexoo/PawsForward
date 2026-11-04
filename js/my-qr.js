@@ -27,6 +27,9 @@
   }
 
   function shareUrlFor(ref) {
+    if (typeof window.SITE_CONFIG?.checkoutUrl === "function") {
+      return window.SITE_CONFIG.checkoutUrl(ref);
+    }
     const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
     if (origin && ref) return `${origin}/donate.html?ref=${encodeURIComponent(ref)}`;
     if (ref) return new URL(`donate.html?ref=${encodeURIComponent(ref)}`, location.href).href;

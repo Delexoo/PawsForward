@@ -1,12 +1,13 @@
 /**
- * Donate thank-you after Stripe return. Checkout itself is a head redirect in donate.html
- * (or a direct Edge link from home) — no interstitial UI.
+ * Thank-you / cancel after Stripe. Checkout itself is a head redirect (or direct Edge link).
  */
 (function () {
   const params = new URLSearchParams(location.search);
   const els = {
     success: document.getElementById("donate-success"),
     successText: document.getElementById("donate-success-text"),
+    cancelled: document.getElementById("donate-cancelled"),
+    retry: document.getElementById("donate-retry"),
   };
 
   function functionsBase() {
@@ -16,6 +17,18 @@
 
   function anonKey() {
     return String(window.SITE_CONFIG?.supabaseAnonKey || "");
+  }
+
+  function checkoutHref(ref) {
+    if (typeof window.SITE_CONFIG?.checkoutUrl === "function") {
+      return window.SITE_CONFIG.checkoutUrl(ref);
+    }
+    const base = functionsBase();
+    const origin = String(window.SITE_CONFIG?.siteOrigin || "https://joinpawsforward.com").replace(/\/$/, "");
+    const u = new URL(`${base}/create-checkout`);
+    u.searchParams.set("site_origin", origin);
+    if (ref) u.searchParams.set("ref", ref);
+    return u.href;
   }
 
   async function confirmCheckout(sessionId) {
@@ -52,9 +65,17 @@
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
+    const ref = String(params.get("ref") || "").trim();
+    if (els.retry) els.retry.href = checkoutHref(ref);
+
     if (params.get("success") === "1" && params.get("session_id")) {
       if (els.success) els.success.hidden = false;
       await confirmCheckout(params.get("session_id"));
+      return;
+    }
+
+    if (params.get("cancelled") === "1") {
+      if (els.cancelled) els.cancelled.hidden = false;
     }
   });
 })();

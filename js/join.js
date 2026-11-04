@@ -94,9 +94,12 @@
   }
 
   function shareUrlFor(code) {
+    // QR / share link opens Stripe Checkout directly (Edge redirects 303).
+    if (typeof window.SITE_CONFIG?.checkoutUrl === "function") {
+      return window.SITE_CONFIG.checkoutUrl(code);
+    }
     const origin = siteOrigin();
     const ref = String(code || "").trim();
-    // Point QR straight at donate (no /r/ hop) so scanners don't see a redirect.
     if (origin && ref) return `${origin}/donate.html?ref=${encodeURIComponent(ref)}`;
     if (ref) return new URL(`donate.html?ref=${encodeURIComponent(ref)}`, location.href).href;
     return origin ? `${origin}/donate.html` : new URL("donate.html", location.href).href;

@@ -7,25 +7,30 @@
   <title>Donate · Paws Forward</title>
   <script>
     (function () {
-      // Legacy entry: r.html?c=CODE or ?ref=CODE → donate with referral preserved.
-      // New QRs encode donate.html?ref=CODE directly (no hop).
+      // Legacy entry → Stripe Checkout (303 from Edge Function).
       var params = new URLSearchParams(location.search);
       var code = String(params.get("c") || params.get("ref") || "").trim();
       if (!code && location.hash) code = String(location.hash.replace(/^#/, "")).trim();
-      var target = "donate.html" + (code ? "?ref=" + encodeURIComponent(code) : "");
-      location.replace(target);
+      var u = new URL("https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout");
+      if (code) u.searchParams.set("ref", code);
+      u.searchParams.set("site_origin", "https://joinpawsforward.com");
+      location.replace(u.href);
     })();
   </script>
 </head>
 <body>
-  <p><a id="go" href="donate.html">Continue to donate</a></p>
+  <p><a id="go" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Continue to donate</a></p>
   <script>
     (function () {
       var params = new URLSearchParams(location.search);
       var code = String(params.get("c") || params.get("ref") || "").trim();
       if (!code && location.hash) code = String(location.hash.replace(/^#/, "")).trim();
       var a = document.getElementById("go");
-      if (a && code) a.href = "donate.html?ref=" + encodeURIComponent(code);
+      if (!a) return;
+      var u = new URL("https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout");
+      if (code) u.searchParams.set("ref", code);
+      u.searchParams.set("site_origin", "https://joinpawsforward.com");
+      a.href = u.href;
     })();
   </script>
 </body>

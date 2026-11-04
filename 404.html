@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script>
     (function () {
-      // Legacy short links /r/<code> still work; new QRs use donate.html?ref= directly.
+      // Legacy short links /r/<code> → Stripe Checkout directly.
       var match = location.pathname.match(/\/r\/([^\/?#]+)\/?$/);
       if (!match) return;
       var code = decodeURIComponent(match[1] || "").trim();
       if (!code) return;
-      var base = location.pathname.replace(/\/r\/[^\/]+\/?$/, "/");
-      location.replace(base + "donate.html?ref=" + encodeURIComponent(code));
+      var u = new URL("https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout");
+      u.searchParams.set("ref", code);
+      u.searchParams.set("site_origin", "https://joinpawsforward.com");
+      location.replace(u.href);
     })();
   </script>
   <meta name="theme-color" content="#fff9f3">
@@ -19,14 +21,14 @@
   <meta name="description" content="This Paws Forward page was not found.">
   <link rel="canonical" href="https://joinpawsforward.com/404.html">
   <title>Page not found · Paws Forward</title>
-  <link rel="icon" href="icons/favicon.png?v=20261106x" type="image/png" sizes="64x64">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261106x" sizes="180x180">
-  <link rel="stylesheet" href="css/fonts.css?v=20261106x">
-  <script src="js/theme.js?v=20261106x"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261106x">
-  <link rel="stylesheet" href="css/paws.css?v=20261106x">
-  <script src="js/config.js?v=20261106x"></script>
-  <script src="js/canonical.js?v=20261106x"></script>
+  <link rel="icon" href="icons/favicon.png?v=20261106y" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261106y" sizes="180x180">
+  <link rel="stylesheet" href="css/fonts.css?v=20261106y">
+  <script src="js/theme.js?v=20261106y"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261106y">
+  <link rel="stylesheet" href="css/paws.css?v=20261106y">
+  <script src="js/config.js?v=20261106y"></script>
+  <script src="js/canonical.js?v=20261106y"></script>
 </head>
 <body data-page="legal" data-public="1">
   <script>

@@ -327,6 +327,9 @@
     const ref = String(code || "").trim();
     const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
     // Direct donate URL with ref — no intermediate /r/ redirect (looks cleaner when scanned).
+    if (typeof window.SITE_CONFIG?.checkoutUrl === "function") {
+      return window.SITE_CONFIG.checkoutUrl(ref);
+    }
     if (origin && ref) return `${origin}/donate.html?ref=${encodeURIComponent(ref)}`;
     if (ref) return new URL(`donate.html?ref=${encodeURIComponent(ref)}`, window.location.href).href;
     return origin ? `${origin}/donate.html` : new URL("donate.html", window.location.href).href;
