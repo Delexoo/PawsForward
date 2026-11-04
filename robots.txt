@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin.html
 Disallow: /login.html
 
-Sitemap: https://delexoo.github.io/PawsForward/sitemap.xml
+Sitemap: https://joinpawsforward.com/sitemap.xml
