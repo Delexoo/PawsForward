@@ -454,16 +454,16 @@ main { flex: 1; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
-  padding: 2.4rem 1rem 0.2rem;
+  gap: 0.3rem;
+  padding: 1.35rem 1rem 0.1rem;
   color: #fff;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   text-decoration: none;
 }
 
 .to-top span {
-  width: 0.42rem;
-  height: 0.42rem;
+  width: 0.38rem;
+  height: 0.38rem;
   border-top: 1.5px solid #fff;
   border-left: 1.5px solid #fff;
   transform: rotate(45deg);
@@ -471,23 +471,24 @@ main { flex: 1; }
 
 .footer-grid {
   display: grid;
-  gap: 1.8rem 2.5rem;
-  padding: 2.2rem 0 0.2rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem 1.5rem;
+  padding: 1rem 0 0.15rem;
 }
 
-.footer-grid div { display: grid; align-content: start; gap: 0.05rem; }
+.footer-grid div { display: grid; align-content: start; gap: 0; }
 
 .footer-label {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.35rem;
   color: #6e6e73;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 400;
 }
 
 .footer-grid a {
   color: #f5f5f7;
-  font-size: 0.84rem;
-  line-height: 1.85;
+  font-size: 0.82rem;
+  line-height: 1.55;
   text-decoration: none;
 }
 
@@ -495,10 +496,10 @@ main { flex: 1; }
 
 .footer-note {
   margin: 0;
-  padding: 1.15rem 0 1.6rem;
+  padding: 0.85rem 0 0.35rem;
   color: #8e8e93;
-  font-size: 0.72rem;
-  line-height: 1.55;
+  font-size: 0.7rem;
+  line-height: 1.45;
 }
 
 .footer-note.is-clamped {
@@ -512,13 +513,13 @@ main { flex: 1; }
 .footer-note a { color: #f5f5f7; }
 
 .notice-more {
-  margin: 0.4rem 0 1.6rem;
+  margin: 0.25rem 0 1.1rem;
   padding: 0;
   border: 0;
   background: none;
   color: #f5f5f7;
   font: inherit;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -526,19 +527,18 @@ main { flex: 1; }
 .notice-more:hover { text-decoration: underline; }
 
 @media (max-width: 699px) {
-  .to-top { gap: 0.3rem; padding-top: 1.25rem; }
+  .to-top { padding-top: 1.1rem; }
 
   .footer-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.2rem 0.75rem;
-    padding-top: 0.85rem;
+    padding-top: 0.75rem;
   }
 
-  .footer-label { margin-bottom: 0.28rem; }
+  .footer-label { margin-bottom: 0.25rem; }
 
   .footer-grid a {
-    font-size: 0.75rem;
-    line-height: 1.35;
+    font-size: 0.74rem;
+    line-height: 1.4;
   }
 }
 
