@@ -2504,6 +2504,11 @@ button.pf-stat-chip--link:focus-visible {
   white-space: nowrap;
 }
 
+/* Sheet drag handle is injected for mobile dismiss; hide on desktop layouts. */
+.pf-sheet-handle {
+  display: none !important;
+}
+
 .pf-emp-detail {
   text-align: left;
 }
@@ -2919,11 +2924,17 @@ button.pf-stat-chip--link:focus-visible {
     transition: none;
   }
 
+  body[data-page="admin"] dialog.pf-dialog.is-dragging .site-leave-dialog-panel {
+    touch-action: none !important;
+    overflow-y: hidden;
+  }
+
   body[data-page="admin"] dialog.pf-dialog.is-closing .site-leave-dialog-panel {
     transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-  body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel::before {
+  /* Real drag handle (JS inserts .pf-sheet-handle). Pseudo pill kept as fallback only. */
+  body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel:not(:has(> .pf-sheet-handle))::before {
     content: "";
     display: block;
     width: 44px;
@@ -2931,7 +2942,39 @@ button.pf-stat-chip--link:focus-visible {
     margin: 6px auto 14px;
     border-radius: 999px;
     background: #cbd5e1;
-    box-shadow: 0 0 0 12px transparent; /* larger drag hit area */
+  }
+
+  body[data-page="admin"] dialog.pf-dialog .pf-sheet-handle {
+    appearance: none;
+    display: block !important;
+    width: 100%;
+    height: 32px;
+    margin: 0 0 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: grab;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    position: relative;
+    flex: 0 0 auto;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog .pf-sheet-handle::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    width: 44px;
+    height: 5px;
+    margin-left: -22px;
+    border-radius: 999px;
+    background: #cbd5e1;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog .pf-sheet-handle:active {
+    cursor: grabbing;
   }
 
   .pf-dialog .site-leave-dialog-actions {

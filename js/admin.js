@@ -655,46 +655,57 @@
     });
   }
 
+  function ensureSheetHandle(panel) {
+    if (!panel) return null;
+    let handle = panel.querySelector(":scope > .pf-sheet-handle");
+    if (handle) return handle;
+    handle = document.createElement("button");
+    handle.type = "button";
+    handle.className = "pf-sheet-handle";
+    handle.setAttribute("aria-label", "Drag down to close");
+    handle.tabIndex = -1;
+    panel.insertBefore(handle, panel.firstChild);
+    return handle;
+  }
+
   function enableDialogSheetDrag(dialog) {
     if (!dialog || dialog.dataset.sheetDrag === "1") return;
     dialog.dataset.sheetDrag = "1";
     const panel = dialogPanel(dialog);
     if (!panel) return;
+    const handle = ensureSheetHandle(panel);
 
     let startY = 0;
     let lastY = 0;
     let lastT = 0;
     let dragging = false;
+    let armed = false;
+    let fromHandle = false;
     let moved = false;
     let velocity = 0;
+    let activePointer = null;
 
-    const DRAG_ZONE = 64;
-    const DISMISS_PX = 110;
-    const DISMISS_V = 0.85;
+    const ARM_PX = 8;
+    const DISMISS_PX = 96;
+    const DISMISS_V = 0.7;
 
-    function canStartDrag(clientY) {
-      if (!isMobileSheetViewport() || !dialog.open) return false;
-      const rect = panel.getBoundingClientRect();
-      const inHandle = clientY - rect.top <= DRAG_ZONE;
-      return inHandle || panel.scrollTop <= 0;
+    function resetDragStyles() {
+      panel.style.transition = "";
+      panel.style.transform = "";
+      panel.style.touchAction = "";
     }
 
-    function onPointerDown(e) {
-      if (e.pointerType === "mouse" && e.button !== 0) return;
-      if (!canStartDrag(e.clientY)) return;
-      if (e.target.closest("input, textarea, select, button, a, .ui-select, label")) {
-        // Still allow handle-bar drag near the top even over empty chrome.
-        const rect = panel.getBoundingClientRect();
-        if (e.clientY - rect.top > DRAG_ZONE) return;
-      }
+    function beginDrag(e) {
       dragging = true;
       moved = false;
       startY = e.clientY;
       lastY = e.clientY;
       lastT = performance.now();
       velocity = 0;
+      activePointer = e.pointerId;
       dialog.classList.add("is-dragging");
       panel.style.transition = "none";
+      panel.style.touchAction = "none";
       try {
         panel.setPointerCapture(e.pointerId);
       } catch {
@@ -702,44 +713,135 @@
       }
     }
 
-    function onPointerMove(e) {
-      if (!dragging) return;
-      const dy = Math.max(0, e.clientY - startY);
-      if (dy > 4) moved = true;
-      const now = performance.now();
-      const dt = Math.max(1, now - lastT);
-      velocity = (e.clientY - lastY) / dt;
-      lastY = e.clientY;
-      lastT = now;
-      panel.style.transform = `translate3d(0, ${dy}px, 0)`;
-      if (moved && e.cancelable) e.preventDefault();
-    }
-
-    function onPointerUp() {
-      if (!dragging) return;
+    function endDrag(commitClose) {
+      if (!dragging && !armed) return;
       dragging = false;
+      armed = false;
+      fromHandle = false;
+      activePointer = null;
       dialog.classList.remove("is-dragging");
-      const dy = Math.max(0, lastY - startY);
-      const shouldClose = moved && (dy >= DISMISS_PX || velocity >= DISMISS_V);
-      if (shouldClose) {
+      panel.style.touchAction = "";
+      if (commitClose) {
         closeAdminDialog(dialog);
         return;
       }
       panel.style.transition = "transform 0.24s cubic-bezier(0.32, 0.72, 0, 1)";
       panel.style.transform = "translate3d(0, 0, 0)";
       const clear = () => {
-        panel.style.transition = "";
-        panel.style.transform = "";
+        resetDragStyles();
         panel.removeEventListener("transitionend", clear);
       };
       panel.addEventListener("transitionend", clear);
       window.setTimeout(clear, 280);
     }
 
-    panel.addEventListener("pointerdown", onPointerDown, { passive: true });
+    function onPointerDown(e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (!isMobileSheetViewport() || !dialog.open || dialog.classList.contains("is-closing")) return;
+      if (armed || dragging) return;
+
+      const onHandle = !!(handle && (e.target === handle || handle.contains?.(e.target)));
+      const interactive = e.target.closest?.(
+        "input, textarea, select, button:not(.pf-sheet-handle), a, .ui-select, label, [role='button']"
+      );
+      if (interactive && !onHandle) return;
+
+      fromHandle = onHandle;
+      // Handle always arms. Body only arms when scrolled to top (pull-to-dismiss).
+      if (!onHandle && panel.scrollTop > 0) return;
+
+      armed = true;
+      startY = e.clientY;
+      lastY = e.clientY;
+      lastT = performance.now();
+      velocity = 0;
+      moved = false;
+      activePointer = e.pointerId;
+      try {
+        panel.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+      if (onHandle) beginDrag(e);
+      e.stopPropagation?.();
+    }
+
+    function onPointerMove(e) {
+      if (activePointer != null && e.pointerId !== activePointer) return;
+      if (!armed && !dragging) return;
+
+      const dy = e.clientY - startY;
+      const now = performance.now();
+      const dt = Math.max(1, now - lastT);
+      velocity = (e.clientY - lastY) / dt;
+      lastY = e.clientY;
+      lastT = now;
+
+      if (!dragging) {
+        // Wait for a clear downward pull before stealing the scroll gesture.
+        if (dy < ARM_PX) return;
+        if (dy < 0) {
+          endDrag(false);
+          resetDragStyles();
+          return;
+        }
+        if (!fromHandle && panel.scrollTop > 0) {
+          armed = false;
+          activePointer = null;
+          return;
+        }
+        beginDrag(e);
+      }
+
+      const pull = Math.max(0, e.clientY - startY);
+      if (pull > 4) moved = true;
+      panel.style.transform = `translate3d(0, ${pull}px, 0)`;
+      if (e.cancelable) e.preventDefault();
+    }
+
+    function onPointerUp(e) {
+      if (activePointer != null && e.pointerId !== activePointer) return;
+      if (!armed && !dragging) return;
+      const dy = Math.max(0, lastY - startY);
+      const shouldClose = dragging && moved && (dy >= DISMISS_PX || velocity >= DISMISS_V);
+      if (!dragging) {
+        armed = false;
+        fromHandle = false;
+        activePointer = null;
+        try {
+          panel.releasePointerCapture(e.pointerId);
+        } catch {
+          /* ignore */
+        }
+        return;
+      }
+      endDrag(shouldClose);
+    }
+
+    // Capture on the panel so the handle + body share one gesture path.
+    panel.addEventListener("pointerdown", onPointerDown, { passive: false });
     panel.addEventListener("pointermove", onPointerMove, { passive: false });
     panel.addEventListener("pointerup", onPointerUp);
     panel.addEventListener("pointercancel", onPointerUp);
+    handle?.addEventListener(
+      "touchstart",
+      (e) => {
+        if (!isMobileSheetViewport() || !dialog.open || !e.touches?.[0]) return;
+        if (e.cancelable) e.preventDefault();
+        const t = e.touches[0];
+        onPointerDown({
+          pointerType: "touch",
+          button: 0,
+          clientY: t.clientY,
+          pointerId: t.identifier,
+          target: handle,
+          cancelable: true,
+          preventDefault() {},
+          stopPropagation() {},
+        });
+      },
+      { passive: false }
+    );
   }
 
   function wireDialogBackdropClose() {
