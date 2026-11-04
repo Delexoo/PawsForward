@@ -190,3 +190,41 @@
   window.addEventListener("scroll", syncBarTone, { passive: true });
   syncBarTone();
 })();
+
+/* Animated FAQ accordion */
+(function () {
+  const items = Array.from(document.querySelectorAll(".pf-home-faq .pf-faq-item"));
+  if (!items.length) return;
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function setOpen(item, open) {
+    const summary = item.querySelector("summary");
+    const panel = item.querySelector(".pf-faq-panel");
+    item.classList.toggle("is-open", open);
+    if (summary) summary.setAttribute("aria-expanded", open ? "true" : "false");
+    if (panel) panel.style.gridTemplateRows = open ? "1fr" : "0fr";
+  }
+
+  items.forEach((item) => {
+    const summary = item.querySelector("summary");
+    const panel = item.querySelector(".pf-faq-panel");
+    if (!summary || !panel) return;
+
+    item.classList.add("pf-faq-item--js");
+    item.open = true; // keep answer in DOM for height animation
+    setOpen(item, false);
+
+    summary.addEventListener("click", (event) => {
+      event.preventDefault();
+      const opening = !item.classList.contains("is-open");
+
+      items.forEach((other) => {
+        if (other === item) setOpen(other, opening);
+        else if (other.classList.contains("is-open")) setOpen(other, false);
+      });
+
+      if (reduceMotion) return;
+    });
+  });
+})();

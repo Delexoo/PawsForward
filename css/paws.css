@@ -3995,38 +3995,107 @@ body[data-page="join"] .status-banner {
 
 .pf-home-faq {
   width: min(640px, calc(100% - 40px));
-  margin: 0 auto 56px;
+  margin: 0 auto;
+  padding: 80px 0 72px;
+  color: var(--pf-ink);
+  text-align: left;
 }
 
 .pf-faq-list {
   display: grid;
-  gap: 10px;
-  margin-top: 18px;
+  gap: 0;
+  margin-top: 10px;
 }
 
 .pf-faq-item {
   border-bottom: 1px solid var(--pf-rule, #e5e0d8);
-  padding: 4px 0 12px;
+  padding: 0;
 }
 
 .pf-faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
   cursor: pointer;
   font-family: "DM Sans", system-ui, sans-serif;
-  font-weight: 750;
+  font-weight: 650;
   font-size: 1.02rem;
+  letter-spacing: -0.015em;
   color: var(--pf-ink, #2d312b);
   list-style: none;
+  transition: color 0.2s ease;
 }
 
 .pf-faq-item summary::-webkit-details-marker {
   display: none;
 }
 
+.pf-faq-item summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  margin-top: -3px;
+  border-right: 2px solid var(--pf-taupe, #ada496);
+  border-bottom: 2px solid var(--pf-taupe, #ada496);
+  transform: rotate(45deg);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease;
+}
+
+.pf-faq-item.is-open summary,
+.pf-faq-item:not(.pf-faq-item--js)[open] summary {
+  color: var(--pf-green, #6b8361);
+}
+
+.pf-faq-item.is-open summary::after,
+.pf-faq-item:not(.pf-faq-item--js)[open] summary::after {
+  margin-top: 3px;
+  border-color: var(--pf-green, #6b8361);
+  transform: rotate(225deg);
+}
+
+.pf-faq-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pf-faq-item.is-open .pf-faq-panel,
+.pf-faq-item:not(.pf-faq-item--js)[open] .pf-faq-panel {
+  grid-template-rows: 1fr;
+}
+
+.pf-faq-panel-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
 .pf-faq-item p {
-  margin: 8px 0 0;
+  margin: 0 0 18px;
   color: var(--pf-taupe, #ada496);
-  line-height: 1.5;
+  line-height: 1.55;
   font-size: 0.98rem;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity 0.28s ease 0.04s,
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pf-faq-item.is-open p,
+.pf-faq-item:not(.pf-faq-item--js)[open] p {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-faq-panel,
+  .pf-faq-item summary::after,
+  .pf-faq-item p {
+    transition: none;
+  }
 }
 
 /* ---- Legal pages (privacy / terms) ---- */
@@ -4710,7 +4779,7 @@ body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--secondary:hover {
 .pf-home-about {
   width: min(640px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 72px 0 40px;
+  padding: 96px 0 40px;
   text-align: left;
   color: var(--pf-ink);
 }
@@ -4754,7 +4823,7 @@ body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--secondary:hover {
 .pf-home-how {
   width: min(640px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 48px 0 28px;
+  padding: 80px 0 40px;
   color: var(--pf-ink);
   text-align: left;
 }
@@ -4826,7 +4895,7 @@ body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--secondary:hover {
 .pf-home-foot {
   width: min(760px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 28px 0 calc(40px + env(safe-area-inset-bottom, 0px));
+  padding: 40px 0 calc(48px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--pf-rule);
 }
 
