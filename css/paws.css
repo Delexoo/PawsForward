@@ -2525,10 +2525,18 @@ button.pf-stat-chip--link:focus-visible {
 .pf-emp-detail-copy {
   min-width: 0;
   flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 12px;
+}
+
+.pf-emp-detail-identity {
+  min-width: 0;
   display: grid;
   gap: 4px;
   justify-items: start;
-  align-content: center;
 }
 
 .pf-emp-detail-copy .site-leave-dialog-title {
@@ -2544,6 +2552,11 @@ button.pf-stat-chip--link:focus-visible {
   font-weight: 600;
   color: #475569;
   font-variant-numeric: tabular-nums;
+}
+
+.pf-emp-detail-copy .pf-seg {
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .pf-avatar--lg {
