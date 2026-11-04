@@ -177,4 +177,13 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !menu.hidden) closeMenu();
   });
+
+  const hero = document.querySelector(".pf-home-hero");
+  function syncBarTone() {
+    if (!hero) return;
+    const past = window.scrollY > hero.offsetHeight * 0.72;
+    document.body.classList.toggle("pf-site-bar-solid", past);
+  }
+  window.addEventListener("scroll", syncBarTone, { passive: true });
+  syncBarTone();
 })();

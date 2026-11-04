@@ -3935,6 +3935,7 @@ body.pf-home-loading {
   font-size: 1.05rem;
   letter-spacing: -0.03em;
   text-shadow: 0 1px 12px rgba(45, 49, 43, 0.35);
+  transition: color 0.2s ease;
 }
 
 .pf-site-bar-brand img {
@@ -3958,13 +3959,20 @@ body.pf-home-loading {
   place-items: center;
   padding: 0;
   filter: drop-shadow(0 1px 10px rgba(45, 49, 43, 0.35));
-  transition: opacity 0.16s ease, transform 0.16s ease;
+  transition: opacity 0.16s ease, color 0.2s ease, filter 0.2s ease;
 }
 
 .pf-site-menu-btn:hover,
 .pf-site-menu-btn[aria-expanded="true"] {
   opacity: 0.85;
   background: transparent;
+}
+
+body.pf-site-bar-solid .pf-site-bar-brand,
+body.pf-site-bar-solid .pf-site-menu-btn {
+  color: var(--pf-ink, #2d312b);
+  text-shadow: none;
+  filter: none;
 }
 
 .pf-site-menu-btn-bars,
