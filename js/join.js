@@ -154,12 +154,18 @@
           site_origin: siteOrigin(),
         }),
       });
+      // Missing Edge Function / CORS often surfaces as opaque network failure in Safari.
+      if (res.status === 404) return { ok: false, error: "Welcome email is not deployed yet." };
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.error || "Could not send email.");
+      if (!res.ok) return { ok: false, error: body.error || body.message || "Could not send email." };
       return { ok: true };
     } catch (err) {
-      console.error(err);
-      return { ok: false, error: err?.message || "Could not send email." };
+      // Safari: TypeError Load failed when the function isn't deployed / CORS blocks.
+      const msg = String(err?.message || "");
+      if (/load failed|failed to fetch|networkerror/i.test(msg)) {
+        return { ok: false, error: "Welcome email is not available yet." };
+      }
+      return { ok: false, error: msg || "Could not send email." };
     }
   }
 
@@ -248,12 +254,8 @@
       setBanner("Account created. QR image failed — use your donation link or QR page link below.", "err");
     }
 
-    // Email in the background; never block or wipe the success UI.
-    void emailWelcome().then((mailed) => {
-      if (mailed.ok) {
-        setBanner(`You’re set — also emailed ${current.email}.`, "ok");
-      }
-    });
+    // Skip welcome email until send-promoter-welcome is deployed (avoids Safari TypeError: Load failed).
+    // void emailWelcome()...
   }
 
   async function onSubmit(event) {
@@ -270,20 +272,49 @@
     if (els.submit) els.submit.disabled = true;
     setBanner("Creating your QR…");
 
-    const { data, error } = await sb.rpc("public_signup_promoter", {
+    // Live DB may not have p_email yet — try with email, then fall back.
+    const argsWithEmail = {
       p_first_name: payload.name,
-      p_last_name: "",
+      p_last_name: "\u00A0",
       p_phone: payload.phone,
       p_payment_type: payload.payment_type,
       p_payment_handle: payload.payment_handle,
       p_email: payload.email,
-    });
+    };
+    const argsWithoutEmail = {
+      p_first_name: payload.name,
+      p_last_name: "\u00A0",
+      p_phone: payload.phone,
+      p_payment_type: payload.payment_type,
+      p_payment_handle: payload.payment_handle,
+    };
+
+    let { data, error } = await sb.rpc("public_signup_promoter", argsWithEmail);
+    if (
+      error &&
+      /Could not find the function|PGRST202|schema cache|p_email/i.test(
+        String(error.message || error.code || error.details || "")
+      )
+    ) {
+      ({ data, error } = await sb.rpc("public_signup_promoter", argsWithoutEmail));
+    }
 
     if (els.submit) els.submit.disabled = false;
 
     if (error) {
       console.error(error);
-      setBanner(error.message || "Could not create your profile.", "err");
+      const raw = String(error.message || "");
+      if (/load failed|failed to fetch|networkerror/i.test(raw)) {
+        setBanner("Network error — check your connection and try again.", "err");
+        return;
+      }
+      const limitHit = /hit the limit|over 5 QR|already created over 5/i.test(raw);
+      setBanner(
+        limitHit
+          ? "You've already created over 5 QR codes with these details. You've hit the limit."
+          : raw || "Could not create your profile.",
+        "err"
+      );
       return;
     }
 
