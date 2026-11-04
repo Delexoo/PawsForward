@@ -28,7 +28,7 @@
     errAge: document.getElementById("err-join-age"),
   };
 
-  let current = { url: "", name: "", code: "" };
+  let current = { url: "", name: "", code: "", phone: "", qrPage: "" };
 
   function setBanner(msg, kind) {
     if (!els.banner) return;
@@ -89,13 +89,104 @@
     }
   }
 
+  function siteOrigin() {
+    return String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
+  }
+
   function shareUrlFor(code) {
-    const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
+    const origin = siteOrigin();
     const ref = String(code || "").trim();
     // Point QR straight at donate (no /r/ hop) so scanners don't see a redirect.
     if (origin && ref) return `${origin}/donate.html?ref=${encodeURIComponent(ref)}`;
     if (ref) return new URL(`donate.html?ref=${encodeURIComponent(ref)}`, location.href).href;
     return origin ? `${origin}/donate.html` : new URL("donate.html", location.href).href;
+  }
+
+  function qrPageUrlFor(code) {
+    const origin = siteOrigin();
+    const ref = String(code || "").trim();
+    if (origin && ref) return `${origin}/qr.html?ref=${encodeURIComponent(ref)}`;
+    if (ref) return new URL(`qr.html?ref=${encodeURIComponent(ref)}`, location.href).href;
+    return origin ? `${origin}/qr.html` : new URL("qr.html", location.href).href;
+  }
+
+  function toE164(phone) {
+    let d = String(phone || "").replace(/\D/g, "");
+    if (!d) return "";
+    if (d.length === 11 && d.startsWith("1")) d = d.slice(1);
+    if (d.length === 10) return `+1${d}`;
+    if (d.length >= 11 && d.length <= 15) return `+${d}`;
+    return "";
+  }
+
+  function welcomeMessage(first, url, code, qrPage) {
+    const who = first || "there";
+    const page = qrPage || url;
+    return (
+      `Hi ${who} — you’re in at Paws Forward!\n\n` +
+      `Your donation link:\n${url}\n\n` +
+      `Your QR (open & save):\n${page}\n\n` +
+      `Code: ${code}\n` +
+      `Share the link or QR — gifts through them count toward your payout.`
+    );
+  }
+
+  async function qrPngFile(url, code) {
+    const dataUrl = await window.PfQr.toDataURL(url, 512);
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    return new File([blob], `pawsforward-${code || "qr"}.png`, { type: "image/png" });
+  }
+
+  /** Open the phone's Messages app with a draft to their number (no Twilio). */
+  function openSmsDraft(phone, body) {
+    const to = toE164(phone);
+    if (!to || !body) return false;
+    const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+    const href = ios
+      ? `sms:${to}&body=${encodeURIComponent(body)}`
+      : `sms:${to}?body=${encodeURIComponent(body)}`;
+    const a = document.createElement("a");
+    a.href = href;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return true;
+  }
+
+  async function deliverQr(phone) {
+    const text = welcomeMessage(current.name, current.url, current.code || "—", current.qrPage);
+    let sharedFile = false;
+
+    try {
+      const file = await qrPngFile(current.url, current.code);
+      window.PfQr.downloadDataUrl(await window.PfQr.toDataURL(current.url, 512), file.name);
+
+      if (navigator.share && navigator.canShare) {
+        const withFile = { title: "Paws Forward QR", text, files: [file] };
+        if (navigator.canShare(withFile)) {
+          await navigator.share(withFile);
+          sharedFile = true;
+        }
+      }
+    } catch (err) {
+      if (err && err.name === "AbortError") {
+        // User closed the share sheet — still offer the SMS draft below.
+      } else {
+        console.warn(err);
+        try {
+          const dataUrl = await window.PfQr.toDataURL(current.url, 512);
+          window.PfQr.downloadDataUrl(dataUrl, `pawsforward-${current.code || "qr"}.png`);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+
+    // Draft a text to their own number with link + QR page (they tap Send).
+    const drafted = openSmsDraft(phone, text);
+    return { sharedFile, drafted };
   }
 
   function readForm() {
@@ -138,21 +229,12 @@
     return !bad;
   }
 
-  function welcomeMessage(first, url, code) {
-    const who = first || "there";
-    return (
-      `Hi ${who} — you’re in at Paws Forward!\n\n` +
-      `Your donation link:\n${url}\n\n` +
-      `Your code: ${code}\n` +
-      `Save the QR on this page (screenshot or Download). Share either the link or the QR — gifts through them count toward your payout.`
-    );
-  }
-
-  async function showSuccess(row) {
+  async function showSuccess(row, phone) {
     const name = `${row.first_name || ""} ${row.last_name || ""}`.trim() || "promoter";
     const url = shareUrlFor(row.referral_code);
     const code = row.referral_code || "";
-    current = { url, name, code };
+    const qrPage = qrPageUrlFor(code);
+    current = { url, name, code, phone: phone || "", qrPage };
 
     if (els.form) els.form.hidden = true;
     if (els.success) els.success.hidden = false;
@@ -160,11 +242,11 @@
     if (els.shareUrl) els.shareUrl.value = url;
     if (els.code) els.code.textContent = code || "—";
 
-    const msg = welcomeMessage(row.first_name || name, url, code || "—");
+    const msg = welcomeMessage(row.first_name || name, url, code || "—", qrPage);
     if (els.successMsg) els.successMsg.textContent = msg;
     if (els.successLead) {
       els.successLead.textContent =
-        "Here’s your link and QR — save them now. Donations through either are attributed to you.";
+        "We’re sending your QR to your phone’s Messages app — tap Send. A PNG download starts too.";
     }
 
     try {
@@ -177,9 +259,24 @@
 
     try {
       await navigator.clipboard.writeText(url);
-      setBanner("You’re set — link copied. Your QR is below.", "ok");
     } catch {
-      setBanner("You’re set — save your link and QR below.", "ok");
+      /* optional */
+    }
+
+    setBanner("Preparing your QR…");
+    const result = await deliverQr(phone);
+    if (result.drafted && result.sharedFile) {
+      setBanner("QR downloaded + share opened. Also check Messages — tap Send to keep it.", "ok");
+    } else if (result.drafted) {
+      setBanner("QR downloaded. Messages should open with your link & QR page — tap Send.", "ok");
+    } else if (result.sharedFile) {
+      setBanner("QR shared / downloaded. Save it somewhere you can find it.", "ok");
+    } else {
+      setBanner("You’re set — download or share your QR below.", "ok");
+      if (els.successLead) {
+        els.successLead.textContent =
+          "Here’s your link and QR — use Download or Send to my phone.";
+      }
     }
   }
 
@@ -219,7 +316,7 @@
       return;
     }
 
-    await showSuccess(row);
+    await showSuccess(row, payload.phone);
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -250,28 +347,12 @@
       }
     });
     els.share?.addEventListener("click", async () => {
-      const text = welcomeMessage(current.name, current.url, current.code || "—");
-      try {
-        if (navigator.share) {
-          const data = { title: "Paws Forward", text, url: current.url };
-          if (navigator.canShare && !navigator.canShare(data)) {
-            await navigator.share({ title: "Paws Forward", text: current.url });
-          } else {
-            await navigator.share(data);
-          }
-          setBanner("Shared.", "ok");
-          return;
-        }
-        await navigator.clipboard.writeText(text);
-        setBanner("Message copied — paste it anywhere you want to save it.", "ok");
-      } catch (err) {
-        if (err && err.name === "AbortError") return;
-        try {
-          await navigator.clipboard.writeText(text);
-          setBanner("Message copied — paste it anywhere you want to save it.", "ok");
-        } catch {
-          setBanner("Could not share automatically — copy your link below.", "err");
-        }
+      setBanner("Opening send options…");
+      const result = await deliverQr(current.phone);
+      if (result.drafted || result.sharedFile) {
+        setBanner("Use Messages or the share sheet to save your QR.", "ok");
+      } else {
+        setBanner("Could not open Messages — download your QR instead.", "err");
       }
     });
   });
