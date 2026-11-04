@@ -1384,9 +1384,27 @@ body[data-page="login"] .site-lock-error {
   }
 
   .pf-section-head--compact {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .pf-section-head--compact .pf-mini-heading {
+    flex: none;
+    width: 100%;
+  }
+
+  .pf-section-head--compact .pf-section-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .pf-section-head--compact .pf-section-actions .pf-tool-btn,
+  .pf-section-head--compact .pf-tool-btn--primary {
+    flex: 1 1 auto;
+    margin-left: 0;
   }
 }
 
@@ -3076,14 +3094,22 @@ button.pf-stat-chip--link:focus-visible {
   }
 
   .pf-section-head--compact {
-    flex-direction: row !important;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column !important;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .pf-section-head--compact .pf-mini-heading {
+    flex: none;
+    width: 100%;
   }
 
   .pf-section-head--compact .pf-section-actions {
     gap: 6px;
+    margin-left: 0;
+    width: 100%;
+    justify-content: stretch;
   }
 
   .pf-section-head--compact .pf-section-actions .pf-tool-btn,
@@ -3091,7 +3117,8 @@ button.pf-stat-chip--link:focus-visible {
     min-width: 0;
     padding: 0 10px;
     white-space: nowrap;
-    flex-shrink: 0;
+    flex: 1 1 auto;
+    margin-left: 0;
   }
 
   .pf-mini-panel {
