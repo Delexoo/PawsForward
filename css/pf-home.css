@@ -51,25 +51,16 @@
   text-align: center;
 }
 
-.win {
-  margin: 0 0 0.7rem;
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 .stage h1 {
   width: auto;
-  max-width: 12ch;
+  max-width: none;
   margin: 0 auto;
   color: #fff;
-  font-size: clamp(2.75rem, 6.6vw, 5.6rem);
+  font-size: clamp(2.35rem, 6.2vw, 5.2rem);
   font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1.08;
-  text-wrap: balance;
+  white-space: nowrap;
 }
 
 .stage-lead {
@@ -464,7 +455,7 @@
 }
 
 @media (max-width: 720px) {
-  .stage h1 { font-size: 2.7rem; }
+  .stage h1 { font-size: clamp(1.65rem, 8.2vw, 2.5rem); }
   .works, .why, .faq-home { padding-left: 1.15rem; padding-right: 1.15rem; }
   .journey { padding-left: 1rem; padding-right: 1rem; }
 }
