@@ -5,7 +5,7 @@ window.SITE_CONFIG = {
   commissionRate: 0.5,
   appName: "PawsForward",
   /** Bump when shipping UI so GitHub Pages clients skip stale JS/CSS. */
-  assetVersion: "20261106b",
+  assetVersion: "20261106c",
   contactEmail: "hello@pawsforward.org",
   privacyEmail: "privacy@pawsforward.org",
   siteOrigin: "https://delexoo.github.io/PawsForward",
