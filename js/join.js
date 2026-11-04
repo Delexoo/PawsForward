@@ -126,48 +126,33 @@
     }
   }
 
-  function functionsBase() {
-    const url = String(window.SITE_CONFIG?.supabaseUrl || "").replace(/\/$/, "");
-    return url ? `${url}/functions/v1` : "";
-  }
-
-  function anonKey() {
-    return String(window.SITE_CONFIG?.supabaseAnonKey || "");
-  }
-
   function isEmail(value) {
     const email = String(value || "").trim();
     return email.length >= 5 && email.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   async function emailWelcome() {
-    const base = functionsBase();
-    if (!base || !current.email || !current.code) {
+    if (!current.email || !current.code) {
       return { ok: false, error: "Email is not ready yet." };
     }
+    const origin = siteOrigin() || location.origin.replace(/\/$/, "");
     try {
-      const res = await fetch(`${base}/send-promoter-welcome`, {
+      const res = await fetch(`${origin}/api/send-promoter-welcome`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: anonKey(),
-          Authorization: "Bearer " + anonKey(),
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: current.email,
           referral_code: current.code,
           share_url: current.url,
           qr_page_url: current.qrPage,
-          site_origin: siteOrigin(),
+          site_origin: origin,
         }),
       });
-      // Missing Edge Function / CORS often surfaces as opaque network failure in Safari.
       if (res.status === 404) return { ok: false, error: "Welcome email is not deployed yet." };
       const body = await res.json().catch(() => ({}));
       if (!res.ok) return { ok: false, error: body.error || body.message || "Could not send email." };
       return { ok: true };
     } catch (err) {
-      // Safari: TypeError Load failed when the function isn't deployed / CORS blocks.
       const msg = String(err?.message || "");
       if (/load failed|failed to fetch|networkerror/i.test(msg)) {
         return { ok: false, error: "Welcome email is not available yet." };
@@ -176,11 +161,18 @@
     }
   }
 
+  function phoneDigits(value) {
+    return String(value || "").replace(/\D/g, "");
+  }
+
   function readForm() {
+    const phoneFormatted = formatPhoneDisplay(els.phone?.value || "").trim();
+    const digits = phoneDigits(phoneFormatted);
     return {
       name: String(els.name?.value || "").trim(),
       email: String(els.email?.value || "").trim().toLowerCase(),
-      phone: formatPhoneDisplay(els.phone?.value || "").trim(),
+      // Optional — blank / punctuation-only counts as no phone.
+      phone: digits ? phoneFormatted : "",
       payment_type: String(els.payment?.value || "").trim(),
       payment_handle: normalizeHandle(els.handle?.value),
     };
@@ -200,9 +192,12 @@
       setFieldError(els.errEmail, "Enter a valid email.");
       bad = true;
     }
-    if (!payload.phone || payload.phone.length < 7) {
-      setFieldError(els.errPhone, "Enter a valid phone number.");
-      bad = true;
+    if (payload.phone) {
+      const digits = phoneDigits(payload.phone);
+      if (digits.length < 10 || digits.length > 15 || payload.phone.length > 40) {
+        setFieldError(els.errPhone, "Enter a valid phone number.");
+        bad = true;
+      }
     }
     if (!payload.payment_type) {
       setFieldError(els.errPayment, "Choose a payout type.");
@@ -259,8 +254,11 @@
       setBanner("Account created. QR image failed — use your donation link below.", "err");
     }
 
-    // Skip welcome email until send-promoter-welcome is deployed (avoids Safari TypeError: Load failed).
-    // void emailWelcome()...
+    void emailWelcome().then((mailed) => {
+      if (mailed.ok) {
+        setBanner(`You’re set — also emailed ${current.email}.`, "ok");
+      }
+    });
   }
 
   async function onSubmit(event) {
@@ -281,7 +279,7 @@
     const argsWithEmail = {
       p_first_name: payload.name,
       p_last_name: "-",
-      p_phone: payload.phone,
+      p_phone: payload.phone || null,
       p_payment_type: payload.payment_type,
       p_payment_handle: payload.payment_handle,
       p_email: payload.email,
@@ -289,7 +287,7 @@
     const argsWithoutEmail = {
       p_first_name: payload.name,
       p_last_name: "-",
-      p_phone: payload.phone,
+      p_phone: payload.phone || null,
       p_payment_type: payload.payment_type,
       p_payment_handle: payload.payment_handle,
     };

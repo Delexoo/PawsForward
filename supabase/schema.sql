@@ -10,7 +10,7 @@ create table if not exists public.employees (
   first_name text not null,
   last_name text not null,
   email text,
-  phone text not null,
+  phone text,
   payment_type text not null check (payment_type in (
     'cashapp','venmo','paypal','zelle','apple_cash','google_pay','chime','cash',
     'check','bank_transfer','wire','wise','revolut','stripe','square','bitcoin',
@@ -228,24 +228,23 @@ set search_path = public
 as $$
 declare
   v_first text := nullif(trim(both from regexp_replace(coalesce(p_first_name, ''), E'[\u00A0]+', ' ', 'g')), '');
-  v_last text := nullif(trim(both from regexp_replace(coalesce(p_last_name, ''), E'[\u00A0]+', ' ', 'g')), '');
+  v_last text := coalesce(nullif(trim(both from regexp_replace(coalesce(p_last_name, ''), E'[\u00A0]+', ' ', 'g')), ''), '');
   v_email text := lower(nullif(trim(coalesce(p_email, '')), ''));
   v_phone text := nullif(trim(coalesce(p_phone, '')), '');
   v_type text := lower(nullif(trim(coalesce(p_payment_type, '')), ''));
   v_handle text := nullif(trim(coalesce(p_payment_handle, '')), '');
   v_code text;
   v_count int;
-  v_phone_count int;
-  v_email_count int;
+  v_dup_count int;
   v_row public.employees;
 begin
   if v_first is null or char_length(v_first) < 1 then
-    raise exception 'Enter a valid name.' using errcode = '22023';
+    raise exception 'Enter a valid first name.' using errcode = '22023';
   end if;
   if char_length(v_first) > 80 then
-    raise exception 'Name is too long.' using errcode = '22023';
+    raise exception 'First name is too long.' using errcode = '22023';
   end if;
-  if v_last is not null and char_length(v_last) > 80 then
+  if char_length(v_last) > 80 then
     raise exception 'Last name is too long.' using errcode = '22023';
   end if;
   if v_email is null
@@ -254,7 +253,7 @@ begin
      or v_email !~* '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
     raise exception 'Enter a valid email address.' using errcode = '22023';
   end if;
-  if v_phone is null or char_length(v_phone) < 7 or char_length(v_phone) > 40 then
+  if v_phone is not null and (char_length(v_phone) < 7 or char_length(v_phone) > 40) then
     raise exception 'Enter a valid phone number.' using errcode = '22023';
   end if;
   if v_type is null or v_type not in (
@@ -275,20 +274,16 @@ begin
     raise exception 'Too many signups right now. Try again in a minute.';
   end if;
 
-  select count(*) into v_phone_count
+  select count(*) into v_dup_count
   from public.employees e
-  where e.phone = v_phone
-    and e.created_at > now() - interval '1 day';
-  if v_phone_count >= 1 then
-    raise exception 'This phone already signed up today. Check with an operator if you need help.';
-  end if;
-
-  select count(*) into v_email_count
-  from public.employees e
-  where lower(e.email) = v_email
-    and e.created_at > now() - interval '1 day';
-  if v_email_count >= 1 then
-    raise exception 'This email already signed up today. Check your inbox or ask an operator for help.';
+  where e.first_name = v_first
+    and coalesce(e.last_name, '') = v_last
+    and lower(coalesce(e.email, '')) = v_email
+    and coalesce(e.phone, '') = coalesce(v_phone, '')
+    and e.payment_type = v_type
+    and e.payment_handle = v_handle;
+  if v_dup_count >= 5 then
+    raise exception 'You''ve already created over 5 QR codes with these details. You''ve hit the limit.' using errcode = 'P0001';
   end if;
 
   loop
@@ -301,7 +296,7 @@ begin
   insert into public.employees (
     first_name, last_name, email, phone, payment_type, payment_handle, referral_code, avatar_url
   ) values (
-    v_first, coalesce(v_last, ''), v_email, v_phone, v_type, v_handle, v_code, null
+    v_first, v_last, v_email, v_phone, v_type, v_handle, v_code, null
   )
   returning * into v_row;
 
