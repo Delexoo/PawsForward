@@ -581,22 +581,29 @@
 
   function openAdminDialog(dialog) {
     if (!dialog) return;
-    dialog.classList.remove("is-closing", "is-dragging");
+    dialog.classList.remove("is-closing", "is-dragging", "is-entering");
     const panel = dialogPanel(dialog);
     if (panel) {
       panel.style.transform = "";
       panel.style.transition = "";
+      panel.scrollTop = 0;
     }
     if (typeof dialog.showModal === "function" && !dialog.open) {
       dialog.showModal();
     }
-    if (!isMobileSheetViewport()) return;
-    dialog.classList.add("is-sheet");
-    dialog.classList.add("is-entering");
+    if (!isMobileSheetViewport()) {
+      dialog.classList.add("is-open");
+      return;
+    }
+    dialog.classList.add("is-sheet", "is-entering");
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         dialog.classList.remove("is-entering");
         dialog.classList.add("is-open");
+        if (panel) {
+          panel.style.transform = "";
+          panel.style.transition = "";
+        }
       });
     });
   }

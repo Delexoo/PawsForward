@@ -2584,19 +2584,29 @@ button.pf-stat-chip--link:focus-visible {
     gap: 10px;
   }
 
-  /* Mobile: bottom sheet attached to the screen edge (scroll for more) */
+  /* Mobile: full-viewport host, sheet pinned to bottom (avoids mid-screen collapse) */
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
-  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide,
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog[open],
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide[open] {
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
-    max-height: min(92dvh, 100%) !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-height: 100% !important;
+    max-height: 100dvh !important;
     margin: 0 !important;
-    top: auto !important;
+    inset: 0 !important;
+    top: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
     left: 0 !important;
     transform: none !important;
+    translate: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: stretch !important;
     overflow: hidden !important;
     padding: 0 !important;
     border: 0 !important;
@@ -2618,10 +2628,12 @@ button.pf-stat-chip--link:focus-visible {
   }
 
   body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel {
+    position: relative;
     width: 100%;
     max-width: 100%;
     margin: 0;
-    padding: 8px 18px calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+    flex: 0 1 auto;
+    padding: 8px 18px 0 !important;
     max-height: min(92dvh, 100%);
     overflow-x: hidden;
     overflow-y: auto;
@@ -2637,6 +2649,7 @@ button.pf-stat-chip--link:focus-visible {
     corner-shape: initial !important;
     border: 1px solid var(--border, #e2e8f0);
     border-bottom: 0 !important;
+    background: var(--surface, #fff) !important;
     box-shadow: 0 -16px 48px rgba(15, 23, 42, 0.18);
     transform: translate3d(0, 0, 0);
     transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
@@ -2672,19 +2685,27 @@ button.pf-stat-chip--link:focus-visible {
   .pf-dialog .site-leave-dialog-actions {
     position: sticky;
     bottom: 0;
-    z-index: 2;
+    z-index: 3;
     margin-top: 10px;
-    padding: 12px 0 calc(4px + env(safe-area-inset-bottom, 0px));
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface, #fff) 0%, transparent) 0%,
-      var(--surface, #fff) 28%
-    );
+    padding: 12px 0 calc(14px + env(safe-area-inset-bottom, 0px));
+    background: var(--surface, #fff);
+    box-shadow: 0 -10px 18px rgba(255, 255, 255, 0.92);
     justify-content: stretch;
   }
 
   .pf-dialog .site-leave-dialog-actions .btn {
     flex: 1 1 auto;
+  }
+
+  .pf-dialog .field,
+  .pf-dialog .pf-emp-identity-block,
+  .pf-dialog .site-leave-dialog-title,
+  .pf-dialog .site-leave-dialog-text,
+  .pf-dialog .qr-box,
+  .pf-dialog .pf-emp-detail-stats,
+  .pf-dialog .pf-emp-detail-actions,
+  .pf-dialog .pf-payout-summary {
+    flex-shrink: 0;
   }
 
   .pf-dialog .pf-avatar-preview {
