@@ -32,8 +32,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgb(0 0 0 / 28%), rgb(0 0 0 / 28%)),
-    linear-gradient(transparent 40%, rgb(0 0 0 / 68%));
+    linear-gradient(rgb(0 0 0 / 42%), rgb(0 0 0 / 42%)),
+    linear-gradient(transparent 40%, rgb(0 0 0 / 74%));
 }
 
 .stage-copy {
