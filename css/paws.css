@@ -3967,6 +3967,12 @@ body[data-page="legal"] #page-body {
 }
 
 /* ---- Official landing (home) — palette only ---- */
+/* Home is a full-bleed landing — kill dashboard zoom/gutter so hero centers true. */
+html:has(body[data-page="home"]) {
+  zoom: 1;
+  scrollbar-gutter: auto;
+}
+
 body[data-page="home"] {
   --pf-cream: #fff9f3;
   --pf-ink: #2d312b;
@@ -3975,6 +3981,7 @@ body[data-page="home"] {
   --pf-green: #6b8361;
   --pf-peach: #f5ded2;
   --pf-rule: #e5e0d8;
+  --ui-scale: 1;
   margin: 0;
   min-height: 100dvh;
   background: var(--pf-cream);
@@ -4374,7 +4381,8 @@ body.pf-home-video-failed .pf-home-fallback {
   position: relative;
   z-index: 1;
   width: min(640px, calc(100% - 40px));
-  margin: auto;
+  margin-inline: auto;
+  margin-block: auto;
   padding: 0 4px;
   display: flex;
   flex-direction: column;
@@ -4385,7 +4393,7 @@ body.pf-home-video-failed .pf-home-fallback {
 }
 
 .pf-home-headline {
-  margin: 0;
+  margin: 0 auto;
   max-width: 18ch;
   font-family: "DM Sans", system-ui, sans-serif;
   font-size: clamp(1.55rem, 5.2vw, 2.55rem);
@@ -4398,14 +4406,15 @@ body.pf-home-video-failed .pf-home-fallback {
 }
 
 .pf-home-lead {
-  margin: 0;
+  margin: 0 auto;
+  width: 100%;
   max-width: 36ch;
   font-family: "DM Sans", system-ui, sans-serif;
   font-size: clamp(0.98rem, 2.4vw, 1.12rem);
   font-weight: 500;
   line-height: 1.45;
   color: color-mix(in srgb, var(--pf-cream) 88%, var(--pf-peach));
-  text-align: center;
+  text-align: center !important;
 }
 
 .pf-home-ctas {
@@ -4415,7 +4424,8 @@ body.pf-home-video-failed .pf-home-fallback {
   align-items: center;
   gap: 10px;
   width: 100%;
-  margin: 0;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .pf-home-cta {
