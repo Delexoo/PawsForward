@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex">
+  <title>Redirecting · Paws Forward</title>
+  <script>
+    (function () {
+      var dest = "https://joinpawsforward.com";
+      var path = String(location.pathname || "/").replace(/^\/PawsForward\/?/, "/") || "/";
+      path = path.replace(/\.html$/i, "");
+      if (path === "/index") path = "/";
+      var target = dest + (path === "/" ? "/" : path) + (location.search || "") + (location.hash || "");
+      location.replace(target);
+    })();
+  </script>
+  <meta http-equiv="refresh" content="0;url=https://joinpawsforward.com/">
+</head>
+<body>
+  <p>Moved to <a id="go" href="https://joinpawsforward.com/">joinpawsforward.com</a>.</p>
+  <script>
+    document.getElementById("go").href =
+      "https://joinpawsforward.com" +
+      (String(location.pathname || "/").replace(/^\/PawsForward\/?/, "/").replace(/\.html$/i, "") || "/") +
+      (location.search || "") +
+      (location.hash || "");
+  </script>
+</body>
+</html>
