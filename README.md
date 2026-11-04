@@ -61,8 +61,10 @@ node tests/commission.test.mjs
 - GitHub Pages serves HTTPS and typically gzip/brotli-compresses static text.
 - Custom security headers (CSP, etc.) are limited on plain GitHub Pages; put Cloudflare (or similar) in front and apply [`_headers`](_headers) / [`docs/security-headers.md`](docs/security-headers.md).
 - Enable Supabase backups in the project dashboard (see `docs/backups.md`).
+- Confirm direct DB network restrictions (see `docs/database-network.md`).
 - Enable Auth **leaked password protection** (and optional MFA) — see `docs/breach-plan.md`.
-- Admin auth sessions stay **in memory** (not `localStorage`); sign in again after a full page reload.
+- Admin auth sessions stay **in memory** (not `localStorage` / `sessionStorage`); sign in again after a full page reload.
+- Apply `supabase/migrations/20261106_record_employee_payout.sql` on the live project, then redeploy `create-checkout`.
 
 ## Contact
 

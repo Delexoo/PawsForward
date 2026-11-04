@@ -80,6 +80,7 @@ async function buildCheckout(input: {
   referralCode: string;
   donorLabel?: string;
   siteOrigin: string;
+  idempotencyKey?: string | null;
 }) {
   const supabase = adminClient();
   const stripeKey = await stripeSecret(supabase);
@@ -138,7 +139,7 @@ async function buildCheckout(input: {
     ? `${siteOrigin}/donate.html?ref=${encodeURIComponent(referralCode)}&cancelled=1`
     : `${siteOrigin}/donate.html?cancelled=1`;
 
-  const session = await stripe.checkout.sessions.create({
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: "payment",
     submit_type: "donate",
     client_reference_id: (referralCode || "direct").slice(0, 200),
@@ -162,7 +163,14 @@ async function buildCheckout(input: {
     },
     success_url: successUrl,
     cancel_url: cancelUrl,
-  });
+  };
+
+  const idem = String(input.idempotencyKey || "")
+    .trim()
+    .slice(0, 255);
+  const session = idem
+    ? await stripe.checkout.sessions.create(sessionParams, { idempotencyKey: idem })
+    : await stripe.checkout.sessions.create(sessionParams);
 
   return { url: session.url, session_id: session.id, employee: emp };
 }
@@ -242,12 +250,15 @@ Deno.serve(async (req) => {
     if (req.method === "GET") {
       const url = new URL(req.url);
       const referralCode = String(url.searchParams.get("ref") || "").trim();
+      const siteOrigin = String(url.searchParams.get("site_origin") || siteDefault)
+        .trim()
+        .replace(/\/$/, "") || siteDefault;
+      // Full-page redirect from donate.html — no CORS, donor lands on Stripe.
       if (!referralCode) {
-        // Direct donate from landing — open Stripe without an employee attribution.
         const result = await buildCheckout({
           customAmount: true,
           referralCode: "",
-          siteOrigin: siteDefault,
+          siteOrigin,
         });
         if (!result.url) return json({ error: "No checkout URL." }, 500);
         return Response.redirect(result.url, 303);
@@ -255,7 +266,7 @@ Deno.serve(async (req) => {
       const result = await buildCheckout({
         customAmount: true,
         referralCode,
-        siteOrigin: siteDefault,
+        siteOrigin,
       });
       if (!result.url) return json({ error: "No checkout URL." }, 500);
       await recordQrVisit(req, referralCode, result.employee?.id ? String(result.employee.id) : null);
@@ -265,12 +276,15 @@ Deno.serve(async (req) => {
     if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
     const payload = await req.json();
+    const headerIdem = String(req.headers.get("Idempotency-Key") || "").trim();
+    const bodyIdem = String(payload?.idempotency_key || "").trim();
     const result = await buildCheckout({
       amount: payload?.amount,
       customAmount: payload?.custom_amount !== false,
       referralCode: String(payload?.referral_code || ""),
       donorLabel: String(payload?.donor_label || ""),
       siteOrigin: String(payload?.site_origin || siteDefault),
+      idempotencyKey: headerIdem || bodyIdem || null,
     });
     return json(result);
   } catch (err) {

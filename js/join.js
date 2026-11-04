@@ -6,11 +6,13 @@
     success: document.getElementById("join-success"),
     successName: document.getElementById("join-success-name"),
     successLead: document.getElementById("join-success-lead"),
+    successMsg: document.getElementById("join-success-msg"),
     qr: document.getElementById("join-qr"),
     shareUrl: document.getElementById("join-share-url"),
     code: document.getElementById("join-code"),
     copy: document.getElementById("join-copy"),
     download: document.getElementById("join-download"),
+    share: document.getElementById("join-share"),
     commission: document.getElementById("join-commission"),
     first: document.getElementById("join-first"),
     last: document.getElementById("join-last"),
@@ -136,78 +138,48 @@
     return !bad;
   }
 
-  function functionsBase() {
-    const root = String(window.SITE_CONFIG?.supabaseUrl || "").replace(/\/$/, "");
-    return root ? `${root}/functions/v1` : "";
+  function welcomeMessage(first, url, code) {
+    const who = first || "there";
+    return (
+      `Hi ${who} — you’re in at Paws Forward!\n\n` +
+      `Your donation link:\n${url}\n\n` +
+      `Your code: ${code}\n` +
+      `Save the QR on this page (screenshot or Download). Share either the link or the QR — gifts through them count toward your payout.`
+    );
   }
 
-  function anonKey() {
-    return String(window.SITE_CONFIG?.supabaseAnonKey || "");
-  }
-
-  async function sendWelcomeText(row, phone) {
-    const base = functionsBase();
-    if (!base || !anonKey()) return { skipped: true };
-    try {
-      const res = await fetch(`${base}/welcome-promoter`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: anonKey(),
-          Authorization: "Bearer " + anonKey(),
-        },
-        body: JSON.stringify({
-          referral_code: row.referral_code,
-          phone,
-          first_name: row.first_name || "",
-        }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (res.status === 503 && body.skipped) return { skipped: true };
-      if (!res.ok) throw new Error(body.error || "Could not send welcome text.");
-      return { sent: Boolean(body.sent || body.ok), already: Boolean(body.already) };
-    } catch (err) {
-      console.error(err);
-      return { error: err?.message || "Could not send welcome text." };
-    }
-  }
-
-  async function showSuccess(row, phone) {
+  async function showSuccess(row) {
     const name = `${row.first_name || ""} ${row.last_name || ""}`.trim() || "promoter";
     const url = shareUrlFor(row.referral_code);
-    current = { url, name, code: row.referral_code || "" };
+    const code = row.referral_code || "";
+    current = { url, name, code };
 
     if (els.form) els.form.hidden = true;
     if (els.success) els.success.hidden = false;
     if (els.successName) els.successName.textContent = row.first_name || name;
+    if (els.shareUrl) els.shareUrl.value = url;
+    if (els.code) els.code.textContent = code || "—";
+
+    const msg = welcomeMessage(row.first_name || name, url, code || "—");
+    if (els.successMsg) els.successMsg.textContent = msg;
     if (els.successLead) {
       els.successLead.textContent =
-        "Share this QR or link. Donations through it are attributed to you at the promoter rate.";
+        "Here’s your link and QR — save them now. Donations through either are attributed to you.";
     }
-    if (els.shareUrl) els.shareUrl.value = url;
-    if (els.code) els.code.textContent = row.referral_code || "—";
 
     try {
       await window.PfQr.renderInto(els.qr, url, 220);
     } catch (err) {
       console.error(err);
       setBanner("Account created, but the QR could not render. Copy your link below.", "err");
+      return;
     }
 
-    setBanner("Sending your link and QR by text…");
-    const notify = await sendWelcomeText(row, phone);
-    if (notify.sent || notify.already) {
-      setBanner("We texted your link and QR to your phone. Save them below too.", "ok");
-      if (els.successLead) {
-        els.successLead.textContent =
-          "Check your texts for your link and QR. You can also copy or download them here.";
-      }
-    } else if (notify.skipped) {
-      setBanner("You’re set — save your QR and link below (texting isn’t configured yet).", "ok");
-    } else if (notify.error) {
-      setBanner(`You’re set. Texting failed (${notify.error}). Save your QR below.`, "err");
-    } else {
-      setBanner("You’re set — save your QR below.", "ok");
+    try {
+      await navigator.clipboard.writeText(url);
+      setBanner("You’re set — link copied. Your QR is below.", "ok");
+    } catch {
+      setBanner("You’re set — save your link and QR below.", "ok");
     }
   }
 
@@ -247,7 +219,7 @@
       return;
     }
 
-    await showSuccess(row, payload.phone);
+    await showSuccess(row);
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -275,6 +247,31 @@
       } catch (err) {
         console.error(err);
         setBanner("Could not download QR.", "err");
+      }
+    });
+    els.share?.addEventListener("click", async () => {
+      const text = welcomeMessage(current.name, current.url, current.code || "—");
+      try {
+        if (navigator.share) {
+          const data = { title: "Paws Forward", text, url: current.url };
+          if (navigator.canShare && !navigator.canShare(data)) {
+            await navigator.share({ title: "Paws Forward", text: current.url });
+          } else {
+            await navigator.share(data);
+          }
+          setBanner("Shared.", "ok");
+          return;
+        }
+        await navigator.clipboard.writeText(text);
+        setBanner("Message copied — paste it anywhere you want to save it.", "ok");
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+        try {
+          await navigator.clipboard.writeText(text);
+          setBanner("Message copied — paste it anywhere you want to save it.", "ok");
+        } catch {
+          setBanner("Could not share automatically — copy your link below.", "err");
+        }
       }
     });
   });

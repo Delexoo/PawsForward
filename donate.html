@@ -3,62 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Paws Forward">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="description" content="Donate to PawsForward. Your gift is attributed to the employee whose QR you scanned.">
+  <meta name="theme-color" content="#fff9f3">
+  <meta name="description" content="Donate to Paws Forward — opens secure Stripe Checkout.">
   <link rel="canonical" href="https://joinpawsforward.com/donate.html">
-  <title>Donate · PawsForward</title>
-  <link rel="icon" href="icons/favicon.png?v=20261106v" type="image/png" sizes="64x64">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261106v" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261106v">
-  <link rel="stylesheet" href="css/fonts.css?v=20261106v">
-  <script src="js/theme.js?v=20261106v"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261106v">
-  <link rel="stylesheet" href="css/paws.css?v=20261106v">
-  <script src="js/config.js?v=20261106v"></script>
-  <script src="js/canonical.js?v=20261106v"></script>
+  <title>Donate · Paws Forward</title>
+  <link rel="icon" href="icons/favicon.png?v=20261106w" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261106w" sizes="180x180">
+  <script src="js/config.js?v=20261106w"></script>
+  <script src="js/canonical.js?v=20261106w"></script>
   <style>
-    body[data-page="donate"] #page-body,
-    body[data-page="donate"] #page-body * {
-      visibility: visible !important;
+    :root { --cream: #fff9f3; --ink: #2d312b; --taupe: #ada496; --green: #6b8361; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--cream); color: var(--ink);
+      font-family: "DM Sans", system-ui, sans-serif; }
+    body { display: grid; place-items: center; min-height: 100dvh; padding: 24px; }
+    .skip-link { position: absolute; left: -9999px; }
+    .skip-link:focus { left: 12px; top: 12px; z-index: 2; background: #fff; padding: 8px 12px; }
+    .pf-donate-redirect, .pf-donate-done {
+      width: min(420px, 100%);
+      text-align: center;
     }
-    body[data-page="donate"] #page-body {
-      display: grid !important;
-      pointer-events: auto !important;
-      user-select: auto !important;
+    .pf-donate-redirect[hidden], .pf-donate-done[hidden] { display: none !important; }
+    .pf-donate-redirect p, .pf-donate-done p {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 550;
+      line-height: 1.45;
+      color: var(--taupe);
+    }
+    .pf-donate-done h1 {
+      margin: 0 0 12px;
+      font-size: clamp(1.6rem, 4vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+    .pf-donate-done p { color: var(--ink); margin-bottom: 22px; }
+    .pf-donate-home {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 22px;
+      border-radius: 12px;
+      background: var(--green);
+      color: #fff !important;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .pf-donate-spin {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 16px;
+      border: 3px solid #e5e0d8;
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      .pf-donate-spin { animation: none; border-top-color: var(--green); }
     }
   </style>
 </head>
 <body data-page="donate" data-public="1">
-  <script>
-    document.body.setAttribute("data-public", "1");
-    document.body.classList.add("site-unlocked");
-  </script>
   <a class="skip-link" href="#page-body">Skip to content</a>
-  <div id="page-body" class="donate-shell">
-    <div class="pf-donate-card" id="donate-card">
-      <img class="pf-donate-logo" src="doc/brand-mark.png" width="56" height="56" alt="PawsForward">
-      <h1 class="pf-donate-title">PawsForward</h1>
-      <p class="pf-donate-lead" id="donate-lead">Taking you to Stripe Checkout…</p>
-      <p class="pf-donate-attr" id="donate-attr" hidden></p>
-      <div id="status-banner" class="status-banner" hidden role="status"></div>
-
-      <div id="donate-form-panel">
-        <p class="pf-donate-note" id="donate-note">Choose any amount on the secure Stripe page. This gift is tracked to the scanned employee QR.</p>
-        <button type="button" class="btn pf-donate-submit" id="donate-retry" hidden>Try Stripe again</button>
-        <p class="pf-donate-note" style="margin-top:14px">Want to help promote PawsForward? <a href="join.html">Create your own QR</a>.</p>
-      </div>
-
-      <div id="donate-success" class="pf-donate-success" hidden>
-        <h2>Thank you</h2>
-        <p id="donate-success-text">Your donation went through.</p>
-      </div>
+  <div id="page-body">
+    <div class="pf-donate-redirect" id="donate-redirect" role="status" aria-live="polite">
+      <div class="pf-donate-spin" aria-hidden="true"></div>
+      <p id="donate-lead">Opening Stripe Checkout…</p>
+    </div>
+    <div class="pf-donate-done" id="donate-success" hidden>
+      <h1>Thank you</h1>
+      <p id="donate-success-text">Your donation went through. Thank you for supporting the rescue.</p>
+      <a class="pf-donate-home" href="index.html">Back to Paws Forward</a>
     </div>
   </div>
-
-  <script src="js/vendor/supabase.js?v=20261106v"></script>
-  <script src="js/supabase-client.js?v=20261106v"></script>
-  <script src="js/donate.js?v=20261106v"></script>
+  <script src="js/donate.js?v=20261106w"></script>
 </body>
 </html>

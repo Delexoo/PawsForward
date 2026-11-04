@@ -35,8 +35,8 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     if (!code) {
-      setBanner("Missing referral code. Open the link from your welcome text.", "err");
-      if (els.lead) els.lead.textContent = "Ask for a new welcome text from Get your QR, or contact support.";
+      setBanner("Missing referral code. Open this page from your signup link.", "err");
+      if (els.lead) els.lead.textContent = "Create a QR on Get your QR, then use the link shown there.";
       return;
     }
 

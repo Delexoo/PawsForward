@@ -1,6 +1,6 @@
 /**
  * Shared Supabase browser client — one client per page.
- * Auth session stays in memory (not localStorage / sessionStorage).
+ * Auth session stays in memory only (not localStorage / sessionStorage).
  * login.html → admin.html uses a one-shot window.name handoff.
  */
 (function (global) {
@@ -10,6 +10,29 @@
   const HANDOFF_PREFIX = "pf_auth_handoff_v1:";
 
   let client = null;
+  /** In-memory auth storage — cleared on full page reload. */
+  const memoryStore = new Map();
+
+  const memoryAuthStorage = {
+    getItem(key) {
+      return memoryStore.has(key) ? memoryStore.get(key) : null;
+    },
+    setItem(key, value) {
+      memoryStore.set(String(key), String(value));
+    },
+    removeItem(key) {
+      memoryStore.delete(String(key));
+    },
+  };
+
+  function scrubLegacyWebStorage() {
+    try {
+      global.sessionStorage?.removeItem?.(STORAGE_KEY);
+      global.localStorage?.removeItem?.(STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
 
   function cfg() {
     const c = global.SITE_CONFIG || {};
@@ -27,14 +50,14 @@
   function getClient() {
     if (client) return client;
     if (!canUse()) return null;
+    scrubLegacyWebStorage();
     const { url, key } = cfg();
-    // sessionStorage: survives refresh in this tab, clears when the tab closes.
     client = global.supabase.createClient(url, key, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storage: global.sessionStorage,
+        detectSessionInUrl: false,
+        storage: memoryAuthStorage,
         storageKey: STORAGE_KEY,
       },
     });
@@ -91,13 +114,14 @@
     } catch {
       /* ignore */
     }
-    if (!sb) return;
-    await sb.auth.signOut({ scope: "local" });
-    try {
-      global.sessionStorage.removeItem(STORAGE_KEY);
-    } catch {
-      /* ignore */
+    if (!sb) {
+      memoryStore.clear();
+      scrubLegacyWebStorage();
+      return;
     }
+    await sb.auth.signOut({ scope: "local" });
+    memoryStore.clear();
+    scrubLegacyWebStorage();
   }
 
   global.SiteSupabase = {
