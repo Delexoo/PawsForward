@@ -23,26 +23,14 @@
   <meta name="twitter:image" content="https://joinpawsforward.com/media/og-donate.jpg">
   <link rel="icon" href="icons/favicon.png?v=20261108z" type="image/png" sizes="64x64">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261108z" sizes="180x180">
-  <script>
-    /* Instant Stripe — no interstitial. Only success/cancel return stays on this page. */
-    (function () {
-      var params = new URLSearchParams(location.search);
-      if (params.get("success") === "1" && params.get("session_id")) return;
-      if (params.get("cancelled") === "1") return;
-      var u = new URL("https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout");
-      var ref = String(params.get("ref") || "").trim();
-      if (ref) u.searchParams.set("ref", ref);
-      u.searchParams.set("site_origin", "https://joinpawsforward.com");
-      location.replace(u.href);
-    })();
-  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/pf-site.css?v=20261108ae">
-  <link rel="stylesheet" href="css/pf-donate.css?v=20261108ae">
-  <script src="js/config.js?v=20261108y"></script>
-  <script src="js/canonical.js?v=20261108y"></script>
+  <link rel="stylesheet" href="css/pf-site.css?v=20261108af">
+  <link rel="stylesheet" href="css/pf-donate.css?v=20261108af">
+  <script src="js/config.js?v=20261108aa"></script>
+  <script src="js/donate-go.js?v=20261108aa"></script>
+  <script src="js/canonical.js?v=20261108aa"></script>
 </head>
 <body class="donate-page" data-page="donate" data-public="1">
   <a class="skip" href="#content">Skip to content</a>
@@ -75,6 +63,6 @@
     </div>
   </main>
 
-  <script src="js/donate.js?v=20261108y"></script>
+  <script src="js/donate.js?v=20261108aa"></script>
 </body>
 </html>

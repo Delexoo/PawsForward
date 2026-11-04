@@ -76,6 +76,10 @@
 
     if (params.get("cancelled") === "1") {
       if (els.cancelled) els.cancelled.hidden = false;
+      return;
     }
+
+    // Fallback if head redirect did not run (stale cache / blocked script).
+    location.replace(checkoutHref(ref));
   });
 })();
