@@ -25777,14 +25777,21 @@ html[data-theme="dark"] .ui-select-menu {
   cursor: pointer;
   transition: background 0.12s ease, color 0.12s ease;
 }
-.ui-select-option--icon,
-.ui-select-label--icon {
+.ui-select-option--icon {
   justify-content: flex-start;
   gap: 10px;
+}
+.ui-select-option--icon .ui-select-option-text {
+  flex: 1 1 auto;
+}
+.ui-select-option--icon.is-active::after {
+  margin-left: auto;
 }
 .ui-select-label--icon {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
   min-width: 0;
 }
 .ui-select-option-icon {
