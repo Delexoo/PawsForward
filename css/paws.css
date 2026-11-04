@@ -847,6 +847,12 @@ body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
   color: var(--muted, #64748b);
 }
 
+.pf-required {
+  color: #dc2626;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
 .qr-box {
   display: flex;
   flex-direction: column;

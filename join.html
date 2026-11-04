@@ -54,22 +54,22 @@
       <form class="pf-join-form" id="join-form" action="#" method="post">
         <h2 class="pf-join-section-title">Create your QR</h2>
         <div class="field">
-          <label for="join-first">First name</label>
+          <label for="join-first">First name <span class="pf-required" aria-hidden="true">*</span></label>
           <input id="join-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80">
           <p class="field-error" id="err-join-first" hidden></p>
         </div>
         <div class="field">
-          <label for="join-last">Last name</label>
+          <label for="join-last">Last name <span class="pf-required" aria-hidden="true">*</span></label>
           <input id="join-last" name="last_name" type="text" required autocomplete="family-name" maxlength="80">
           <p class="field-error" id="err-join-last" hidden></p>
         </div>
         <div class="field">
-          <label for="join-phone">Phone number</label>
+          <label for="join-phone">Phone number <span class="pf-required" aria-hidden="true">*</span></label>
           <input id="join-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567">
           <p class="field-error" id="err-join-phone" hidden></p>
         </div>
         <div class="field">
-          <label for="join-payment">Preferred payout type</label>
+          <label for="join-payment">Preferred payout type <span class="pf-required" aria-hidden="true">*</span></label>
           <select id="join-payment" name="payment_type" required>
             <option value="" disabled selected>Select payment type</option>
             <option value="cashapp">Cash App</option>
@@ -86,7 +86,7 @@
           <p class="field-error" id="err-join-payment" hidden></p>
         </div>
         <div class="field">
-          <label for="join-handle">Payout handle</label>
+          <label for="join-handle">Payout handle <span class="pf-required" aria-hidden="true">*</span></label>
           <input id="join-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, email…">
           <p class="field-error" id="err-join-handle" hidden></p>
         </div>

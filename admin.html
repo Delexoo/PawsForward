@@ -159,24 +159,24 @@
         </div>
         <div class="pf-emp-name-fields">
           <div class="field">
-            <label for="emp-first">First name</label>
+            <label for="emp-first">First name <span class="pf-required" aria-hidden="true">*</span></label>
             <input id="emp-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80">
             <p class="field-error" id="err-emp-first" hidden></p>
           </div>
           <div class="field">
-            <label for="emp-last">Last name</label>
+            <label for="emp-last">Last name <span class="pf-required" aria-hidden="true">*</span></label>
             <input id="emp-last" name="last_name" type="text" required autocomplete="family-name" maxlength="80">
             <p class="field-error" id="err-emp-last" hidden></p>
           </div>
         </div>
       </div>
       <div class="field">
-        <label for="emp-phone">Phone number</label>
+        <label for="emp-phone">Phone number <span class="pf-required" aria-hidden="true">*</span></label>
         <input id="emp-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567">
         <p class="field-error" id="err-emp-phone" hidden></p>
       </div>
       <div class="field">
-        <label for="emp-payment">Preferred payment type</label>
+        <label for="emp-payment">Preferred payment type <span class="pf-required" aria-hidden="true">*</span></label>
         <select id="emp-payment" name="payment_type" required aria-label="Preferred payment type">
           <option value="" disabled selected>Select payment type</option>
           <option value="cashapp">Cash App</option>
@@ -205,7 +205,7 @@
         <p class="field-error" id="err-emp-payment" hidden></p>
       </div>
       <div class="field">
-        <label for="emp-payment-handle">Payout handle</label>
+        <label for="emp-payment-handle">Payout handle <span class="pf-required" aria-hidden="true">*</span></label>
         <input id="emp-payment-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, wallet, email…">
         <p class="field-error" id="err-emp-handle" hidden></p>
       </div>
@@ -328,7 +328,7 @@
       <div class="pf-payout-summary" id="payout-summary" aria-live="polite"></div>
 
       <div class="field">
-        <label for="pay-amount">Amount paid (USD)</label>
+        <label for="pay-amount">Amount paid (USD) <span class="pf-required" aria-hidden="true">*</span></label>
         <input id="pay-amount" name="amount" type="number" inputmode="decimal" min="0.01" step="0.01" required>
         <p class="field-error" id="err-pay-amount" hidden></p>
       </div>
@@ -352,7 +352,7 @@
       <input type="hidden" id="don-id" name="id" value="">
 
       <div class="field">
-        <label for="don-amount">Amount (USD)</label>
+        <label for="don-amount">Amount (USD) <span class="pf-required" aria-hidden="true">*</span></label>
         <input id="don-amount" name="amount" type="number" inputmode="decimal" min="0.01" step="0.01" required>
         <p class="field-error" id="err-don-amount" hidden></p>
       </div>
