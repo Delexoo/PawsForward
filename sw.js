@@ -1,6 +1,13 @@
 /* PawsForward — installability only; never pin HTML/CSS/JS behind a stale cache */
-const CACHE = "pawsforward-shell-v3";
-const PRECACHE = ["./manifest.webmanifest", "./doc/brand-mark.png", "./icons/favicon.png"];
+const CACHE = "pawsforward-shell-v4";
+const PRECACHE = [
+  "./manifest.webmanifest",
+  "./icons/favicon.png",
+  "./icons/apple-touch-icon.png",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-maskable-512.png",
+];
 
 function isShellAsset(url) {
   try {
