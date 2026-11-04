@@ -3,7 +3,6 @@
   const CACHE_KEY = "pf_admin_cache_v2";
 
   const els = {
-    banner: document.getElementById("status-banner"),
     skeleton: document.getElementById("dashboard-skeleton"),
     content: document.getElementById("dashboard-content"),
     totalDonors: document.getElementById("stat-total-donors"),
@@ -34,6 +33,7 @@
     empAvatarFile: document.getElementById("emp-avatar-file"),
     empAvatarReset: document.getElementById("emp-avatar-reset"),
     btnNew: document.getElementById("btn-new-employee"),
+    btnPlaceholders: document.getElementById("btn-add-placeholders"),
     pullIndicator: document.getElementById("pull-refresh-indicator"),
     inboxCountHint: document.getElementById("inbox-count-hint"),
     dock: document.querySelector(".pf-dock"),
@@ -62,15 +62,12 @@
     confirmOk: document.getElementById("confirm-ok"),
     detailDialog: document.getElementById("employee-detail-dialog"),
     detailTitle: document.getElementById("employee-detail-title"),
-    detailLead: document.getElementById("employee-detail-lead"),
     detailPhone: document.getElementById("employee-detail-phone"),
     detailAvatar: document.getElementById("detail-avatar"),
     detailVisits: document.getElementById("detail-visits"),
     detailRaised: document.getElementById("detail-raised"),
     detailOwed: document.getElementById("detail-owed"),
     detailPaid: document.getElementById("detail-paid"),
-    detailPayout: document.getElementById("detail-payout"),
-    detailPayoutMethod: document.getElementById("detail-payout-method"),
     detailClose: document.getElementById("employee-detail-close"),
     detailAvatarFile: document.getElementById("detail-avatar-file"),
     statsGrid: document.getElementById("stats-grid"),
@@ -285,18 +282,8 @@
     }).format(Number(n) || 0);
   }
 
-  function setBanner(msg, kind) {
-    if (!els.banner) return;
-    if (!msg) {
-      els.banner.hidden = true;
-      els.banner.textContent = "";
-      els.banner.classList.remove("is-ok", "is-err");
-      return;
-    }
-    els.banner.hidden = false;
-    els.banner.textContent = msg;
-    els.banner.classList.toggle("is-ok", kind === "ok");
-    els.banner.classList.toggle("is-err", kind === "err");
+  function setBanner() {
+    /* Admin feedback uses dialogs/inline errors — no toast banner. */
   }
 
   function setFieldError(el, msg) {
@@ -578,8 +565,29 @@
     return dialog?.querySelector?.(".site-leave-dialog-panel") || null;
   }
 
-  function openAdminDialog(dialog) {
+  function adminDialogs() {
+    return Array.from(document.querySelectorAll("dialog.pf-dialog, dialog.site-leave-dialog"));
+  }
+
+  function forceCloseDialog(dialog) {
     if (!dialog) return;
+    const panel = dialogPanel(dialog);
+    dialog.classList.remove("is-sheet", "is-open", "is-entering", "is-closing", "is-dragging");
+    if (panel) {
+      panel.style.transform = "";
+      panel.style.transition = "";
+    }
+    if (dialog.open) dialog.close();
+  }
+
+  async function closeOtherAdminDialogs(keep) {
+    const openOnes = adminDialogs().filter((d) => d !== keep && d.open);
+    await Promise.all(openOnes.map((d) => closeAdminDialog(d, { immediate: true })));
+  }
+
+  async function openAdminDialog(dialog) {
+    if (!dialog) return;
+    await closeOtherAdminDialogs(dialog);
     dialog.classList.remove("is-closing", "is-dragging");
     const panel = dialogPanel(dialog);
     if (panel) {
@@ -600,11 +608,13 @@
     });
   }
 
-  function closeAdminDialog(dialog) {
-    if (!dialog?.open) return Promise.resolve();
-    if (!isMobileSheetViewport()) {
-      dialog.classList.remove("is-sheet", "is-open", "is-entering", "is-closing", "is-dragging");
-      dialog.close();
+  function closeAdminDialog(dialog, opts = {}) {
+    if (!dialog?.open) {
+      forceCloseDialog(dialog);
+      return Promise.resolve();
+    }
+    if (opts.immediate || !isMobileSheetViewport()) {
+      forceCloseDialog(dialog);
       return Promise.resolve();
     }
     if (dialog.classList.contains("is-closing")) {
@@ -614,13 +624,11 @@
     }
     return new Promise((resolve) => {
       const panel = dialogPanel(dialog);
+      let done = false;
       const finish = () => {
-        dialog.classList.remove("is-closing", "is-open", "is-entering", "is-dragging", "is-sheet");
-        if (panel) {
-          panel.style.transform = "";
-          panel.style.transition = "";
-        }
-        if (dialog.open) dialog.close();
+        if (done) return;
+        done = true;
+        forceCloseDialog(dialog);
         resolve();
       };
       dialog.classList.add("is-closing");
@@ -911,10 +919,7 @@
     const visits = latestVisitStats[emp.id] || { count: 0, places: {} };
     const paid = paidFor(emp.id);
     const owed = netOwedFor(emp.id, stats.raised);
-    const handle = normalizeHandle(emp.payment_handle);
-    const payout = handle
-      ? `${paymentLabel(emp.payment_type)} · ${handle}`
-      : paymentLabel(emp.payment_type);
+    const phone = formatPhoneDisplay(emp.phone || "");
 
     if (els.detailAvatar) {
       els.detailAvatar.src = avatarUrl(emp);
@@ -923,19 +928,11 @@
       };
     }
     if (els.detailTitle) els.detailTitle.textContent = `${emp.first_name} ${emp.last_name}`.trim();
-    if (els.detailPhone) els.detailPhone.textContent = emp.phone || "No phone on file";
-    if (els.detailLead) {
-      els.detailLead.textContent = emp.referral_code || "No referral code";
-    }
+    if (els.detailPhone) els.detailPhone.textContent = phone || "No phone on file";
     if (els.detailVisits) els.detailVisits.textContent = String(visits.count || 0);
     if (els.detailRaised) els.detailRaised.textContent = money(stats.raised);
     if (els.detailOwed) els.detailOwed.textContent = money(owed);
     if (els.detailPaid) els.detailPaid.textContent = money(paid);
-    if (els.detailPayout) els.detailPayout.textContent = payout;
-    if (els.detailPayoutMethod) {
-      els.detailPayoutMethod.hidden = !payout;
-      els.detailPayoutMethod.textContent = payout ? `Payout · ${payout}` : "";
-    }
   }
 
   function openEmployeeDetail(emp) {
@@ -1024,7 +1021,7 @@
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Raised</span><span class="pf-stat-chip-value">${money(stats.raised)}</span></span>
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Owed</span><span class="pf-stat-chip-value">${money(owed)}</span></span>
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Paid</span><span class="pf-stat-chip-value">${money(paid)}</span></span>
-            </div>
+          </div>
           </div>
         </div>
         <div class="pf-employee-actions">
@@ -1070,8 +1067,8 @@
               <strong class="pf-donation-donor">${escapeHtml(donor)}</strong>
               <p class="pf-donation-when">${escapeHtml(whenAbs)}${whenRel ? ` · ${escapeHtml(whenRel)}` : ""}</p>
               <p class="pf-donation-employee">Employee: ${escapeHtml(employeeName || "None")}</p>
-            </div>
-            <span class="feed-amount">${money(d.amount)}</span>
+        </div>
+        <span class="feed-amount">${money(d.amount)}</span>
           </div>
           <button type="button" class="pf-don-more" data-don-action="more" aria-expanded="false">View more</button>
         </div>
@@ -1683,6 +1680,51 @@
     await openQrDialog(data);
   }
 
+  function nextPlaceholderNumber() {
+    let max = 0;
+    for (const emp of latestEmployees || []) {
+      const label = String(emp.first_name || "").trim();
+      if (!/^\d+$/.test(label)) continue;
+      const n = Number.parseInt(label, 10);
+      if (Number.isFinite(n)) max = Math.max(max, n);
+    }
+    return max + 1;
+  }
+
+  async function addPlaceholderEmployees(count = 5) {
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) {
+      setBanner("Supabase is not configured.", "err");
+      return;
+    }
+    const start = nextPlaceholderNumber();
+    const rows = Array.from({ length: count }, (_, i) => ({
+      first_name: String(start + i),
+      last_name: "",
+      phone: "0000000000",
+      payment_type: "other",
+      payment_handle: null,
+      referral_code: referralCode(),
+      avatar_url: null,
+    }));
+    if (els.btnPlaceholders) els.btnPlaceholders.disabled = true;
+    setBanner(`Adding ${count} placeholders…`);
+    const { data, error } = await sb.from("employees").insert(rows).select("id, first_name");
+    if (els.btnPlaceholders) els.btnPlaceholders.disabled = false;
+    if (error) {
+      setBanner(error.message || "Could not add placeholders.", "err");
+      return;
+    }
+    const made = data?.length || count;
+    const from = start;
+    const to = start + made - 1;
+    setBanner(
+      made === 1 ? `Added placeholder ${from}.` : `Added placeholders ${from}–${to}.`,
+      "ok"
+    );
+    await loadDashboard({ skipCachePaint: true });
+  }
+
   function askConfirm({ title, lead, confirmLabel = "Delete" }) {
     const dialog = els.confirmDialog;
     if (!dialog) return Promise.resolve(window.confirm(`${title}\n\n${lead}`));
@@ -1709,7 +1751,9 @@
       els.confirmCancel?.addEventListener("click", onCancel);
       els.confirmOk?.addEventListener("click", onOk);
       dialog.addEventListener("close", onClose);
-      dialog.showModal();
+      if (typeof dialog.showModal === "function" && !dialog.open) {
+        dialog.showModal();
+      }
       els.confirmCancel?.focus();
     });
   }
@@ -1771,6 +1815,7 @@
     wireAdminNav();
     wirePullToHardRefresh();
     els.btnNew?.addEventListener("click", openNewEmployee);
+    els.btnPlaceholders?.addEventListener("click", () => addPlaceholderEmployees(5));
     els.visitsClose?.addEventListener("click", () => closeAdminDialog(els.visitsDialog));
     els.detailClose?.addEventListener("click", () => closeEmployeeDetail());
     els.statInfoClose?.addEventListener("click", () => closeAdminDialog(els.statInfoDialog));

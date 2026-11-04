@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261104y">
-  <link rel="stylesheet" href="css/fonts.css?v=20261104y">
-  <script src="js/theme.js?v=20261104y"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261104y">
-  <link rel="stylesheet" href="css/paws.css?v=20261104y">
+  <link rel="manifest" href="manifest.webmanifest?v=20261104z">
+  <link rel="stylesheet" href="css/fonts.css?v=20261104z">
+  <script src="js/theme.js?v=20261104z"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261104z">
+  <link rel="stylesheet" href="css/paws.css?v=20261104z">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261104y"></script>
-  <script src="js/canonical.js?v=20261104y"></script>
+  <script src="js/config.js?v=20261104z"></script>
+  <script src="js/canonical.js?v=20261104z"></script>
   <script>
     (function () {
       try {
@@ -33,7 +33,7 @@
       } catch (e) {}
     })();
   </script>
-  <script src="js/pin-lock.js?v=20261104y"></script>
+  <script src="js/pin-lock.js?v=20261104z"></script>
   <script>
     (function () {
       try {
@@ -104,7 +104,10 @@
       <section class="pf-mini-panel pf-admin-page" id="employees" data-admin-page="employees" aria-labelledby="employees-heading" hidden>
         <div class="pf-section-head pf-section-head--compact">
           <h2 class="pf-mini-heading" id="employees-heading">Employees</h2>
-          <button type="button" class="pf-tool-btn pf-tool-btn--primary" id="btn-new-employee">Add employee</button>
+          <div class="pf-section-actions">
+            <button type="button" class="pf-tool-btn" id="btn-add-placeholders">Add 5 placeholders</button>
+            <button type="button" class="pf-tool-btn pf-tool-btn--primary" id="btn-new-employee">Add employee</button>
+          </div>
         </div>
         <ul class="pf-employee-list" id="employees-body"></ul>
         <div class="dash-empty" id="employees-empty" hidden>
@@ -377,12 +380,12 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261104y"></script>
-  <script src="js/shell.js?v=20261104y"></script>
-  <script src="js/vendor/supabase.js?v=20261104y"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261104y"></script>
-  <script src="js/supabase-client.js?v=20261104y"></script>
-  <script src="js/qr.js?v=20261104y"></script>
-  <script src="js/admin.js?v=20261104y"></script>
+  <script src="js/icons.js?v=20261104z"></script>
+  <script src="js/shell.js?v=20261104z"></script>
+  <script src="js/vendor/supabase.js?v=20261104z"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261104z"></script>
+  <script src="js/supabase-client.js?v=20261104z"></script>
+  <script src="js/qr.js?v=20261104z"></script>
+  <script src="js/admin.js?v=20261104z"></script>
 </body>
 </html>
