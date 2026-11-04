@@ -136,7 +136,43 @@
     return !bad;
   }
 
-  async function showSuccess(row) {
+  function functionsBase() {
+    const root = String(window.SITE_CONFIG?.supabaseUrl || "").replace(/\/$/, "");
+    return root ? `${root}/functions/v1` : "";
+  }
+
+  function anonKey() {
+    return String(window.SITE_CONFIG?.supabaseAnonKey || "");
+  }
+
+  async function sendWelcomeText(row, phone) {
+    const base = functionsBase();
+    if (!base || !anonKey()) return { skipped: true };
+    try {
+      const res = await fetch(`${base}/welcome-promoter`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: anonKey(),
+          Authorization: "Bearer " + anonKey(),
+        },
+        body: JSON.stringify({
+          referral_code: row.referral_code,
+          phone,
+          first_name: row.first_name || "",
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (res.status === 503 && body.skipped) return { skipped: true };
+      if (!res.ok) throw new Error(body.error || "Could not send welcome text.");
+      return { sent: Boolean(body.sent || body.ok), already: Boolean(body.already) };
+    } catch (err) {
+      console.error(err);
+      return { error: err?.message || "Could not send welcome text." };
+    }
+  }
+
+  async function showSuccess(row, phone) {
     const name = `${row.first_name || ""} ${row.last_name || ""}`.trim() || "promoter";
     const url = shareUrlFor(row.referral_code);
     current = { url, name, code: row.referral_code || "" };
@@ -156,6 +192,22 @@
     } catch (err) {
       console.error(err);
       setBanner("Account created, but the QR could not render. Copy your link below.", "err");
+    }
+
+    setBanner("Sending your link and QR by text…");
+    const notify = await sendWelcomeText(row, phone);
+    if (notify.sent || notify.already) {
+      setBanner("We texted your link and QR to your phone. Save them below too.", "ok");
+      if (els.successLead) {
+        els.successLead.textContent =
+          "Check your texts for your link and QR. You can also copy or download them here.";
+      }
+    } else if (notify.skipped) {
+      setBanner("You’re set — save your QR and link below (texting isn’t configured yet).", "ok");
+    } else if (notify.error) {
+      setBanner(`You’re set. Texting failed (${notify.error}). Save your QR below.`, "err");
+    } else {
+      setBanner("You’re set — save your QR below.", "ok");
     }
   }
 
@@ -195,8 +247,7 @@
       return;
     }
 
-    setBanner("You’re set — save your QR below.", "ok");
-    await showSuccess(row);
+    await showSuccess(row, payload.phone);
   }
 
   document.addEventListener("DOMContentLoaded", () => {

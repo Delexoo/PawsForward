@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#fff9f3">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Your Paws Forward donation QR — save or share it.">
+  <title>Your QR · Paws Forward</title>
+  <link rel="icon" href="icons/favicon.png?v=20261106v" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261106v" sizes="180x180">
+  <link rel="stylesheet" href="css/fonts.css?v=20261106v">
+  <script src="js/theme.js?v=20261106v"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261106v">
+  <link rel="stylesheet" href="css/paws.css?v=20261106v">
+  <script src="js/config.js?v=20261106v"></script>
+  <script src="js/canonical.js?v=20261106v"></script>
+</head>
+<body data-page="join" data-public="1">
+  <script>
+    document.body.setAttribute("data-public", "1");
+    document.body.classList.add("site-unlocked");
+  </script>
+  <a class="skip-link" href="#page-body">Skip to content</a>
+
+  <div id="page-body" class="pf-join-page">
+    <header class="pf-join-top">
+      <a class="pf-join-brand" href="index.html">
+        <img src="doc/brand-mark.png" width="40" height="40" alt="">
+        <span>Paws Forward</span>
+      </a>
+      <a class="pf-join-top-link" href="join.html">Get your QR</a>
+    </header>
+
+    <main class="pf-join-main">
+      <header class="pf-join-intro">
+        <h1 class="pf-join-title" id="qr-title">Your QR</h1>
+        <p class="pf-join-lead" id="qr-lead">Save this code or copy your link. Gifts through it count toward your payout.</p>
+      </header>
+
+      <div class="pf-join-panel">
+        <div id="status-banner" class="status-banner" hidden role="status"></div>
+        <div class="pf-join-qr" id="qr-host" role="img" aria-label="Your donation QR code"></div>
+        <label class="pf-join-label" for="qr-share-url">Your link</label>
+        <input id="qr-share-url" class="pf-join-share-input" type="text" readonly>
+        <div class="pf-join-actions">
+          <button type="button" class="btn pf-join-submit" id="qr-copy">Copy link</button>
+          <button type="button" class="btn secondary pf-join-secondary" id="qr-download">Download QR</button>
+        </div>
+        <p class="pf-join-fineprint">Code: <code id="qr-code">—</code></p>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/vendor/qrcode.min.js?v=20261106v"></script>
+  <script src="js/qr.js?v=20261106v"></script>
+  <script src="js/my-qr.js?v=20261106v"></script>
+</body>
+</html>

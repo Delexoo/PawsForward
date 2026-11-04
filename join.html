@@ -13,15 +13,15 @@
   <meta name="twitter:card" content="summary">
   <link rel="canonical" href="https://joinpawsforward.com/join.html">
   <title>Get your QR · Paws Forward</title>
-  <link rel="icon" href="icons/favicon.png?v=20261106p" type="image/png" sizes="64x64">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261106p" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261106p">
-  <link rel="stylesheet" href="css/fonts.css?v=20261106p">
-  <script src="js/theme.js?v=20261106p"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261106p">
-  <link rel="stylesheet" href="css/paws.css?v=20261106p">
-  <script src="js/config.js?v=20261106p"></script>
-  <script src="js/canonical.js?v=20261106p"></script>
+  <link rel="icon" href="icons/favicon.png?v=20261106v" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261106v" sizes="180x180">
+  <link rel="manifest" href="manifest.webmanifest?v=20261106v">
+  <link rel="stylesheet" href="css/fonts.css?v=20261106v">
+  <script src="js/theme.js?v=20261106v"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261106v">
+  <link rel="stylesheet" href="css/paws.css?v=20261106v">
+  <script src="js/config.js?v=20261106v"></script>
+  <script src="js/canonical.js?v=20261106v"></script>
 </head>
 <body data-page="join" data-public="1">
   <script>
@@ -41,11 +41,17 @@
 
     <main class="pf-join-main">
       <header class="pf-join-intro">
+        <p class="pf-join-kicker">Promoter signup</p>
         <h1 class="pf-join-title">Get your QR</h1>
         <p class="pf-join-lead">
           Share your link. Dogs get help — you earn <strong id="join-commission">50%</strong>
           of every gift that comes through it.
         </p>
+        <ul class="pf-join-points" aria-label="How it works">
+          <li>Create a personal donation link in about a minute</li>
+          <li>Friends give any amount on Stripe</li>
+          <li>Half of each attributed gift is owed to you</li>
+        </ul>
       </header>
 
       <div class="pf-join-panel" id="join-card">
@@ -55,36 +61,38 @@
           <div class="pf-join-row">
             <div class="field">
               <label for="join-first">First name <span class="pf-required" aria-hidden="true">*</span></label>
-              <input id="join-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80">
+              <input id="join-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80" placeholder="Jordan">
               <p class="field-error" id="err-join-first" hidden></p>
             </div>
             <div class="field">
               <label for="join-last">Last name <span class="pf-optional">(optional)</span></label>
-              <input id="join-last" name="last_name" type="text" autocomplete="family-name" maxlength="80">
+              <input id="join-last" name="last_name" type="text" autocomplete="family-name" maxlength="80" placeholder="Lee">
               <p class="field-error" id="err-join-last" hidden></p>
             </div>
           </div>
-          <div class="field">
-            <label for="join-phone">Phone <span class="pf-required" aria-hidden="true">*</span></label>
-            <input id="join-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567">
-            <p class="field-error" id="err-join-phone" hidden></p>
-          </div>
-          <div class="field">
-            <label for="join-payment">How you get paid <span class="pf-required" aria-hidden="true">*</span></label>
-            <select id="join-payment" name="payment_type" required>
-              <option value="" disabled selected>Choose one</option>
-              <option value="cashapp" data-brand="cashapp" data-icon="icons/payments/cashapp.svg">Cash App</option>
-              <option value="venmo" data-brand="venmo" data-icon="icons/payments/venmo.svg">Venmo</option>
-              <option value="paypal" data-brand="paypal" data-icon="icons/payments/paypal.svg">PayPal</option>
-              <option value="zelle" data-brand="zelle" data-icon="icons/payments/zelle.svg">Zelle</option>
-              <option value="apple_cash" data-brand="applecash" data-icon="icons/payments/applecash.svg">Apple Cash</option>
-              <option value="apple_pay" data-brand="applepay" data-icon="icons/payments/applepay.svg">Apple Pay</option>
-              <option value="google_pay" data-brand="googlepay" data-icon="icons/payments/googlepay.svg">Google Pay</option>
-              <option value="chime" data-brand="chime" data-icon="icons/payments/chime.svg">Chime</option>
-              <option value="cash" data-brand="cash" data-icon="icons/payments/cash.svg">Cash</option>
-              <option value="other" data-brand="other" data-icon="icons/payments/other.svg">Other</option>
-            </select>
-            <p class="field-error" id="err-join-payment" hidden></p>
+          <div class="pf-join-row">
+            <div class="field">
+              <label for="join-phone">Phone <span class="pf-required" aria-hidden="true">*</span></label>
+              <input id="join-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567" inputmode="tel">
+              <p class="field-error" id="err-join-phone" hidden></p>
+            </div>
+            <div class="field">
+              <label for="join-payment">How you get paid <span class="pf-required" aria-hidden="true">*</span></label>
+              <select id="join-payment" name="payment_type" required>
+                <option value="" disabled selected>Choose one</option>
+                <option value="cashapp" data-brand="cashapp" data-icon="icons/payments/cashapp.svg">Cash App</option>
+                <option value="venmo" data-brand="venmo" data-icon="icons/payments/venmo.svg">Venmo</option>
+                <option value="paypal" data-brand="paypal" data-icon="icons/payments/paypal.svg">PayPal</option>
+                <option value="zelle" data-brand="zelle" data-icon="icons/payments/zelle.svg">Zelle</option>
+                <option value="apple_cash" data-brand="applecash" data-icon="icons/payments/applecash.svg">Apple Cash</option>
+                <option value="apple_pay" data-brand="applepay" data-icon="icons/payments/applepay.svg">Apple Pay</option>
+                <option value="google_pay" data-brand="googlepay" data-icon="icons/payments/googlepay.svg">Google Pay</option>
+                <option value="chime" data-brand="chime" data-icon="icons/payments/chime.svg">Chime</option>
+                <option value="cash" data-brand="cash" data-icon="icons/payments/cash.svg">Cash</option>
+                <option value="other" data-brand="other" data-icon="icons/payments/other.svg">Other</option>
+              </select>
+              <p class="field-error" id="err-join-payment" hidden></p>
+            </div>
           </div>
           <div class="field">
             <label for="join-handle"><span id="join-handle-label">Your payout handle</span> <span class="pf-required" aria-hidden="true">*</span></label>
@@ -102,6 +110,7 @@
           <p class="pf-join-fineprint">
             By continuing you agree to our <a href="terms.html">terms</a> and
             <a href="privacy.html">privacy policy</a>.
+            We’ll text your donation link and QR to the phone number you enter (transactional message; reply STOP to opt out).
           </p>
         </form>
 
@@ -121,10 +130,10 @@
     </main>
   </div>
 
-  <script src="js/vendor/supabase.js?v=20261106p"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261106p"></script>
-  <script src="js/supabase-client.js?v=20261106p"></script>
-  <script src="js/qr.js?v=20261106p"></script>
-  <script src="js/join.js?v=20261106p"></script>
+  <script src="js/vendor/supabase.js?v=20261106v"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261106v"></script>
+  <script src="js/supabase-client.js?v=20261106v"></script>
+  <script src="js/qr.js?v=20261106v"></script>
+  <script src="js/join.js?v=20261106v"></script>
 </body>
 </html>
