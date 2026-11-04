@@ -3,6 +3,7 @@
   const input = document.getElementById("pin-input");
   const banner = document.getElementById("status-banner");
   const lockRoot = document.getElementById("site-lock");
+  let busy = false;
 
   function setBanner(msg) {
     if (!banner) return;
@@ -27,16 +28,16 @@
     return `${page}?v=${encodeURIComponent(bust)}`;
   }
 
-  function attempt() {
-    if (!window.SitePin) {
+  async function attempt() {
+    if (busy) return;
+    if (!window.SitePin?.verifyRemote) {
       setBanner("PIN lock failed to load.");
       return;
     }
-    if (!window.SitePin.configuredPin()) {
-      setBanner("Set sitePin (4 digits) in js/config.js.");
-      return;
-    }
-    const result = window.SitePin.verify(input.value);
+    busy = true;
+    setBanner("Checking PIN…");
+    const result = await window.SitePin.verifyRemote(input.value);
+    busy = false;
     if (result.ok) {
       location.replace(nextUrl());
       return;
@@ -47,12 +48,16 @@
       return;
     }
     if (result.reason === "not_configured") {
-      setBanner("Set sitePin (4 digits) in js/config.js.");
+      setBanner("Operator login is not configured on the server.");
+      return;
+    }
+    if (result.reason === "network") {
+      setBanner("Network error — try again.");
       return;
     }
     input.value = "";
     input.focus();
-    setBanner("Incorrect PIN.");
+    setBanner(result.message || "Incorrect PIN.");
   }
 
   document.addEventListener("DOMContentLoaded", () => {

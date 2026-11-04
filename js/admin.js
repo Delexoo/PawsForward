@@ -1886,6 +1886,28 @@
     }
   }
 
+  let pendingDeleteTimer = null;
+  let pendingDeleteEmp = null;
+
+  function showUndoToast(message, onUndo) {
+    const toast = document.getElementById("pf-undo-toast");
+    if (!toast) return;
+    toast.hidden = false;
+    toast.innerHTML = "";
+    const text = document.createElement("span");
+    text.textContent = message;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pf-undo-btn";
+    btn.textContent = "Undo";
+    btn.addEventListener("click", () => {
+      onUndo?.();
+      toast.hidden = true;
+      toast.innerHTML = "";
+    });
+    toast.append(text, btn);
+  }
+
   async function deleteEmployee(emp) {
     const label = `${emp.first_name} ${emp.last_name}`.trim();
     const ok = await askConfirm({
@@ -1894,22 +1916,45 @@
       confirmLabel: "Delete everything",
     });
     if (!ok) return;
-    const sb = window.SiteSupabase.getClient();
-    if (!sb) {
-      setBanner("Supabase is not configured.", "err");
-      return;
-    }
-    setBanner(`Deleting ${label} and revoking their data…`);
-    try {
-      await revokeEmployeeData(sb, emp);
-      const { error } = await sb.from("employees").delete().eq("id", emp.id);
-      if (error) throw error;
-      setBanner(`Deleted ${label} and revoked their data.`, "ok");
-      await loadDashboard({ skipCachePaint: true });
-    } catch (err) {
-      console.error(err);
-      setBanner(err.message || "Could not delete employee.", "err");
-    }
+
+    // Soft-hide immediately; permanent delete after undo window.
+    pendingDeleteEmp = emp;
+    if (pendingDeleteTimer) window.clearTimeout(pendingDeleteTimer);
+    setBanner(`${label} will be deleted…`, "ok");
+    showUndoToast(`Deleting ${label}`, () => {
+      if (pendingDeleteTimer) window.clearTimeout(pendingDeleteTimer);
+      pendingDeleteTimer = null;
+      pendingDeleteEmp = null;
+      setBanner("Delete cancelled.", "ok");
+      loadDashboard({ skipCachePaint: true });
+    });
+
+    pendingDeleteTimer = window.setTimeout(async () => {
+      const target = pendingDeleteEmp;
+      pendingDeleteEmp = null;
+      pendingDeleteTimer = null;
+      const toast = document.getElementById("pf-undo-toast");
+      if (toast) {
+        toast.hidden = true;
+        toast.innerHTML = "";
+      }
+      if (!target) return;
+      const sb = window.SiteSupabase.getClient();
+      if (!sb) {
+        setBanner("Supabase is not configured.", "err");
+        return;
+      }
+      try {
+        await revokeEmployeeData(sb, target);
+        const { error } = await sb.from("employees").delete().eq("id", target.id);
+        if (error) throw error;
+        setBanner(`Deleted ${label} and revoked their data.`, "ok");
+        await loadDashboard({ skipCachePaint: true });
+      } catch (err) {
+        console.error(err);
+        setBanner(err.message || "Could not delete employee.", "err");
+      }
+    }, 8000);
   }
 
   function wireDialogs() {
@@ -2161,7 +2206,18 @@
   document.addEventListener("DOMContentLoaded", async () => {
     if (!window.SitePin?.requireUnlock?.()) return;
 
+    const auth = await window.SiteSupabase?.requireAdminSession?.();
+    if (!auth?.ok) {
+      await window.SitePin?.lock?.();
+      location.replace("login.html?next=admin.html");
+      return;
+    }
+
     document.body.classList.add("site-unlocked");
+    document.getElementById("admin-lock-btn")?.addEventListener("click", async () => {
+      await window.SitePin?.lock?.();
+      location.replace("login.html");
+    });
     window.PfShell?.renderShell("dashboard");
     wireDialogs();
     window.SiteIcons?.initIcons?.();

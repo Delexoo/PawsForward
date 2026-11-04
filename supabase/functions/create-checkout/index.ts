@@ -1,18 +1,16 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import Stripe from "npm:stripe@14.25.0";
 import { createClient } from "npm:@supabase/supabase-js@2.49.1";
-
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-};
+import { corsHeaders } from "./cors.ts";
 
 /** v2 = open amount field (no $25 preset). Older prices kept the preset baked in. */
 const DONATE_PRICE_META = "pawsforward_donate_custom_v2";
 const DONATE_PRICE_META_LEGACY = "pawsforward_donate_custom";
 
+let _req: Request | null = null;
+
 function json(body: unknown, status = 200) {
+  const cors = _req ? corsHeaders(_req) : corsHeaders(new Request("https://delexoo.github.io"));
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...cors, "Content-Type": "application/json" },
@@ -232,7 +230,10 @@ async function recordQrVisit(req: Request, referralCode: string, employeeId: str
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  _req = req;
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders(req) });
+  }
 
   try {
     const siteDefault =

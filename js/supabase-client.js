@@ -9,19 +9,6 @@
   const STORAGE_KEY = "pf-admin-auth";
   const HANDOFF_PREFIX = "pf_auth_handoff_v1:";
 
-  const memoryStore = Object.create(null);
-  const memoryStorage = {
-    getItem(key) {
-      return Object.prototype.hasOwnProperty.call(memoryStore, key) ? memoryStore[key] : null;
-    },
-    setItem(key, value) {
-      memoryStore[key] = String(value);
-    },
-    removeItem(key) {
-      delete memoryStore[key];
-    },
-  };
-
   let client = null;
 
   function cfg() {
@@ -41,12 +28,13 @@
     if (client) return client;
     if (!canUse()) return null;
     const { url, key } = cfg();
+    // sessionStorage: survives refresh in this tab, clears when the tab closes.
     client = global.supabase.createClient(url, key, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
-        storage: memoryStorage,
+        storage: global.sessionStorage,
         storageKey: STORAGE_KEY,
       },
     });
@@ -105,7 +93,11 @@
     }
     if (!sb) return;
     await sb.auth.signOut({ scope: "local" });
-    Object.keys(memoryStore).forEach((k) => delete memoryStore[k]);
+    try {
+      global.sessionStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
   }
 
   global.SiteSupabase = {

@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261105z">
-  <link rel="stylesheet" href="css/fonts.css?v=20261105z">
-  <script src="js/theme.js?v=20261105z"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261105z">
-  <link rel="stylesheet" href="css/paws.css?v=20261105z">
+  <link rel="manifest" href="manifest.webmanifest?v=20261106a">
+  <link rel="stylesheet" href="css/fonts.css?v=20261106a">
+  <script src="js/theme.js?v=20261106a"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261106a">
+  <link rel="stylesheet" href="css/paws.css?v=20261106a">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261105z"></script>
-  <script src="js/canonical.js?v=20261105z"></script>
+  <script src="js/config.js?v=20261106a"></script>
+  <script src="js/canonical.js?v=20261106a"></script>
   <script>
     (function () {
       try {
@@ -33,7 +33,9 @@
       } catch (e) {}
     })();
   </script>
-  <script src="js/pin-lock.js?v=20261105z"></script>
+  <script src="js/vendor/supabase.js?v=20261106a"></script>
+  <script src="js/supabase-client.js?v=20261106a"></script>
+  <script src="js/pin-lock.js?v=20261106a"></script>
   <script>
     (function () {
       try {
@@ -137,8 +139,13 @@
         <button type="button" class="pf-dock-tab is-active" role="tab" aria-selected="true" data-admin-nav="activity"><span class="pf-dock-tab-full">Activity</span><span class="pf-dock-tab-short" aria-hidden="true">Stats</span></button>
         <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="employees"><span class="pf-dock-tab-full">Employees</span><span class="pf-dock-tab-short" aria-hidden="true">Team</span></button>
         <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="donations"><span class="pf-dock-tab-full">Donations</span><span class="pf-dock-tab-short" aria-hidden="true">Gifts</span></button>
+        <button type="button" class="pf-dock-tab" id="admin-lock-btn" aria-label="Lock portal and sign out">
+          <span class="pf-dock-tab-full">Lock</span>
+          <span class="pf-dock-tab-short" aria-hidden="true">Lock</span>
+        </button>
       </div>
     </nav>
+    <div id="pf-undo-toast" class="pf-undo-toast" hidden role="status" aria-live="polite"></div>
   </div>
 
   <dialog class="site-leave-dialog pf-dialog" id="employee-dialog" aria-labelledby="employee-dialog-title">
@@ -382,12 +389,10 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261105z"></script>
-  <script src="js/shell.js?v=20261105z"></script>
-  <script src="js/vendor/supabase.js?v=20261105z"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261105z"></script>
-  <script src="js/supabase-client.js?v=20261105z"></script>
-  <script src="js/qr.js?v=20261105z"></script>
-  <script src="js/admin.js?v=20261105z"></script>
+  <script src="js/icons.js?v=20261106a"></script>
+  <script src="js/shell.js?v=20261106a"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261106a"></script>
+  <script src="js/qr.js?v=20261106a"></script>
+  <script src="js/admin.js?v=20261106a"></script>
 </body>
 </html>

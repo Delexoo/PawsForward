@@ -1,272 +1,1863 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Preflight report — PawsForward</title>
-<style>
-:root { --paper: #f3eadc; --ink: #1b1612; --muted: #4a433b; --line: #d9cbb6; --hl-pass: #b7ebc6; --hl-warn: #ffe56a; --hl-miss: #ffb4ae; }
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 1.05rem; line-height: 1.5; }
-main { width: min(820px, calc(100% - 2rem)); margin: 2rem auto 4rem; }
-.kicker, .status, .meta dt, table, .evidence span, .fix span, footer, .cat { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace; }
-.kicker { letter-spacing: .12em; text-transform: uppercase; font-size: .72rem; margin: 0 0 .5rem; }
-h1 { font-size: 2.6rem; line-height: 1; font-weight: 560; margin: 0 0 1rem; }
-.meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
-.meta div { border-top: 1px solid var(--ink); padding-top: .4rem; }
-.meta dt { font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.meta dd { margin: .2rem 0 0; }
-.score { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 1rem 0; display: flex; gap: 1.5rem; align-items: baseline; }
-.fraction { font-size: 3rem; line-height: 1; margin: 0; font-variant-numeric: tabular-nums; }
-.fraction span { font-size: 1.25rem; color: var(--muted); }
-.score p { margin: 0; }
-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
-caption { text-align: left; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 .4rem; }
-th, td { text-align: left; padding: .45rem .5rem .45rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-th:not(:first-child), td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
-h2 { font-size: 1.5rem; margin: 2rem 0 .6rem; }
-.finding { border-top: 1px solid var(--line); padding: .9rem 0; }
-.finding header { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
-.finding h3 { margin: 0; font-size: 1.15rem; }
-.cat { margin: 0 0 .15rem; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.key { margin: 1rem 0 0; }
-.mark, .status { color: var(--ink); background: transparent; padding: .08em .28em; box-decoration-break: clone; -webkit-box-decoration-break: clone; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.status { margin: 0; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; text-align: right; display: inline-block; }
-.mark.pass, .finding.pass .status { background: var(--hl-pass); }
-.mark.warn, .finding.warn .status { background: var(--hl-warn); }
-.mark.miss, .finding.miss .status { background: var(--hl-miss); }
-.context p { margin: .45rem 0; }
-.why, .evidence, .fix { margin: .35rem 0 0; }
-.evidence span, .fix span { font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; display: block; color: var(--muted); }
-.evidence, .fix { overflow-wrap: anywhere; }
-.verdict-label { font-size: 1.7rem; line-height: 1.2; margin: 0 0 .4rem; display: inline; }
-.fix-list { margin: .2rem 0 0; padding-left: 1.2rem; }
-.fix-list li { margin: .45rem 0; }
-footer { margin-top: 2rem; color: var(--muted); font-size: .85rem; }
-@media (max-width: 640px) { .meta, .score, .finding header { display: flex; flex-direction: column; align-items: flex-start; } h1 { font-size: 2.1rem; } .status { text-align: left; } }
-@media print { body { background: #fff; } main { width: auto; margin: 0; } }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Preflight report — PawsForward</title>
+  <style>
+    :root { --paper: #f3eadc; --ink: #1b1612; --muted: #4a433b; --line: #d9cbb6; --hl-pass: #b7ebc6; --hl-warn: #ffe56a; --hl-miss: #ffb4ae; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 1.05rem; line-height: 1.5; }
+    main { width: min(820px, calc(100% - 2rem)); margin: 2rem auto 4rem; }
+    .kicker, .status, .meta dt, table, .evidence span, .fix span, footer, .cat { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace; }
+    .kicker { letter-spacing: .12em; text-transform: uppercase; font-size: .72rem; margin: 0 0 .5rem; }
+    h1 { font-size: 2.6rem; line-height: 1; font-weight: 560; margin: 0 0 1rem; }
+    .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
+    .meta div { border-top: 1px solid var(--ink); padding-top: .4rem; }
+    .meta dt { font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .meta dd { margin: .2rem 0 0; }
+    .score { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 1rem 0; display: flex; gap: 1.5rem; align-items: baseline; }
+    .fraction { font-size: 3rem; line-height: 1; margin: 0; font-variant-numeric: tabular-nums; }
+    .fraction span { font-size: 1.25rem; color: var(--muted); }
+    .score p { margin: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    caption { text-align: left; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 .4rem; }
+    th, td { text-align: left; padding: .45rem .5rem .45rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th:not(:first-child), td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+    h2 { font-size: 1.5rem; margin: 2rem 0 .6rem; }
+    .finding { border-top: 1px solid var(--line); padding: .9rem 0; }
+    .finding header { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+    .finding h3 { margin: 0; font-size: 1.15rem; }
+    .cat { margin: 0 0 .15rem; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .key { margin: 1rem 0 0; }
+    .mark, .status { color: var(--ink); background: transparent; padding: .08em .28em; box-decoration-break: clone; -webkit-box-decoration-break: clone; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .status { margin: 0; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; text-align: right; display: inline-block; }
+    .mark.pass, .finding.pass .status { background: var(--hl-pass); }
+    .mark.warn, .finding.warn .status { background: var(--hl-warn); }
+    .mark.miss, .finding.miss .status { background: var(--hl-miss); }
+    .context p { margin: .45rem 0; }
+    .why, .evidence, .fix { margin: .35rem 0 0; }
+    .evidence span, .fix span { font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; display: block; color: var(--muted); }
+    .evidence, .fix { overflow-wrap: anywhere; }
+    .verdict-label { font-size: 1.7rem; line-height: 1.2; margin: 0 0 .4rem; display: inline; }
+    .fix-list { margin: .2rem 0 0; padding-left: 1.2rem; }
+    .fix-list li { margin: .45rem 0; }
+    footer { margin-top: 2rem; color: var(--muted); font-size: .85rem; }
+    @media (max-width: 640px) {
+      .meta, .score, .finding header { display: flex; flex-direction: column; align-items: flex-start; }
+      h1 { font-size: 2.1rem; }
+      .status { text-align: left; }
+    }
+    @media print { body { background: #fff; } main { width: auto; margin: 0; } }
+  </style>
 </head>
 <body>
-<main>
-<p class="kicker">Vibe Code Checklist</p>
-<h1>Preflight report</h1>
-<p class="key"><span class="mark pass">Done</span> already works. <span class="mark warn">Warning</span> can wait. <span class="mark miss">Missing</span> needs a fix before you ship.</p>
-<dl class="meta">
-<div><dt>Project</dt><dd>PawsForward</dd></div>
-<div><dt>Generated</dt><dd>2026-11-03</dd></div>
-<div><dt>Source</dt><dd>Workspace audit</dd></div>
-</dl>
-<section class="context">
-<h2>What this app is</h2>
-<p><strong>Goal.</strong> Ship a PawsForward admin console and public donate page so operators can track donations, hire employees with unique QR codes (50% of attributed donations owed), and see visit geography after consent.</p>
-<p><strong>Who it is for.</strong> Organization admins who manage QR fundraisers, and donors who give through employee links.</p>
-<p><strong>Checks that fit.</strong> Present: public donate page, admin login/private dashboard, forms, Supabase database with RPCs, consent-gated visit analytics, operational stats, daily admin UI, demo donations (not card payments). Not needed: blog, AI, native apps, uploads, marketing email, npm dependency tree, real payment processor flows.</p>
-<p class="evidence"><span>Based on</span>README.md, admin.html, donate.html, login.html, privacy.html, terms.html, 404.html, robots.txt, sitemap.xml, manifest.webmanifest, css/site.css, css/paws.css, css/fonts.css, js/admin.js, js/donate.js, js/login.js, js/supabase-client.js, js/config.js, js/qr.js, js/shell.js, supabase/schema.sql, docs/breach-plan.md, docs/backups.md, tests/commission.test.mjs, .gitignore, .env.example</p>
-</section>
-<section class="score">
-<p class="fraction">88<span>/109</span></p>
-<p>81% of the checks that apply are in place. 7 required item(s) open; 14 recommended item(s) open.</p>
-</section>
-<section class="verdict">
-<h2>Overall</h2>
-<p class="verdict-label mark miss">Not ready to ship</p>
-<p>7 required items are open. 14 recommended items are open. 37 checks do not apply.</p>
-</section>
-<section>
-<h2>Fix these first</h2>
-<ol class="fix-list">
-<li><strong>Unique meta description per page.</strong> Add a unique meta description on admin.html (even with noindex).</li>
-<li><strong>Favicon set.</strong> Add favicon, apple-touch-icon, and manifest links to admin.html.</li>
-<li><strong>The session is not in local storage.</strong> Keep the access token in an HttpOnly cookie via a small backend, or in-memory with a single-page shell.</li>
-<li><strong>Inline errors.</strong> Add field-error elements beside employee fields in admin.html.</li>
-<li><strong>Account settings.</strong> Add a simple account settings panel (email display, password change).</li>
-<li><strong>A signed-in person can sign out.</strong> Add a Sign out button wired to auth.signOut.</li>
-<li><strong>Password reset or equivalent.</strong> Add a password reset or magic-link recovery path.</li>
-</ol>
-</section>
-<section>
-<h2>By category</h2>
-<table>
-<caption>Results by category</caption>
-<thead><tr><th>Category</th><th>Done</th><th>Missing</th><th>Warning</th><th>Does not apply</th></tr></thead>
-<tbody>
-<tr><td>Pages and flows</td><td>5</td><td>0</td><td>0</td><td>2</td></tr>
-<tr><td>Search engine optimization</td><td>7</td><td>1</td><td>1</td><td>1</td></tr>
-<tr><td>Generative engine optimization</td><td>4</td><td>0</td><td>0</td><td>1</td></tr>
-<tr><td>Answer and chat engine optimization</td><td>3</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>Legal and consent</td><td>9</td><td>0</td><td>1</td><td>4</td></tr>
-<tr><td>Identity and appearance</td><td>5</td><td>1</td><td>0</td><td>0</td></tr>
-<tr><td>Looks designed</td><td>6</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>Interface details</td><td>6</td><td>0</td><td>7</td><td>6</td></tr>
-<tr><td>Accessibility</td><td>4</td><td>0</td><td>1</td><td>0</td></tr>
-<tr><td>Performance</td><td>5</td><td>0</td><td>0</td><td>1</td></tr>
-<tr><td>Security</td><td>24</td><td>1</td><td>3</td><td>16</td></tr>
-<tr><td>Forms</td><td>3</td><td>1</td><td>0</td><td>0</td></tr>
-<tr><td>Accounts and settings</td><td>3</td><td>3</td><td>0</td><td>2</td></tr>
-<tr><td>Project hygiene</td><td>4</td><td>0</td><td>1</td><td>4</td></tr>
-</tbody>
-</table>
-</section>
-<section>
-<h2>Missing</h2>
-<article class="finding miss"><header><div><p class="cat">Search engine optimization</p><h3>Unique meta description per page</h3></div><p class="status">Missing</p></header><p class="why">The description is the sentence search engines and previews show under the title.</p><p class="evidence"><span>Evidence</span>donate/privacy/terms/login/404/index have meta descriptions; admin.html head has none.</p><p class="fix"><span>How to fix</span>Add a unique meta description on admin.html (even with noindex).</p></article>
-<article class="finding miss"><header><div><p class="cat">Identity and appearance</p><h3>Favicon set</h3></div><p class="status">Missing</p></header><p class="why">Tabs, bookmarks, and home-screen icons should show this product, not the framework logo.</p><p class="evidence"><span>Evidence</span>icons/favicon.svg, apple-touch-icon, and manifest exist and are linked on donate/login; admin.html head has no favicon or manifest links.</p><p class="fix"><span>How to fix</span>Add favicon, apple-touch-icon, and manifest links to admin.html.</p></article>
-<article class="finding miss"><header><div><p class="cat">Security</p><h3>The session is not in local storage</h3></div><p class="status">Missing</p></header><p class="why">A token in local storage can be read by any script on the page. An HttpOnly cookie cannot.</p><p class="evidence"><span>Evidence</span>js/supabase-client.js stores the admin session in sessionStorage.</p><p class="fix"><span>How to fix</span>Keep the access token in an HttpOnly cookie via a small backend, or in-memory with a single-page shell.</p></article>
-<article class="finding miss"><header><div><p class="cat">Forms</p><h3>Inline errors</h3></div><p class="status">Missing</p></header><p class="why">An error has to say which field failed and how to fix it.</p><p class="evidence"><span>Evidence</span>donate/login show field-error elements; admin employee form has no err-emp-* nodes in admin.html though admin.js expects them.</p><p class="fix"><span>How to fix</span>Add field-error elements beside employee fields in admin.html.</p></article>
-<article class="finding miss"><header><div><p class="cat">Accounts and settings</p><h3>Account settings</h3></div><p class="status">Missing</p></header><p class="why">People who can sign in need a place to see and change the account.</p><p class="evidence"><span>Evidence</span>No settings view for the signed-in admin to review account details.</p><p class="fix"><span>How to fix</span>Add a simple account settings panel (email display, password change).</p></article>
-<article class="finding miss"><header><div><p class="cat">Accounts and settings</p><h3>A signed-in person can sign out</h3></div><p class="status">Missing</p></header><p class="why">Sign-up, sign-in, and a reset path still leave someone stuck in the account on a shared computer if they cannot sign out.</p><p class="evidence"><span>Evidence</span>admin.js listens for #btn-sign-out but that control is not present in admin.html.</p><p class="fix"><span>How to fix</span>Add a Sign out button wired to auth.signOut.</p></article>
-<article class="finding miss"><header><div><p class="cat">Accounts and settings</p><h3>Password reset or equivalent</h3></div><p class="status">Missing</p></header><p class="why">Password accounts need a recovery path. Passwordless accounts need a way back in if the email or device changes.</p><p class="evidence"><span>Evidence</span>Password login exists on login.html but no reset/magic-link recovery UI was found.</p><p class="fix"><span>How to fix</span>Add a password reset or magic-link recovery path.</p></article>
-</section>
-<section>
-<h2>Warnings</h2>
-<article class="finding warn"><header><div><p class="cat">Search engine optimization</p><h3>Canonical URL</h3></div><p class="status">Warning</p></header><p class="why">A canonical link tells search engines which URL is the one to keep when the same page has aliases.</p><p class="evidence"><span>Evidence</span>donate/privacy/terms/login/index have absolute canonicals; admin.html has none.</p><p class="fix"><span>How to fix</span>Add an absolute canonical on admin.html or keep it fully noindexed.</p></article>
-<article class="finding warn"><header><div><p class="cat">Interface details</p><h3>Skeletons match the loaded layout</h3></div><p class="status">Warning</p></header><p class="why">A spinner on a blank screen jumps when the real layout arrives. A skeleton that flashes on a fast load feels broken too.</p><p class="evidence"><span>Evidence</span>admin.js references #dashboard-skeleton but that element is not in admin.html.</p><p class="fix"><span>How to fix</span>Add skeleton markup matching stats/table in admin.html.</p></article>
-<article class="finding warn"><header><div><p class="cat">Interface details</p><h3>A keyboard command menu</h3></div><p class="status">Warning</p></header><p class="why">People who use an app every day should not have to remember which menu holds an action.</p><p class="evidence"><span>Evidence</span>admin.js wires Ctrl+K command menu, but #command-dialog is not in admin.html.</p><p class="fix"><span>How to fix</span>Add the command dialog markup to admin.html.</p></article>
-<article class="finding warn"><header><div><p class="cat">Interface details</p><h3>Shortcuts are visible where the action is</h3></div><p class="status">Warning</p></header><p class="why">A shortcut nobody can see never gets learned.</p><p class="evidence"><span>Evidence</span>Ctrl+K handler exists in admin.js but admin.html shows no shortcut hint.</p><p class="fix"><span>How to fix</span>Show a Ctrl+K hint near admin tools.</p></article>
-<article class="finding warn"><header><div><p class="cat">Interface details</p><h3>Same-site links are ready before the click</h3></div><p class="status">Warning</p></header><p class="why">The next page can be ready while the pointer is still on the link.</p><p class="evidence"><span>Evidence</span>No prefetch/prerender/speculationrules on admin.html.</p><p class="fix"><span>How to fix</span>Prefetch donate.html from admin.</p></article>
-<article class="finding warn"><header><div><p class="cat">Interface details</p><h3>View changes move instead of swapping</h3></div><p class="status">Warning</p></header><p class="why">A sudden swap between two views is harder to follow than a short move.</p><p class="evidence"><span>Evidence</span>No View Transitions usage found in current CSS/HTML.</p><p class="fix"><span>How to fix</span>Optional: enable view transitions between admin sections.</p></article>
-<article class="finding warn"><header><div><p class="cat">Interface details</p><h3>Headlines do not leave one word alone</h3></div><p class="status">Warning</p></header><p class="why">A heading with one word on the last line looks unfinished.</p><p class="evidence"><span>Evidence</span>text-wrap: balance not found on headlines in paws.css/site.css for this app.</p><p class="fix"><span>How to fix</span>Add text-wrap: balance on h1/lead.</p></article>
-<article class="finding warn"><header><div><p class="cat">Interface details</p><h3>Large corners are smooth</h3></div><p class="status">Warning</p></header><p class="why">A large radius drawn as a quarter circle looks tighter than a smooth corner on a big panel.</p><p class="evidence"><span>Evidence</span>Large panels use standard border-radius only.</p><p class="fix"><span>How to fix</span>Optional smooth-corner polish on large cards.</p></article>
-<article class="finding warn"><header><div><p class="cat">Accessibility</p><h3>Skip link</h3></div><p class="status">Warning</p></header><p class="why">A skip link lets keyboard users jump past a repeated header to the main content.</p><p class="evidence"><span>Evidence</span>No skip-to-content link in admin.html.</p><p class="fix"><span>How to fix</span>Add a skip link to #page-body before the shell.</p></article>
-<article class="finding warn"><header><div><p class="cat">Security</p><h3>Security headers</h3></div><p class="status">Warning</p></header><p class="why">Headers such as Content-Security-Policy, nosniff, Referrer-Policy, and a frame policy close common browser abuses.</p><p class="evidence"><span>Evidence</span>No CSP/frame/nosniff host config in the repo; README notes GitHub Pages limits.</p><p class="fix"><span>How to fix</span>Put Cloudflare or similar in front, or move hosts, to set CSP and related headers.</p></article>
-<article class="finding warn"><header><div><p class="cat">Security</p><h3>Scripts you did not write are pinned or self-hosted</h3></div><p class="status">Warning</p></header><p class="why">A script loaded from someone else's domain can be changed under you and then run for every visitor.</p><p class="evidence"><span>Evidence</span>admin.html loads cdn.jsdelivr.net supabase-js and qrcode without integrity; donate uses js/vendor/supabase.js.</p><p class="fix"><span>How to fix</span>Vendor or pin admin scripts with integrity like donate, or drop unused qrcode CDN since js/qr.js uses an image API.</p></article>
-<article class="finding warn"><header><div><p class="cat">Project hygiene</p><h3>Database backups</h3></div><p class="status">Warning</p></header><p class="why">A database with no backup can lose people's data from one bad command.</p><p class="evidence"><span>Evidence</span>docs/backups.md instructs enabling Supabase backups; no evidence they are enabled on the project.</p><p class="fix"><span>How to fix</span>Enable PITR/daily backups in the Supabase dashboard and note the date in docs/backups.md.</p></article>
-<article class="finding warn"><header><div><p class="cat">Security</p><h3>Sign-in resists passwords leaked elsewhere</h3></div><p class="status">Warning</p></header><p class="why">Bots try email and password pairs from other sites' breaches against this login.</p><p class="evidence"><span>Evidence</span>No breached-password check or MFA option found in the login flow.</p><p class="fix"><span>How to fix</span>Enable Supabase leaked-password protection or MFA for admin.</p></article>
-<article class="finding warn"><header><div><p class="cat">Legal and consent</p><h3>Fonts load from your own site</h3></div><p class="status">Warning</p></header><p class="why">A font file loaded from Google or another company sends the visitor's address to that company.</p><p class="evidence"><span>Evidence</span>admin.html still loads fonts.googleapis.com; donate uses css/fonts.css self-host.</p><p class="fix"><span>How to fix</span>Switch admin.html to css/fonts.css and remove Google Fonts links.</p></article>
-</section>
-<section>
-<h2>Done</h2>
-<article class="finding pass"><header><div><p class="cat">Pages and flows</p><h3>Custom 404 page</h3></div><p class="status">Done</p></header><p class="why">A missing route should still feel like the product and offer a way onward.</p><p class="evidence"><span>Evidence</span>404.html exists with PawsForward branding and links to donate.html and admin.html.</p></article>
-<article class="finding pass"><header><div><p class="cat">Pages and flows</p><h3>Friendly error state</h3></div><p class="status">Done</p></header><p class="why">A crash or a failed request should explain what happened instead of a blank screen or a stack trace.</p><p class="evidence"><span>Evidence</span>status-banner with is-err used in admin.js, donate.js, and login.js when requests fail.</p></article>
-<article class="finding pass"><header><div><p class="cat">Pages and flows</p><h3>Loading states</h3></div><p class="status">Done</p></header><p class="why">Waits should look intentional, so people do not click twice or assume the app froze.</p><p class="evidence"><span>Evidence</span>admin.js shows Loading… via setBanner while loadDashboard runs; donate shows Recording donation….</p></article>
-<article class="finding pass"><header><div><p class="cat">Pages and flows</p><h3>Empty states</h3></div><p class="status">Done</p></header><p class="why">A list, search, or dashboard with nothing in it still needs a sentence and a next step.</p><p class="evidence"><span>Evidence</span>admin.html empty blocks for employees, donations, and geography; admin.js toggles them.</p></article>
-<article class="finding pass"><header><div><p class="cat">Pages and flows</p><h3>Thank-you or confirmation page</h3></div><p class="status">Done</p></header><p class="why">After a signup, checkout, or important form, people need a clear end to the flow.</p><p class="evidence"><span>Evidence</span>donate.html #donate-success Thank you panel after record_donation succeeds.</p></article>
-<article class="finding pass"><header><div><p class="cat">Search engine optimization</p><h3>Unique meta title per page</h3></div><p class="status">Done</p></header><p class="why">Tabs, search results, and shares all use the title. One reused title makes every page look unfinished.</p><p class="evidence"><span>Evidence</span>Distinct titles on admin, donate, login, privacy, terms, 404, index.</p></article>
-<article class="finding pass"><header><div><p class="cat">Search engine optimization</p><h3>Open Graph and Twitter cards</h3></div><p class="status">Done</p></header><p class="why">Shared links should show the right title, description, and image instead of a random scrape.</p><p class="evidence"><span>Evidence</span>donate.html sets og:title, og:description, og:image, and Twitter card tags for shared QR links.</p></article>
-<article class="finding pass"><header><div><p class="cat">Search engine optimization</p><h3>Sitemap</h3></div><p class="status">Done</p></header><p class="why">A sitemap lists the public URLs you actually want discovered.</p><p class="evidence"><span>Evidence</span>sitemap.xml lists donate, privacy, and terms public URLs.</p></article>
-<article class="finding pass"><header><div><p class="cat">Search engine optimization</p><h3>robots.txt</h3></div><p class="status">Done</p></header><p class="why">Crawlers need an explicit allow or disallow, plus a pointer to the sitemap when one exists.</p><p class="evidence"><span>Evidence</span>robots.txt allows public pages, disallows admin.html and login.html, points to sitemap.</p></article>
-<article class="finding pass"><header><div><p class="cat">Search engine optimization</p><h3>One clear h1 per page</h3></div><p class="status">Done</p></header><p class="why">The h1 is the page's title for people and for parsers. Competing h1s blur what the page is.</p><p class="evidence"><span>Evidence</span>One h1 per checked page (admin console, PawsForward on donate, etc.).</p></article>
-<article class="finding pass"><header><div><p class="cat">Search engine optimization</p><h3>Descriptive alt text</h3></div><p class="status">Done</p></header><p class="why">Images that carry meaning need a text equivalent. Decorative images need an empty alt.</p><p class="evidence"><span>Evidence</span>donate.html brand-mark img has alt text; decorative marks use aria-hidden.</p></article>
-<article class="finding pass"><header><div><p class="cat">Search engine optimization</p><h3>Viewport meta tag</h3></div><p class="status">Done</p></header><p class="why">Without a viewport tag, phones scale the desktop layout and the app feels broken.</p><p class="evidence"><span>Evidence</span>viewport meta present on admin.html and donate.html.</p></article>
-<article class="finding pass"><header><div><p class="cat">Generative engine optimization</p><h3>Who, what, and who it is for</h3></div><p class="status">Done</p></header><p class="why">Generative engines quote a clear entity. A homepage that never says who operates it is easy to misidentify.</p><p class="evidence"><span>Evidence</span>donate.html and README state PawsForward helps dogs with food, water, shelter; admin lead describes tracking and QR hiring.</p></article>
-<article class="finding pass"><header><div><p class="cat">Generative engine optimization</p><h3>Quotable facts</h3></div><p class="status">Done</p></header><p class="why">Specific facts are what assistants can cite. Vague slogans get paraphrased into something you did not say.</p><p class="evidence"><span>Evidence</span>donate.html .pf-fact states mission and 50% QR attribution.</p></article>
-<article class="finding pass"><header><div><p class="cat">Generative engine optimization</p><h3>Organization or author attribution</h3></div><p class="status">Done</p></header><p class="why">Named authorship or a named organization is how engines attach claims to a real entity.</p><p class="evidence"><span>Evidence</span>donate.html .pf-byline names PawsForward and hello@pawsforward.org.</p></article>
-<article class="finding pass"><header><div><p class="cat">Generative engine optimization</p><h3>Structured data for the main entity</h3></div><p class="status">Done</p></header><p class="why">JSON-LD lets search and answer engines read the product, organization, or articles as data.</p><p class="evidence"><span>Evidence</span>donate.html includes NGO JSON-LD.</p></article>
-<article class="finding pass"><header><div><p class="cat">Answer and chat engine optimization</p><h3>The first screen answers what this is</h3></div><p class="status">Done</p></header><p class="why">Chat engines lift the opening of a page. If the answer is below a long animation, they miss it.</p><p class="evidence"><span>Evidence</span>donate first screen answers what PawsForward is.</p></article>
-<article class="finding pass"><header><div><p class="cat">Answer and chat engine optimization</p><h3>FAQ or question-style headings</h3></div><p class="status">Done</p></header><p class="why">Questions with direct answers are the unit chat engines prefer to quote.</p><p class="evidence"><span>Evidence</span>donate.html FAQ section with question-style h3s.</p></article>
-<article class="finding pass"><header><div><p class="cat">Answer and chat engine optimization</p><h3>Consistent name and facts</h3></div><p class="status">Done</p></header><p class="why">If the name, price, or promise changes from page to page, both people and chat engines will mix them up.</p><p class="evidence"><span>Evidence</span>Name PawsForward consistent across pages and js/config.js appName.</p></article>
-<article class="finding pass"><header><div><p class="cat">Legal and consent</p><h3>Privacy policy</h3></div><p class="status">Done</p></header><p class="why">People should be able to read what the app collects, why, and who receives it.</p><p class="evidence"><span>Evidence</span>privacy.html describes collections, processors, consent, and deletion; linked from donate.</p></article>
-<article class="finding pass"><header><div><p class="cat">Legal and consent</p><h3>Terms of service</h3></div><p class="status">Done</p></header><p class="why">Terms set the rules of use before someone creates an account, pays, or relies on the app.</p><p class="evidence"><span>Evidence</span>terms.html covers demo donations and QR fundraising; linked from donate.</p></article>
-<article class="finding pass"><header><div><p class="cat">Legal and consent</p><h3>Cookie banner and a refusal path</h3></div><p class="status">Done</p></header><p class="why">Non-essential cookies and analytics need a choice, including the choice to refuse them.</p><p class="evidence"><span>Evidence</span>donate.html consent banner with Accept analytics and Refuse; donate.js only logs visits after accept.</p></article>
-<article class="finding pass"><header><div><p class="cat">Legal and consent</p><h3>Session replay is off or inputs are masked</h3></div><p class="status">Done</p></header><p class="why">A recording tool that catches passwords, cards, or messages stores more than a page view.</p><p class="evidence"><span>Evidence</span>No session-replay vendor scripts found.</p></article>
-<article class="finding pass"><header><div><p class="cat">Legal and consent</p><h3>A way to reach a person</h3></div><p class="status">Done</p></header><p class="why">Privacy questions and support need a real contact path, not only a social icon.</p><p class="evidence"><span>Evidence</span>mailto:hello@pawsforward.org and privacy@pawsforward.org on donate/privacy/terms.</p></article>
-<article class="finding pass"><header><div><p class="cat">Identity and appearance</p><h3>Theme color</h3></div><p class="status">Done</p></header><p class="why">The browser chrome should pick up the product color instead of a default gray or white strip.</p><p class="evidence"><span>Evidence</span>theme-color meta on admin and donate.</p></article>
-<article class="finding pass"><header><div><p class="cat">Identity and appearance</p><h3>Responsive layout</h3></div><p class="status">Done</p></header><p class="why">A phone and a desktop should both be able to read and use the app without horizontal chaos.</p><p class="evidence"><span>Evidence</span>site.css/paws.css breakpoints and shell mobile sidebar.</p></article>
-<article class="finding pass"><header><div><p class="cat">Identity and appearance</p><h3>Readable contrast</h3></div><p class="status">Done</p></header><p class="why">Low-contrast gray on a tinted background looks designed and then fails in daylight.</p><p class="evidence"><span>Evidence</span>Dark text on light surfaces; green CTAs with dark foreground in design tokens.</p></article>
-<article class="finding pass"><header><div><p class="cat">Identity and appearance</p><h3>Visible keyboard focus</h3></div><p class="status">Done</p></header><p class="why">If focus is removed, keyboard users cannot see where they are.</p><p class="evidence"><span>Evidence</span>site.css defines .btn:focus-visible and .ui-select-trigger:focus-visible among others.</p></article>
-<article class="finding pass"><header><div><p class="cat">Identity and appearance</p><h3>Reduced motion</h3></div><p class="status">Done</p></header><p class="why">People who ask the system for less motion should not get large looping animations.</p><p class="evidence"><span>Evidence</span>Multiple prefers-reduced-motion blocks in css/site.css.</p></article>
-<article class="finding pass"><header><div><p class="cat">Interface details</p><h3>Small actions update before the request returns</h3></div><p class="status">Done</p></header><p class="why">A like, a checkbox, or a rename that waits on the network feels stuck when the request almost always works.</p><p class="evidence"><span>Evidence</span>admin.js createEmployee inserts an optimistic employee row before the Supabase response.</p></article>
-<article class="finding pass"><header><div><p class="cat">Interface details</p><h3>Cached screens show, then refresh</h3></div><p class="status">Done</p></header><p class="why">Going back to a screen you just left should not show a spinner.</p><p class="evidence"><span>Evidence</span>admin.js paints sessionStorage cache then refreshes from Supabase.</p></article>
-<article class="finding pass"><header><div><p class="cat">Interface details</p><h3>Motion can be interrupted</h3></div><p class="status">Done</p></header><p class="why">An animation that has to finish before it listens makes the interface feel late.</p><p class="evidence"><span>Evidence</span>UI motion is short CSS transitions in site.css that can be interrupted by further interaction.</p></article>
-<article class="finding pass"><header><div><p class="cat">Interface details</p><h3>Tap targets are larger than the icon</h3></div><p class="status">Done</p></header><p class="why">A small icon is hard to hit when the touch area is only as big as the pixels you see.</p><p class="evidence"><span>Evidence</span>Primary buttons and pills use large min-heights in the design system.</p></article>
-<article class="finding pass"><header><div><p class="cat">Interface details</p><h3>Fixed bars clear the notch and the home indicator</h3></div><p class="status">Done</p></header><p class="why">A header under a notch, or a tab bar under the home indicator, cannot be tapped.</p><p class="evidence"><span>Evidence</span>site.css uses env(safe-area-inset-*) on shell/menu and page padding.</p></article>
-<article class="finding pass"><header><div><p class="cat">Interface details</p><h3>Changing numbers stay the same width</h3></div><p class="status">Done</p></header><p class="why">A price or a timer shifts sideways when a 1 is narrower than an 8.</p><p class="evidence"><span>Evidence</span>money and geo-count use tabular nums in paws.css.</p></article>
-<article class="finding pass"><header><div><p class="cat">Looks designed</p><h3>Surfaces stay neutral</h3></div><p class="status">Done</p></header><p class="why">A hue-to-hue gradient, a glow, and gradient text on every card is the default look of a generated screen, so the product never gets a color of its own.</p><p class="evidence"><span>Evidence</span>Neutral surfaces with green reserved for CTAs.</p></article>
-<article class="finding pass"><header><div><p class="cat">Looks designed</p><h3>Icons come from one set</h3></div><p class="status">Done</p></header><p class="why">Emoji in the navigation, on badges, and beside labels read as decoration a model added.</p><p class="evidence"><span>Evidence</span>Shell icons via js/icons.js stroke set.</p></article>
-<article class="finding pass"><header><div><p class="cat">Looks designed</p><h3>Spacing is on one scale</h3></div><p class="status">Done</p></header><p class="why">A 13px gap beside a 7px gap makes sibling rows and cards look accidental.</p><p class="evidence"><span>Evidence</span>Consistent gap/radius scale in paws.css and site tokens.</p></article>
-<article class="finding pass"><header><div><p class="cat">Looks designed</p><h3>Interface copy is plain</h3></div><p class="status">Done</p></header><p class="why">A greeting with an exclamation mark, or a headline like Supercharge your workflow, could sit on any generated page.</p><p class="evidence"><span>Evidence</span>Mostly plain product copy on donate and admin.</p></article>
-<article class="finding pass"><header><div><p class="cat">Looks designed</p><h3>The first screen shows this product</h3></div><p class="status">Done</p></header><p class="why">A glossy blob, a glowing brain, or a centered stack of buttons does not show what the product does.</p><p class="evidence"><span>Evidence</span>donate.html shows brand-mark image as a product visual.</p></article>
-<article class="finding pass"><header><div><p class="cat">Looks designed</p><h3>Motion explains a change</h3></div><p class="status">Done</p></header><p class="why">A pulsing glow, a card that grows on hover, and blocks flying in from every side are motion with nothing to say.</p><p class="evidence"><span>Evidence</span>No decorative looping glow animations; motion is UI feedback.</p></article>
-<article class="finding pass"><header><div><p class="cat">Accessibility</p><h3>Language of the page</h3></div><p class="status">Done</p></header><p class="why">Screen readers pronounce the page with the lang attribute. A missing lang is announced as the wrong language.</p><p class="evidence"><span>Evidence</span>html lang=en on pages checked.</p></article>
-<article class="finding pass"><header><div><p class="cat">Accessibility</p><h3>Keyboard access</h3></div><p class="status">Done</p></header><p class="why">Every control that a pointer can use needs a keyboard path.</p><p class="evidence"><span>Evidence</span>Native controls, dialogs, and ui-select buttons; evidence from source.</p></article>
-<article class="finding pass"><header><div><p class="cat">Accessibility</p><h3>Color is not the only signal</h3></div><p class="status">Done</p></header><p class="why">Errors, success, and status that are only a color disappear for some people.</p><p class="evidence"><span>Evidence</span>Status banners use text; badges use labels.</p></article>
-<article class="finding pass"><header><div><p class="cat">Accessibility</p><h3>Links say where they go</h3></div><p class="status">Done</p></header><p class="why">&quot;Click here&quot; and &quot;Read more&quot; repeated ten times are useless out of context.</p><p class="evidence"><span>Evidence</span>Nav and legal links name destinations.</p></article>
-<article class="finding pass"><header><div><p class="cat">Performance</p><h3>Compressed images</h3></div><p class="status">Done</p></header><p class="why">Uncompressed screenshots and camera files dominate the page weight of a vibe-coded app.</p><p class="evidence"><span>Evidence</span>doc/brand-mark.png is the main raster; no huge unoptimized galleries.</p></article>
-<article class="finding pass"><header><div><p class="cat">Performance</p><h3>Images reserve their space</h3></div><p class="status">Done</p></header><p class="why">Width and height, or a reserved aspect ratio, keep the page from jumping when images arrive.</p><p class="evidence"><span>Evidence</span>donate hero img sets width and height 56.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>No secrets in the repo or client bundle</h3></div><p class="status">Done</p></header><p class="why">A service key in the client, in a source file, or in git history people can clone, is already public.</p><p class="evidence"><span>Evidence</span>Tracked client config exposes Supabase anon/publishable key only; .env gitignored; no service_role found.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Build logs do not print secrets</h3></div><p class="status">Done</p></header><p class="why">A build or deploy log that prints the environment publishes every key to anyone who can open that log.</p><p class="evidence"><span>Evidence</span>No CI build that prints secrets.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>.env is gitignored</h3></div><p class="status">Done</p></header><p class="why">Environment files are where local secrets land. If git can see them, they will be committed.</p><p class="evidence"><span>Evidence</span>.gitignore lists .env.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Production does not serve .git or .env</h3></div><p class="status">Done</p></header><p class="why">A live site that serves its .git folder or a .env file hands out history and keys.</p><p class="evidence"><span>Evidence</span>GitHub Pages deploy does not publish .git; .env not in repo.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>HTTPS in production</h3></div><p class="status">Done</p></header><p class="why">A shipped app on plain HTTP leaks sessions and looks unfinished.</p><p class="evidence"><span>Evidence</span>Production https://delexoo.github.io/PawsForward/.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>DNS records still point at live services</h3></div><p class="status">Done</p></header><p class="why">A record left behind after you delete a host or a project lets someone else claim that name.</p><p class="evidence"><span>Evidence</span>No custom domain DNS in project; github.io host only.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Protected routes</h3></div><p class="status">Done</p></header><p class="why">Account data, settings, and admin tools must not render for a signed-out visitor.</p><p class="evidence"><span>Evidence</span>admin.js requireAdminSession redirects to login.html before loading dashboard data.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Each person can only reach their own data</h3></div><p class="status">Done</p></header><p class="why">A signed-in person who changes an id in the URL or the request can read, edit, or delete someone else's data.</p><p class="evidence"><span>Evidence</span>schema.sql: anon revoked from tables; authenticated policies; public writes go through limited RPCs.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Private pages stay out of search</h3></div><p class="status">Done</p></header><p class="why">Inbox, settings, and admin URLs should not be indexed.</p><p class="evidence"><span>Evidence</span>robots.txt Disallows /admin.html and /login.html; login.html also has noindex.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Sessions expire</h3></div><p class="status">Done</p></header><p class="why">A login that never ends means the next person on a shared computer is still signed in.</p><p class="evidence"><span>Evidence</span>Supabase Auth JWT sessions expire; provider lifetime counts.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Login tokens use a strong secret and a checked signature</h3></div><p class="status">Done</p></header><p class="why">A short or well-known signing secret lets someone mint a token that claims to be any account.</p><p class="evidence"><span>Evidence</span>Supabase Auth issues and verifies tokens.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Server-side validation on public forms</h3></div><p class="status">Done</p></header><p class="why">Browser checks are a convenience. The server still has to reject bad or hostile input.</p><p class="evidence"><span>Evidence</span>schema.sql checks amount &gt; 0 and payment_type enum; record_donation RPC rejects invalid amounts.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Visitor input is not glued into a query or command</h3></div><p class="status">Done</p></header><p class="why">Text from a visitor, pasted into SQL, a NoSQL query, or a shell command, lets them change what the server runs.</p><p class="evidence"><span>Evidence</span>Supabase client/RPC usage; no string-glued SQL in app JS.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>The server chooses which fields are saved</h3></div><p class="status">Done</p></header><p class="why">Saving the whole request body lets a person set their own role, price, or admin flag.</p><p class="evidence"><span>Evidence</span>Inserts/RPC args list explicit fields in donate.js and admin.js.</p></article>
-<article class="finding pass"><header><div><p class="cat">Forms</p><h3>Every input has a label</h3></div><p class="status">Done</p></header><p class="why">Placeholder text disappears while typing and is not a name for the field.</p><p class="evidence"><span>Evidence</span>Inputs use label for= on donate, login, privacy, employee dialog.</p></article>
-<article class="finding pass"><header><div><p class="cat">Forms</p><h3>Pending submit state</h3></div><p class="status">Done</p></header><p class="why">A slow submit without a pending state gets clicked again.</p><p class="evidence"><span>Evidence</span>Submit buttons disabled while requests run in donate.js/login.js/admin.js.</p></article>
-<article class="finding pass"><header><div><p class="cat">Forms</p><h3>Success confirmation</h3></div><p class="status">Done</p></header><p class="why">Silence after submit looks like a failure.</p><p class="evidence"><span>Evidence</span>Donate success panel; admin banner/QR after create.</p></article>
-<article class="finding pass"><header><div><p class="cat">Accounts and settings</p><h3>People can delete their personal data</h3></div><p class="status">Done</p></header><p class="why">If the app stores personal data, people need a way to delete it. Keeping it with no way out is a problem in a lot of places, including Europe, even when you are based somewhere else.</p><p class="evidence"><span>Evidence</span>privacy.html deletion request form inserts into data_deletion_requests.</p></article>
-<article class="finding pass"><header><div><p class="cat">Legal and consent</p><h3>Forms ask only for data the app uses</h3></div><p class="status">Done</p></header><p class="why">A phone number, birthday, or address the product never uses is data you cannot justify keeping.</p><p class="evidence"><span>Evidence</span>Donate asks amount + optional name; employee form asks name/phone/payment only.</p></article>
-<article class="finding pass"><header><div><p class="cat">Legal and consent</p><h3>A plan for telling people about a breach</h3></div><p class="status">Done</p></header><p class="why">If account data leaks, you are expected to tell the people affected. A plan written after the breach is late.</p><p class="evidence"><span>Evidence</span>docs/breach-plan.md and privacy.html link to it.</p></article>
-<article class="finding pass"><header><div><p class="cat">Accounts and settings</p><h3>Autocomplete on auth fields</h3></div><p class="status">Done</p></header><p class="why">Password managers need autocomplete hints such as username, current-password, and new-password.</p><p class="evidence"><span>Evidence</span>login.html email autocomplete=username and password autocomplete=current-password.</p></article>
-<article class="finding pass"><header><div><p class="cat">Project hygiene</p><h3>README explains how to run the app</h3></div><p class="status">Done</p></header><p class="why">A vibe-coded repo that only runs inside one chat session is not finished.</p><p class="evidence"><span>Evidence</span>README.md explains serve, config, schema, and admin seed.</p></article>
-<article class="finding pass"><header><div><p class="cat">Project hygiene</p><h3>A map of where things live</h3></div><p class="status">Done</p></header><p class="why">The next session should not have to open every file to learn where a feature lives.</p><p class="evidence"><span>Evidence</span>README project map table lists html/css/js/supabase/docs/tests.</p></article>
-<article class="finding pass"><header><div><p class="cat">Project hygiene</p><h3>A test covers a behavior that matters</h3></div><p class="status">Done</p></header><p class="why">A path nobody has run since the last change is how an app breaks after it ships.</p><p class="evidence"><span>Evidence</span>tests/commission.test.mjs covers 50% attribution owed math.</p></article>
-<article class="finding pass"><header><div><p class="cat">Project hygiene</p><h3>.env.example without secrets</h3></div><p class="status">Done</p></header><p class="why">People need the variable names. They should never receive a real secret in the example file.</p><p class="evidence"><span>Evidence</span>.env.example lists key names without secrets.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Visitor text is escaped</h3></div><p class="status">Done</p></header><p class="why">Text a visitor typed, dropped straight into the page as HTML, lets them run script in someone else's browser.</p><p class="evidence"><span>Evidence</span>admin.js escapeHtml before innerHTML for employee/donor text.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Passwords are hashed</h3></div><p class="status">Done</p></header><p class="why">A database of readable passwords is a breach the moment it leaks.</p><p class="evidence"><span>Evidence</span>Passwords handled by Supabase Auth (hashed), not stored by app code.</p></article>
-<article class="finding pass"><header><div><p class="cat">Accounts and settings</p><h3>Passwords have a minimum length</h3></div><p class="status">Done</p></header><p class="why">A very short password is easy to guess. Requiring a symbol does not fix a password that can be one character long.</p><p class="evidence"><span>Evidence</span>login.html password minlength=8 and login.js enforces length &gt;= 8.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Production hides internal errors</h3></div><p class="status">Done</p></header><p class="why">A stack trace, SQL error, or debug screen tells a stranger your paths, versions, and queries.</p><p class="evidence"><span>Evidence</span>UI shows error.message only; no stacks in page source paths.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>The database is not open to the internet</h3></div><p class="status">Done</p></header><p class="why">A database that accepts connections from any address can be guessed at by the whole internet.</p><p class="evidence"><span>Evidence</span>Hosted Supabase HTTPS API; no public Postgres port in app.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>The database and file store are not wide open</h3></div><p class="status">Done</p></header><p class="why">Rules left open, or a public file bucket, let anyone read what you stored.</p><p class="evidence"><span>Evidence</span>Anon table privileges revoked; authenticated policies; public access via constrained RPCs.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Sign-in failures and server errors are logged</h3></div><p class="status">Done</p></header><p class="why">Without a log, a burst of failed sign-ins or bad requests is invisible until something breaks.</p><p class="evidence"><span>Evidence</span>Failed sign-ins handled by Supabase Auth logging; app avoids logging passwords.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Public forms are rate-limited</h3></div><p class="status">Done</p></header><p class="why">A public form with no limit is easy to hammer with a script.</p><p class="evidence"><span>Evidence</span>record_donation and record_visit RPCs enforce per-minute ceilings in schema.sql.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Failed sign-ins get slowed or blocked</h3></div><p class="status">Done</p></header><p class="why">Unlimited password guesses are how accounts get broken into.</p><p class="evidence"><span>Evidence</span>Supabase Auth provides failed-sign-in rate limiting on the provider.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Login, signup, and reset hide which emails exist</h3></div><p class="status">Done</p></header><p class="why">A different message for a real email than for a fake one lets someone test a list and learn who has an account.</p><p class="evidence"><span>Evidence</span>login.js returns the same failure message whether or not the email exists.</p></article>
-<article class="finding pass"><header><div><p class="cat">Security</p><h3>Redirects stay on your site</h3></div><p class="status">Done</p></header><p class="why">A redirect that trusts a URL from the query string can send people to a lookalike site.</p><p class="evidence"><span>Evidence</span>Donate URLs built from current origin + donate.html.</p></article>
-<article class="finding pass"><header><div><p class="cat">Legal and consent</p><h3>Images, fonts, and code are licensed</h3></div><p class="status">Done</p></header><p class="why">Shipping someone else's photo, font, icon set, or code without a license is a copyright problem.</p><p class="evidence"><span>Evidence</span>Self-hosted/open fonts and brand-mark under doc/; inline icons.</p></article>
-<article class="finding pass"><header><div><p class="cat">Legal and consent</p><h3>Reviews and stats are real</h3></div><p class="status">Done</p></header><p class="why">Invented reviews, user counts, or awards are a deception problem.</p><p class="evidence"><span>Evidence</span>Admin stats computed from Supabase rows in admin.js.</p></article>
-<article class="finding pass"><header><div><p class="cat">Performance</p><h3>Text responses are compressed</h3></div><p class="status">Done</p></header><p class="why">Uncompressed HTML, CSS, and JavaScript make the first visit slower than it looks.</p><p class="evidence"><span>Evidence</span>README notes GitHub Pages typically compresses static text; production is github.io.</p></article>
-<article class="finding pass"><header><div><p class="cat">Performance</p><h3>The first page is not a huge script</h3></div><p class="status">Done</p></header><p class="why">A vibe-coded app often sends every library on the first page.</p><p class="evidence"><span>Evidence</span>Vanilla pages; local scripts plus one vendored or CDN client library.</p></article>
-<article class="finding pass"><header><div><p class="cat">Performance</p><h3>Text stays visible while fonts load</h3></div><p class="status">Done</p></header><p class="why">A custom font that blocks rendering leaves the page blank on a slow connection.</p><p class="evidence"><span>Evidence</span>css/fonts.css sets font-display: swap; Google Fonts URL on admin also includes display=swap.</p></article>
-</section>
-<section>
-<h2>Does not apply</h2>
-<article class="finding na"><header><div><p class="cat">Pages and flows</p><h3>Payment receipt or confirmation</h3></div><p class="status">Does not apply</p></header><p class="why">A charge needs a receipt the person can recognize, with the amount and what they bought.</p><p class="evidence"><span>Evidence</span>Demo donation tracking only; no card charge.</p></article>
-<article class="finding na"><header><div><p class="cat">Pages and flows</p><h3>The price is shown before the charge</h3></div><p class="status">Does not apply</p></header><p class="why">A person who never saw the amount, what it buys, or that a free trial becomes a paid plan can dispute the charge.</p><p class="evidence"><span>Evidence</span>No payment processor charge.</p></article>
-<article class="finding na"><header><div><p class="cat">Search engine optimization</p><h3>Dates on articles</h3></div><p class="status">Does not apply</p></header><p class="why">A published or updated date tells readers and citation systems whether a post is current.</p><p class="evidence"><span>Evidence</span>No blog or articles.</p></article>
-<article class="finding na"><header><div><p class="cat">Generative engine optimization</p><h3>llms.txt</h3></div><p class="status">Does not apply</p></header><p class="why">A short llms.txt file gives assistants a map of what the site is and which pages to trust.</p><p class="evidence"><span>Evidence</span>Operator dashboard plus QR donate page; not a content site needing llms.txt.</p></article>
-<article class="finding na"><header><div><p class="cat">Interface details</p><h3>Reversible actions offer undo</h3></div><p class="status">Does not apply</p></header><p class="why">A confirm dialog gets accepted without reading. Undo is the confirmation people actually use.</p><p class="evidence"><span>Evidence</span>No reversible destructive delete action in the UI.</p></article>
-<article class="finding na"><header><div><p class="cat">Interface details</p><h3>Uploaded images show a blur first</h3></div><p class="status">Does not apply</p></header><p class="why">A photo that pops in from an empty box shifts the page and shows the wrong colors first.</p><p class="evidence"><span>Evidence</span>No uploads.</p></article>
-<article class="finding na"><header><div><p class="cat">Interface details</p><h3>Sheets follow the finger</h3></div><p class="status">Does not apply</p></header><p class="why">A sheet that only closes from a button feels stuck when the person is already dragging it.</p><p class="evidence"><span>Evidence</span>No bottom sheet.</p></article>
-<article class="finding na"><header><div><p class="cat">Interface details</p><h3>Back can preview the previous screen</h3></div><p class="status">Does not apply</p></header><p class="why">A back swipe that shows the previous screen lets the person change their mind before they leave.</p><p class="evidence"><span>Evidence</span>Not a native app.</p></article>
-<article class="finding na"><header><div><p class="cat">Interface details</p><h3>A texted code fills in with one tap</h3></div><p class="status">Does not apply</p></header><p class="why">A login code from a text should land in the field without retyping.</p><p class="evidence"><span>Evidence</span>No SMS/email OTP field.</p></article>
-<article class="finding na"><header><div><p class="cat">Interface details</p><h3>Hover menus stay open on the way to a submenu</h3></div><p class="status">Does not apply</p></header><p class="why">A submenu that switches while the pointer moves toward it makes the menu feel broken.</p><p class="evidence"><span>Evidence</span>No hover submenu.</p></article>
-<article class="finding na"><header><div><p class="cat">Performance</p><h3>Below-the-fold images lazy load</h3></div><p class="status">Does not apply</p></header><p class="why">Images a person has not reached yet should not compete with the first screen.</p><p class="evidence"><span>Evidence</span>No below-the-fold image gallery requiring lazy load.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>Session cookie flags</h3></div><p class="status">Does not apply</p></header><p class="why">A session cookie should be HttpOnly and Secure, with SameSite set, so scripts and stray requests have a harder time carrying it.</p><p class="evidence"><span>Evidence</span>Auth session is not a first-party cookie; Supabase client uses sessionStorage.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>API input is checked on the server</h3></div><p class="status">Does not apply</p></header><p class="why">A route that trusts the body or the query string can be talked into work you did not mean to do.</p><p class="evidence"><span>Evidence</span>No first-party API routes; browser uses Supabase.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>The server does not fetch a URL from the visitor</h3></div><p class="status">Does not apply</p></header><p class="why">A feature that requests an address the visitor chose can be aimed at a private service, or at the cloud metadata address that hands out the server's credentials.</p><p class="evidence"><span>Evidence</span>No server fetching visitor URLs.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>Visitor input never becomes a file path</h3></div><p class="status">Does not apply</p></header><p class="why">A filename or path taken from a visitor can step outside the folder you meant to open, and read the server's own files.</p><p class="evidence"><span>Evidence</span>No server file paths from visitor input.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>The server looks up the price</h3></div><p class="status">Does not apply</p></header><p class="why">An amount that comes from the browser can be changed before it reaches the charge.</p><p class="evidence"><span>Evidence</span>No charges.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>A retry cannot create a second charge</h3></div><p class="status">Does not apply</p></header><p class="why">A second tap on a slow connection can create a second charge, or a second record.</p><p class="evidence"><span>Evidence</span>No charges.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>A limit and its update happen together</h3></div><p class="status">Does not apply</p></header><p class="why">Two requests at the same moment can each pass a check you make first and write second, and spend a one-time code, a balance, or a quota twice.</p><p class="evidence"><span>Evidence</span>No spendable balance/OTP quota.</p></article>
-<article class="finding na"><header><div><p class="cat">Accounts and settings</p><h3>Signup confirms the person is old enough</h3></div><p class="status">Does not apply</p></header><p class="why">An account that collects an email from a child under 13, with no parent involved, is a COPPA problem.</p><p class="evidence"><span>Evidence</span>No public signup flow; admin user is seeded.</p></article>
-<article class="finding na"><header><div><p class="cat">Accounts and settings</p><h3>Email is verified before the account is active</h3></div><p class="status">Does not apply</p></header><p class="why">A signup that trusts a typed email can lock a real person out, or open an account they never asked for.</p><p class="evidence"><span>Evidence</span>No public signup flow.</p></article>
-<article class="finding na"><header><div><p class="cat">Project hygiene</p><h3>No known high-severity holes in dependencies</h3></div><p class="status">Does not apply</p></header><p class="why">A vibe-coded app often installs packages and never checks them. A published hole in a dependency is already public.</p><p class="evidence"><span>Evidence</span>No package.json dependency tree; vendor file is checked in.</p></article>
-<article class="finding na"><header><div><p class="cat">Project hygiene</p><h3>Lockfile committed</h3></div><p class="status">Does not apply</p></header><p class="why">Without a lockfile, the next install can pull different versions than the ones you shipped.</p><p class="evidence"><span>Evidence</span>No npm lockfile needed.</p></article>
-<article class="finding na"><header><div><p class="cat">Project hygiene</p><h3>Supported framework and runtime</h3></div><p class="status">Does not apply</p></header><p class="why">Unsupported frameworks and runtimes stop receiving security fixes.</p><p class="evidence"><span>Evidence</span>No framework package runtime.</p></article>
-<article class="finding na"><header><div><p class="cat">Project hygiene</p><h3>A package earns its place</h3></div><p class="status">Does not apply</p></header><p class="why">A package that only wraps the standard library is more code to trust, update, and ship.</p><p class="evidence"><span>Evidence</span>No npm packages installed for platform duplicates.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>Production source maps stay unpublished</h3></div><p class="status">Does not apply</p></header><p class="why">A source map shipped with the live build lets someone rebuild the original code.</p><p class="evidence"><span>Evidence</span>No JS build publishing maps.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>Each person has a request ceiling</h3></div><p class="status">Does not apply</p></header><p class="why">A route a script can call with no per-person limit is how a host decides the app is abuse and suspends it.</p><p class="evidence"><span>Evidence</span>No first-party API.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>API origins are limited</h3></div><p class="status">Does not apply</p></header><p class="why">An API that trusts every website can let another site act as a signed-in person.</p><p class="evidence"><span>Evidence</span>No first-party API.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>Uploads are limited</h3></div><p class="status">Does not apply</p></header><p class="why">An upload with no type or size limit is how untrusted files land on the server.</p><p class="evidence"><span>Evidence</span>No uploads.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>Email, text messages, paid APIs, and uploads have a ceiling</h3></div><p class="status">Does not apply</p></header><p class="why">Hosts suspend apps that send unlimited email or text messages, call a paid API with no cap, or accept unlimited uploads. You pay for every text a script can trigger.</p><p class="evidence"><span>Evidence</span>No email/SMS/upload pipelines; geo/QR use free browser calls.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>An AI feature has the least access it needs</h3></div><p class="status">Does not apply</p></header><p class="why">Text a person types, or text on a page the model reads, can change what that feature does, including leaking its instructions or calling a tool it should not have.</p><p class="evidence"><span>Evidence</span>No AI.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>A model limit does not hang the page</h3></div><p class="status">Does not apply</p></header><p class="why">When the model provider hits a limit or goes down, a spinner that never ends looks like the app froze.</p><p class="evidence"><span>Evidence</span>No AI.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>Cookie actions check the sender</h3></div><p class="status">Does not apply</p></header><p class="why">A cookie session that accepts a request from any site can be triggered by another page.</p><p class="evidence"><span>Evidence</span>No cookie-based session for mutating admin requests.</p></article>
-<article class="finding na"><header><div><p class="cat">Security</p><h3>Payment webhooks check the signature</h3></div><p class="status">Does not apply</p></header><p class="why">A webhook that trusts the body can be told a payment succeeded when nobody paid.</p><p class="evidence"><span>Evidence</span>No payments.</p></article>
-<article class="finding na"><header><div><p class="cat">Legal and consent</p><h3>Refund or cancellation policy</h3></div><p class="status">Does not apply</p></header><p class="why">Charging people with no written refund or cancellation rule is how a small app ends up in a dispute. A subscription has to say when it renews and how to cancel, next to the button that starts it.</p><p class="evidence"><span>Evidence</span>No payments.</p></article>
-<article class="finding na"><header><div><p class="cat">Legal and consent</p><h3>The payment processor allows this business</h3></div><p class="status">Does not apply</p></header><p class="why">Stripe and PayPal freeze the account and hold the money when a product sits on their restricted list.</p><p class="evidence"><span>Evidence</span>No payments.</p></article>
-<article class="finding na"><header><div><p class="cat">Legal and consent</p><h3>Marketing email is opt-in</h3></div><p class="status">Does not apply</p></header><p class="why">Marketing email without consent, with no way to stop, or with no postal address, is a legal problem in many places.</p><p class="evidence"><span>Evidence</span>No marketing email.</p></article>
-<article class="finding na"><header><div><p class="cat">Legal and consent</p><h3>A way to report and remove user content</h3></div><p class="status">Does not apply</p></header><p class="why">If visitors can post or upload, a host or a copyright owner will contact you. One illegal or copyrighted file with nobody to reach is how the app gets suspended. Hosting that content for people in the United States also needs a DMCA designated agent on file with the Copyright Office.</p><p class="evidence"><span>Evidence</span>No UGC feed; donate name is checkout-like form data.</p></article>
-</section>
-<footer>The score counts checks that are done, out of the checks that apply. A warning still counts. Something that does not apply does not. This file is the report. It does not change the app. Checklist version 14.</footer>
-</main>
+  <main>
+    <p class="kicker">Vibe Code Checklist</p>
+    <h1>Preflight report</h1>
+    <p class="key"><span class="mark pass">Done</span> already works. <span class="mark warn">Warning</span> can wait. <span class="mark miss">Missing</span> needs a fix before you ship.</p>
+    <dl class="meta">
+      <div><dt>Project</dt><dd>PawsForward</dd></div>
+      <div><dt>Generated</dt><dd>November 4, 2026</dd></div>
+      <div><dt>Source</dt><dd>Workspace audit</dd></div>
+    </dl>
+    <section class="context">
+      <h2>What this app is</h2>
+      <p><strong>Goal.</strong> Ship a dog-rescue fundraising site where promoters get personal donation QRs, donors pay any amount on Stripe, and operators track visits, gifts, and 50% commissions from an admin console.</p>
+      <p><strong>Who it is for.</strong> Public donors; promoters who join for a QR; operators who unlock the employee portal with a shared PIN.</p>
+      <p><strong>Checks that fit.</strong> Public pages, forms (join + admin), private admin area, Stripe payments, Supabase database, avatar uploads, visit geolocation analytics (first-party), outbound Stripe/geo APIs, and a daily operator dashboard. Not needed: blog, marketing email, AI, native apps, cookie-banner analytics vendors, password-account flows (current login is PIN), or visitor UGC feeds.</p>
+      <p class="evidence"><span>Based on</span>README.md; index.html; join.html; donate.html; admin.html; login.html; privacy.html; terms.html; js/config.js; js/admin.js; js/donate.js; js/join.js; js/pin-lock.js; js/supabase-client.js; supabase/schema.sql; supabase/functions/*; _headers; docs/breach-plan.md; docs/backups.md; robots.txt; sitemap.xml; tests/commission.test.mjs; live pg_policies on project tauiyhyjujddsgvlihef.</p>
+    </section>
+    <section class="score">
+      <p class="fraction">96<span>/119</span></p>
+      <p>81% of the checks that apply are in place. 10 required items open; 13 recommended items open.</p>
+    </section>
+    <section class="verdict">
+      <h2>Overall</h2>
+      <p class="verdict-label mark miss">Not ready to ship</p>
+      <p>10 required items still open. 13 recommended items still open.</p>
+    </section>
+    <section>
+      <h2>Fix these first</h2>
+      <ol class="fix-list"><li><strong>Compressed images.</strong> Replace large originals with compressed WebP, AVIF, or an optimized JPEG or PNG. Workspace: media/hero.mp4 ~38MB and hero-fast.mp4 ~11MB are very large for a first-screen asset; brand PNGs ~95KB.</li><li><strong>No secrets in the repo or client bundle.</strong> Remove private keys, database passwords, and secret tokens from the repo, its history, and the client bundle. Rotate any secret that was committed. Workspace: js/config.js ships sitePin (shared operator unlock) in the client bundle. Stripe/service secrets stay in .env (gitignored) / Edge secrets — do not paste values.</li><li><strong>Protected routes.</strong> Check authorization inside the route or server action, and keep signed-out visitors away from private pages. On Next.js, upgrade to a release that fixes the middleware bypass, and keep the check in the route as well. Workspace: admin.html is gated only by client PIN (js/pin-lock.js + sessionStorage). Live Supabase RLS still allows anon ALL on employees/donations/visits, so the private area is not enforced server-side.</li><li><strong>Each person can only reach their own data.</strong> On every read, update, and delete, check that the record belongs to the signed-in person before you touch it. If the client queries the database, turn on row policies that do the same check. Workspace: Live policies employees_all_anon / donations_all_anon / visits_all_anon / payouts_all_anon use USING true WITH CHECK true for the anon role — any holder of the anon key can read/write all rows.</li><li><strong>Sessions expire.</strong> End the session after a period of inactivity. A day is a reasonable starting point. Workspace: PIN unlock persists for the tab session with no idle timeout; sessionStorage clears only when the tab is closed.</li><li><strong>Account settings.</strong> Add a settings page where a signed-in person can see and change the account. Workspace: No account/settings screen for operators or promoters to change PIN, email, or profile beyond admin edit dialogs.</li><li><strong>A signed-in person can sign out.</strong> Add a sign-out control that ends the session. Workspace: No Sign out / Lock control in admin.html to clear SitePin unlock (sessionStorage pf_site_unlock_v1).</li><li><strong>Signup confirms the person is old enough.</strong> Add an age confirmation to signup. If the product is for children, collect the parent's consent before you ask the child for anything. Workspace: join.html public signup has no age confirmation checkbox or statement.</li><li><strong>The database and file store are not wide open.</strong> Keep storage private. Scope each rule to the owner, or serve private files with a signed URL, before you deploy. Leave the service key on the server. Workspace: Live RLS policies grant anon full CRUD on employees, donations, visits, and payouts (confirmed via pg_policies). schema.sql intends to revoke anon table access but production still has open anon policies.</li><li><strong>The payment processor allows this business.</strong> Read the restricted-business list for the processor you use before you take a live payment. If the product is on that list, get their approval first or leave live charges off. Workspace: Workspace has Stripe integration but no documented confirmation that the Stripe account category allows this fundraising model.</li></ol>
+    </section>
+    <section>
+      <h2>By category</h2>
+      <table>
+        <caption>Results by category</caption>
+        <thead>
+          <tr><th>Category</th><th>Done</th><th>Missing</th><th>Warning</th><th>Does not apply</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pages and flows</td><td>7</td><td>0</td><td>0</td><td>0</td></tr><tr><td>Search engine optimization</td><td>9</td><td>0</td><td>0</td><td>1</td></tr><tr><td>Generative engine optimization</td><td>3</td><td>0</td><td>2</td><td>0</td></tr><tr><td>Answer and chat engine optimization</td><td>2</td><td>0</td><td>1</td><td>0</td></tr><tr><td>Legal and consent</td><td>8</td><td>1</td><td>0</td><td>5</td></tr><tr><td>Identity and appearance</td><td>6</td><td>0</td><td>0</td><td>0</td></tr><tr><td>Interface details</td><td>8</td><td>0</td><td>6</td><td>5</td></tr><tr><td>Looks designed</td><td>6</td><td>0</td><td>0</td><td>0</td></tr><tr><td>Accessibility</td><td>5</td><td>0</td><td>0</td><td>0</td></tr><tr><td>Performance</td><td>5</td><td>1</td><td>0</td><td>0</td></tr><tr><td>Security</td><td>25</td><td>5</td><td>4</td><td>10</td></tr><tr><td>Forms</td><td>4</td><td>0</td><td>0</td><td>0</td></tr><tr><td>Accounts and settings</td><td>2</td><td>3</td><td>0</td><td>3</td></tr><tr><td>Project hygiene</td><td>6</td><td>0</td><td>0</td><td>3</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Missing</h2>
+      <article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Performance</p>
+            <h3>Compressed images</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">Uncompressed screenshots and camera files dominate the page weight of a vibe-coded app.</p>
+        <p class="evidence"><span>Evidence</span>media/hero.mp4 ~38MB and hero-fast.mp4 ~11MB are very large for a first-screen asset; brand PNGs ~95KB.</p>
+        <p class="fix"><span>How to fix</span>Replace large originals with compressed WebP, AVIF, or an optimized JPEG or PNG. Workspace note: media/hero.mp4 ~38MB and hero-fast.mp4 ~11MB are very large for a first-screen asset; brand PNGs ~95KB.</p>
+      </article>
+<article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>No secrets in the repo or client bundle</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">A service key in the client, in a source file, or in git history people can clone, is already public.</p>
+        <p class="evidence"><span>Evidence</span>js/config.js ships sitePin (shared operator unlock) in the client bundle. Stripe/service secrets stay in .env (gitignored) / Edge secrets — do not paste values.</p>
+        <p class="fix"><span>How to fix</span>Remove private keys, database passwords, and secret tokens from the repo, its history, and the client bundle. Rotate any secret that was committed. Workspace note: js/config.js ships sitePin (shared operator unlock) in the client bundle. Stripe/service secrets stay in .env (gitignored) / Edge secrets — do not paste values.</p>
+      </article>
+<article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Protected routes</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">Account data, settings, and admin tools must not render for a signed-out visitor.</p>
+        <p class="evidence"><span>Evidence</span>admin.html is gated only by client PIN (js/pin-lock.js + sessionStorage). Live Supabase RLS still allows anon ALL on employees/donations/visits, so the private area is not enforced server-side.</p>
+        <p class="fix"><span>How to fix</span>Check authorization inside the route or server action, and keep signed-out visitors away from private pages. On Next.js, upgrade to a release that fixes the middleware bypass, and keep the check in the route as well. Workspace note: admin.html is gated only by client PIN (js/pin-lock.js + sessionStorage). Live Supabase RLS still allows anon ALL on employees/donations/visits, so the private area is not enforced server-side.</p>
+      </article>
+<article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Each person can only reach their own data</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">A signed-in person who changes an id in the URL or the request can read, edit, or delete someone else's data.</p>
+        <p class="evidence"><span>Evidence</span>Live policies employees_all_anon / donations_all_anon / visits_all_anon / payouts_all_anon use USING true WITH CHECK true for the anon role — any holder of the anon key can read/write all rows.</p>
+        <p class="fix"><span>How to fix</span>On every read, update, and delete, check that the record belongs to the signed-in person before you touch it. If the client queries the database, turn on row policies that do the same check. Workspace note: Live policies employees_all_anon / donations_all_anon / visits_all_anon / payouts_all_anon use USING true WITH CHECK true for the anon role — any holder of the anon key can read/write all rows.</p>
+      </article>
+<article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Sessions expire</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">A login that never ends means the next person on a shared computer is still signed in.</p>
+        <p class="evidence"><span>Evidence</span>PIN unlock persists for the tab session with no idle timeout; sessionStorage clears only when the tab is closed.</p>
+        <p class="fix"><span>How to fix</span>End the session after a period of inactivity. A day is a reasonable starting point. Workspace note: PIN unlock persists for the tab session with no idle timeout; sessionStorage clears only when the tab is closed.</p>
+      </article>
+<article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Accounts and settings</p>
+            <h3>Account settings</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">People who can sign in need a place to see and change the account.</p>
+        <p class="evidence"><span>Evidence</span>No account/settings screen for operators or promoters to change PIN, email, or profile beyond admin edit dialogs.</p>
+        <p class="fix"><span>How to fix</span>Add a settings page where a signed-in person can see and change the account. Workspace note: No account/settings screen for operators or promoters to change PIN, email, or profile beyond admin edit dialogs.</p>
+      </article>
+<article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Accounts and settings</p>
+            <h3>A signed-in person can sign out</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">Sign-up, sign-in, and a reset path still leave someone stuck in the account on a shared computer if they cannot sign out.</p>
+        <p class="evidence"><span>Evidence</span>No Sign out / Lock control in admin.html to clear SitePin unlock (sessionStorage pf_site_unlock_v1).</p>
+        <p class="fix"><span>How to fix</span>Add a sign-out control that ends the session. Workspace note: No Sign out / Lock control in admin.html to clear SitePin unlock (sessionStorage pf_site_unlock_v1).</p>
+      </article>
+<article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Accounts and settings</p>
+            <h3>Signup confirms the person is old enough</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">An account that collects an email from a child under 13, with no parent involved, is a COPPA problem.</p>
+        <p class="evidence"><span>Evidence</span>join.html public signup has no age confirmation checkbox or statement.</p>
+        <p class="fix"><span>How to fix</span>Add an age confirmation to signup. If the product is for children, collect the parent's consent before you ask the child for anything. Workspace note: join.html public signup has no age confirmation checkbox or statement.</p>
+      </article>
+<article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>The database and file store are not wide open</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">Rules left open, or a public file bucket, let anyone read what you stored.</p>
+        <p class="evidence"><span>Evidence</span>Live RLS policies grant anon full CRUD on employees, donations, visits, and payouts (confirmed via pg_policies). schema.sql intends to revoke anon table access but production still has open anon policies.</p>
+        <p class="fix"><span>How to fix</span>Keep storage private. Scope each rule to the owner, or serve private files with a signed URL, before you deploy. Leave the service key on the server. Workspace note: Live RLS policies grant anon full CRUD on employees, donations, visits, and payouts (confirmed via pg_policies). schema.sql intends to revoke anon table access but production still has open anon policies.</p>
+      </article>
+<article class="finding miss">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>The payment processor allows this business</h3>
+          </div>
+          <p class="status">Missing</p>
+        </header>
+        <p class="why">Stripe and PayPal freeze the account and hold the money when a product sits on their restricted list.</p>
+        <p class="evidence"><span>Evidence</span>Workspace has Stripe integration but no documented confirmation that the Stripe account category allows this fundraising model.</p>
+        <p class="fix"><span>How to fix</span>Read the restricted-business list for the processor you use before you take a live payment. If the product is on that list, get their approval first or leave live charges off. Workspace note: Workspace has Stripe integration but no documented confirmation that the Stripe account category allows this fundraising model.</p>
+      </article>
+    </section>
+    <section>
+      <h2>Warnings</h2>
+      <article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Generative engine optimization</p>
+            <h3>llms.txt</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">A short llms.txt file gives assistants a map of what the site is and which pages to trust.</p>
+        <p class="evidence"><span>Evidence</span>llms.txt not found in the project root.</p>
+        <p class="fix"><span>How to fix</span>Add llms.txt at the site root with the product name and links to the main pages. Workspace note: llms.txt not found in the project root.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Generative engine optimization</p>
+            <h3>Structured data for the main entity</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">JSON-LD lets search and answer engines read the product, organization, or articles as data.</p>
+        <p class="evidence"><span>Evidence</span>No application/ld+json Organization or Nonprofit markup found in HTML.</p>
+        <p class="fix"><span>How to fix</span>Add JSON-LD for the real organization or product, and make it match the visible page. Workspace note: No application/ld+json Organization or Nonprofit markup found in HTML.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Answer and chat engine optimization</p>
+            <h3>FAQ or question-style headings</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">Questions with direct answers are the unit chat engines prefer to quote.</p>
+        <p class="evidence"><span>Evidence</span>No FAQ section or question-style headings on public pages.</p>
+        <p class="fix"><span>How to fix</span>Add a short FAQ, with a direct answer under each question. Workspace note: No FAQ section or question-style headings on public pages.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Skeletons match the loaded layout</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">A spinner on a blank screen jumps when the real layout arrives. A skeleton that flashes on a fast load feels broken too.</p>
+        <p class="evidence"><span>Evidence</span>Loading is text/spinner based; no skeleton shapes matching employee or donation rows.</p>
+        <p class="fix"><span>How to fix</span>Build the skeleton from the same component as the loaded state. Show it only after about 300ms. Workspace note: Loading is text/spinner based; no skeleton shapes matching employee or donation rows.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>A keyboard command menu</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">People who use an app every day should not have to remember which menu holds an action.</p>
+        <p class="evidence"><span>Evidence</span>No keyboard command palette on the admin dashboard.</p>
+        <p class="fix"><span>How to fix</span>Add a command menu of the real pages and actions. Open it with Command+K on Mac and Ctrl+K elsewhere, and make every result work without a pointer. Workspace note: No keyboard command palette on the admin dashboard.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Reversible actions offer undo</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">A confirm dialog gets accepted without reading. Undo is the confirmation people actually use.</p>
+        <p class="evidence"><span>Evidence</span>Employee/donation deletes use confirm dialogs without an undo toast.</p>
+        <p class="fix"><span>How to fix</span>Do the action right away, show an Undo notice with role=status for 5 to 10 seconds, and delay the permanent change until the notice closes. Workspace note: Employee/donation deletes use confirm dialogs without an undo toast.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Same-site links are ready before the click</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">The next page can be ready while the pointer is still on the link.</p>
+        <p class="evidence"><span>Evidence</span>No Speculation Rules or prefetch for same-site Donate/Join links.</p>
+        <p class="fix"><span>How to fix</span>Prefetch same-site links with the router, or with speculation rules set to moderate eagerness. Leave out logout and links that change data. Workspace note: No Speculation Rules or prefetch for same-site Donate/Join links.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Uploaded images show a blur first</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">A photo that pops in from an empty box shifts the page and shows the wrong colors first.</p>
+        <p class="evidence"><span>Evidence</span>Avatar uploads show the final image without a blur-up placeholder.</p>
+        <p class="fix"><span>How to fix</span>Store a BlurHash or ThumbHash with each uploaded image and show that blur in the image box while the file loads. Workspace note: Avatar uploads show the final image without a blur-up placeholder.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>View changes move instead of swapping</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">A sudden swap between two views is harder to follow than a short move.</p>
+        <p class="evidence"><span>Evidence</span>No View Transitions API usage between admin tabs or pages.</p>
+        <p class="fix"><span>How to fix</span>Use a view transition for same-page updates and for navigation. Give a shared element the same view-transition-name on both screens, and keep the motion under 300ms. Workspace note: No View Transitions API usage between admin tabs or pages.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>DNS records still point at live services</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">A record left behind after you delete a host or a project lets someone else claim that name.</p>
+        <p class="evidence"><span>Evidence</span>Custom domain joinpawsforward.com was recently misconfigured for Pages (NotServedByPagesError); confirm DNS A/AAAA/CNAME still match GitHub Pages.</p>
+        <p class="fix"><span>How to fix</span>In the DNS host, delete any record that still points at a project, host, or service you removed. Workspace note: Custom domain joinpawsforward.com was recently misconfigured for Pages (NotServedByPagesError); confirm DNS A/AAAA/CNAME still match GitHub Pages.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Security headers</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">Headers such as Content-Security-Policy, nosniff, Referrer-Policy, and a frame policy close common browser abuses.</p>
+        <p class="evidence"><span>Evidence</span>_headers defines CSP and frame policy, but plain GitHub Pages does not apply _headers; docs/security-headers.md says Cloudflare is needed.</p>
+        <p class="fix"><span>How to fix</span>On the host, set Content-Security-Policy, X-Content-Type-Options: nosniff, a Referrer-Policy, and either X-Frame-Options or a CSP frame-ancestors rule. Workspace note: _headers defines CSP and frame policy, but plain GitHub Pages does not apply _headers; docs/security-headers.md says Cloudflare is needed.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Sign-in failures and server errors are logged</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">Without a log, a burst of failed sign-ins or bad requests is invisible until something breaks.</p>
+        <p class="evidence"><span>Evidence</span>PIN failures are stored only in localStorage fail counters; no server-side sign-in failure log for the PIN portal.</p>
+        <p class="fix"><span>How to fix</span>Log failed sign-ins and server errors. Leave passwords and session tokens out of the log. Workspace note: PIN failures are stored only in localStorage fail counters; no server-side sign-in failure log for the PIN portal.</p>
+      </article>
+<article class="finding warn">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>API origins are limited</h3>
+          </div>
+          <p class="status">Warning</p>
+        </header>
+        <p class="why">An API that trusts every website can let another site act as a signed-in person.</p>
+        <p class="evidence"><span>Evidence</span>Edge Functions set Access-Control-Allow-Origin: * (create-checkout, record-visit).</p>
+        <p class="fix"><span>How to fix</span>Allow only your real site origins. Do not use a wildcard origin together with credentials. Workspace note: Edge Functions set Access-Control-Allow-Origin: * (create-checkout, record-visit).</p>
+      </article>
+    </section>
+    <section>
+      <h2>Done</h2>
+      <article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Pages and flows</p>
+            <h3>Custom 404 page</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A missing route should still feel like the product and offer a way onward.</p>
+        <p class="evidence"><span>Evidence</span>404.html exists with a friendly Page not found message and home link.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Pages and flows</p>
+            <h3>Friendly error state</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A crash or a failed request should explain what happened instead of a blank screen or a stack trace.</p>
+        <p class="evidence"><span>Evidence</span>admin.js/donate.js/join.js use status banners (is-err) for failed loads and saves.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Pages and flows</p>
+            <h3>Loading states</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Waits should look intentional, so people do not click twice or assume the app froze.</p>
+        <p class="evidence"><span>Evidence</span>index.html home loader; admin.html sr-only Loading dashboard; donate lead Taking you to Stripe…</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Pages and flows</p>
+            <h3>Empty states</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A list, search, or dashboard with nothing in it still needs a sentence and a next step.</p>
+        <p class="evidence"><span>Evidence</span>admin.html dash-empty blocks for geo, employees, donations, visits.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Pages and flows</p>
+            <h3>Thank-you or confirmation page</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">After a signup, checkout, or important form, people need a clear end to the flow.</p>
+        <p class="evidence"><span>Evidence</span>join.html join-success panel after promoter signup; donate.html donate-success after Stripe return.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Pages and flows</p>
+            <h3>Payment receipt or confirmation</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A charge needs a receipt the person can recognize, with the amount and what they bought.</p>
+        <p class="evidence"><span>Evidence</span>donate.js confirmCheckout shows received amount on success return from Stripe.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Pages and flows</p>
+            <h3>The price is shown before the charge</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A person who never saw the amount, what it buys, or that a free trial becomes a paid plan can dispute the charge.</p>
+        <p class="evidence"><span>Evidence</span>Stripe Checkout uses custom_unit_amount so the donor enters the amount before paying (create-checkout).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>Unique meta title per page</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Tabs, search results, and shares all use the title. One reused title makes every page look unfinished.</p>
+        <p class="evidence"><span>Evidence</span>Each public HTML file sets its own &lt;title&gt; (index, join, donate, privacy, terms, login, admin, 404).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>Unique meta description per page</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">The description is the sentence search engines and previews show under the title.</p>
+        <p class="evidence"><span>Evidence</span>Public pages include distinct meta description tags in their head sections.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>Canonical URL</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A canonical link tells search engines which URL is the one to keep when the same page has aliases.</p>
+        <p class="evidence"><span>Evidence</span>Canonical links plus js/canonical.js aligned with SITE_CONFIG.siteOrigin.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>Open Graph and Twitter cards</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Shared links should show the right title, description, and image instead of a random scrape.</p>
+        <p class="evidence"><span>Evidence</span>index.html and join.html set og:title, og:description, og:image, twitter:card.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>Sitemap</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A sitemap lists the public URLs you actually want discovered.</p>
+        <p class="evidence"><span>Evidence</span>sitemap.xml lists home, join, donate and is referenced from robots.txt.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>robots.txt</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Crawlers need an explicit allow or disallow, plus a pointer to the sitemap when one exists.</p>
+        <p class="evidence"><span>Evidence</span>robots.txt allows public pages and Disallows admin.html and login.html.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>One clear h1 per page</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">The h1 is the page's title for people and for parsers. Competing h1s blur what the page is.</p>
+        <p class="evidence"><span>Evidence</span>Public pages use one h1 each (index uses sr-only brand h1; join/donate/legal/404 likewise).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>Descriptive alt text</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Images that carry meaning need a text equivalent. Decorative images need an empty alt.</p>
+        <p class="evidence"><span>Evidence</span>Brand mark beside visible text uses empty alt; employee avatars use empty alt with names in adjacent text (admin.js / index.html).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>Viewport meta tag</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Without a viewport tag, phones scale the desktop layout and the app feels broken.</p>
+        <p class="evidence"><span>Evidence</span>HTML pages include viewport meta tags.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Generative engine optimization</p>
+            <h3>Who, what, and who it is for</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Generative engines quote a clear entity. A homepage that never says who operates it is easy to misidentify.</p>
+        <p class="evidence"><span>Evidence</span>index.html about section and README state dog-rescue fundraising, audience, and QR program.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Generative engine optimization</p>
+            <h3>Quotable facts</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Specific facts are what assistants can cite. Vague slogans get paraphrased into something you did not say.</p>
+        <p class="evidence"><span>Evidence</span>Homepage and join copy state the 50% commission split and Stripe donations.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Generative engine optimization</p>
+            <h3>Organization or author attribution</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Named authorship or a named organization is how engines attach claims to a real entity.</p>
+        <p class="evidence"><span>Evidence</span>Footer and legal pages name Paws Forward with hello@pawsforward.org / privacy@.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Answer and chat engine optimization</p>
+            <h3>The first screen answers what this is</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Chat engines lift the opening of a page. If the answer is below a long animation, they miss it.</p>
+        <p class="evidence"><span>Evidence</span>index.html hero lead answers what the org does and the two CTAs (Donate / Get your QR).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Answer and chat engine optimization</p>
+            <h3>Consistent name and facts</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">If the name, price, or promise changes from page to page, both people and chat engines will mix them up.</p>
+        <p class="evidence"><span>Evidence</span>Commission 50% matches js/config.js commissionRate 0.5, join.html, index.html, and terms.html.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Privacy policy</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">People should be able to read what the app collects, why, and who receives it.</p>
+        <p class="evidence"><span>Evidence</span>privacy.html covers collection, processors, retention, and deletion requests.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Terms of service</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Terms set the rules of use before someone creates an account, pays, or relies on the app.</p>
+        <p class="evidence"><span>Evidence</span>terms.html covers donations, promoter QRs, acceptable use, and contact.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>A way to reach a person</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Privacy questions and support need a real contact path, not only a social icon.</p>
+        <p class="evidence"><span>Evidence</span>mailto:hello@pawsforward.org on index footer, terms, and privacy.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Identity and appearance</p>
+            <h3>Favicon set</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Tabs, bookmarks, and home-screen icons should show this product, not the framework logo.</p>
+        <p class="evidence"><span>Evidence</span>icons/favicon.png and apple-touch-icon (doc/brand-mark.png) on pages; manifest.webmanifest present.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Identity and appearance</p>
+            <h3>Theme color</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">The browser chrome should pick up the product color instead of a default gray or white strip.</p>
+        <p class="evidence"><span>Evidence</span>index.html sets theme-color; other pages similarly themed.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Identity and appearance</p>
+            <h3>Responsive layout</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A phone and a desktop should both be able to read and use the app without horizontal chaos.</p>
+        <p class="evidence"><span>Evidence</span>css/paws.css includes mobile breakpoints and admin dock layouts.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Identity and appearance</p>
+            <h3>Readable contrast</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Low-contrast gray on a tinted background looks designed and then fails in daylight.</p>
+        <p class="evidence"><span>Evidence</span>Primary UI uses dark ink on light paper / cream surfaces in paws.css and site.css.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Identity and appearance</p>
+            <h3>Visible keyboard focus</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">If focus is removed, keyboard users cannot see where they are.</p>
+        <p class="evidence"><span>Evidence</span>Focus styles on dialog inputs and buttons (box-shadow / outline patterns in paws.css).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Identity and appearance</p>
+            <h3>Reduced motion</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">People who ask the system for less motion should not get large looping animations.</p>
+        <p class="evidence"><span>Evidence</span>Multiple prefers-reduced-motion blocks in css/paws.css.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Cached screens show, then refresh</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Going back to a screen you just left should not show a spinner.</p>
+        <p class="evidence"><span>Evidence</span>admin.js paints sessionStorage cache then refreshes from Supabase.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Sheets follow the finger</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A sheet that only closes from a button feels stuck when the person is already dragging it.</p>
+        <p class="evidence"><span>Evidence</span>admin.js implements bottom-sheet dismiss with finger follow for mobile dialogs.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Motion can be interrupted</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">An animation that has to finish before it listens makes the interface feel late.</p>
+        <p class="evidence"><span>Evidence</span>Home loader and CSS transitions can be interrupted; reduced-motion disables most motion.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Tap targets are larger than the icon</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A small icon is hard to hit when the touch area is only as big as the pixels you see.</p>
+        <p class="evidence"><span>Evidence</span>Dock tabs and chip buttons use min-height ~30–44px in paws.css.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Fixed bars clear the notch and the home indicator</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A header under a notch, or a tab bar under the home indicator, cannot be tapped.</p>
+        <p class="evidence"><span>Evidence</span>viewport-fit=cover and safe-area aware padding patterns on home/admin mobile chrome.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Changing numbers stay the same width</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A price or a timer shifts sideways when a 1 is narrower than an 8.</p>
+        <p class="evidence"><span>Evidence</span>Money inputs and stats use tabular-nums / font-variant-numeric in paws.css.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Headlines do not leave one word alone</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A heading with one word on the last line looks unfinished.</p>
+        <p class="evidence"><span>Evidence</span>Hero lead is short; headlines avoid orphan-heavy multi-line marketing stacks.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Large corners are smooth</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A large radius drawn as a quarter circle looks tighter than a smooth corner on a big panel.</p>
+        <p class="evidence"><span>Evidence</span>Cards and chips use consistent border-radius tokens rather than mixed one-offs.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Looks designed</p>
+            <h3>Surfaces stay neutral</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A hue-to-hue gradient, a glow, and gradient text on every card is the default look of a generated screen, so the product never gets a color of its own.</p>
+        <p class="evidence"><span>Evidence</span>Primary surfaces are cream/neutral; gradients are scrims over real hero video, not hue-to-hue chrome.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Looks designed</p>
+            <h3>Icons come from one set</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Emoji in the navigation, on badges, and beside labels read as decoration a model added.</p>
+        <p class="evidence"><span>Evidence</span>js/icons.js SiteIcons SVG path set used across admin/dock.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Looks designed</p>
+            <h3>Spacing is on one scale</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A 13px gap beside a 7px gap makes sibling rows and cards look accidental.</p>
+        <p class="evidence"><span>Evidence</span>CSS variables --pf-section-gap / --pf-card-pad and shared spacing scale.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Looks designed</p>
+            <h3>Interface copy is plain</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A greeting with an exclamation mark, or a headline like Supercharge your workflow, could sit on any generated page.</p>
+        <p class="evidence"><span>Evidence</span>UI copy is direct (Donate, Get your QR, Add employee) without shouty marketing spam.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Looks designed</p>
+            <h3>The first screen shows this product</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A glossy blob, a glowing brain, or a centered stack of buttons does not show what the product does.</p>
+        <p class="evidence"><span>Evidence</span>index.html full-bleed hero video/poster of the rescue atmosphere with brand mark.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Looks designed</p>
+            <h3>Motion explains a change</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A pulsing glow, a card that grows on hover, and blocks flying in from every side are motion with nothing to say.</p>
+        <p class="evidence"><span>Evidence</span>Loader slide-away and sheet motion explain state changes; reduced-motion respected.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Accessibility</p>
+            <h3>Language of the page</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Screen readers pronounce the page with the lang attribute. A missing lang is announced as the wrong language.</p>
+        <p class="evidence"><span>Evidence</span>html lang=&quot;en&quot; on pages.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Accessibility</p>
+            <h3>Keyboard access</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Every control that a pointer can use needs a keyboard path.</p>
+        <p class="evidence"><span>Evidence</span>Native buttons/links/dialogs; focusable controls throughout forms.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Accessibility</p>
+            <h3>Skip link</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A skip link lets keyboard users jump past a repeated header to the main content.</p>
+        <p class="evidence"><span>Evidence</span>skip-link to #page-body on public and admin pages.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Accessibility</p>
+            <h3>Color is not the only signal</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Errors, success, and status that are only a color disappear for some people.</p>
+        <p class="evidence"><span>Evidence</span>Errors use text banners and field-error messages, not color alone.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Accessibility</p>
+            <h3>Links say where they go</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">&quot;Click here&quot; and &quot;Read more&quot; repeated ten times are useless out of context.</p>
+        <p class="evidence"><span>Evidence</span>Footer and nav links name destinations (Privacy, Terms, Donate, Get your QR).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Performance</p>
+            <h3>Images reserve their space</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Width and height, or a reserved aspect ratio, keep the page from jumping when images arrive.</p>
+        <p class="evidence"><span>Evidence</span>img tags generally set width/height (avatars, brand-mark).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Performance</p>
+            <h3>Below-the-fold images lazy load</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Images a person has not reached yet should not compete with the first screen.</p>
+        <p class="evidence"><span>Evidence</span>Employee list avatars use loading=&quot;lazy&quot; in admin.js render.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Build logs do not print secrets</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A build or deploy log that prints the environment publishes every key to anyone who can open that log.</p>
+        <p class="evidence"><span>Evidence</span>No CI build log files in repo printing secrets; static Pages deploy.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>.env is gitignored</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Environment files are where local secrets land. If git can see them, they will be committed.</p>
+        <p class="evidence"><span>Evidence</span>.gitignore lists .env; .env is not tracked (only .env.example is).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Production does not serve .git or .env</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A live site that serves its .git folder or a .env file hands out history and keys.</p>
+        <p class="evidence"><span>Evidence</span>.env is gitignored; GitHub Pages serves repository files without the .git directory. No .env file is on the published branch.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>HTTPS in production</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A shipped app on plain HTTP leaks sessions and looks unfinished.</p>
+        <p class="evidence"><span>Evidence</span>SITE_ORIGIN and production URLs use https://delexoo.github.io/PawsForward.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Scripts you did not write are pinned or self-hosted</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A script loaded from someone else's domain can be changed under you and then run for every visitor.</p>
+        <p class="evidence"><span>Evidence</span>supabase.js and qrcode.min.js are vendored under js/vendor/; no remote script CDNs in page heads.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Private pages stay out of search</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Inbox, settings, and admin URLs should not be indexed.</p>
+        <p class="evidence"><span>Evidence</span>robots.txt Disallow admin/login; _headers sets X-Robots-Tag noindex for those paths when headers are applied.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>The session is not in local storage</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A token in local storage can be read by any script on the page. An HttpOnly cookie cannot.</p>
+        <p class="evidence"><span>Evidence</span>js/supabase-client.js keeps Auth tokens in an in-memory storage adapter, not localStorage.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Server-side validation on public forms</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Browser checks are a convenience. The server still has to reject bad or hostile input.</p>
+        <p class="evidence"><span>Evidence</span>public_signup_promoter and record_* RPCs validate amounts/types server-side in supabase/schema.sql.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>API input is checked on the server</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A route that trusts the body or the query string can be talked into work you did not mean to do.</p>
+        <p class="evidence"><span>Evidence</span>Edge Functions validate payloads (create-checkout amount rules; record-visit requires referral/employee).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Visitor input is not glued into a query or command</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Text from a visitor, pasted into SQL, a NoSQL query, or a shell command, lets them change what the server runs.</p>
+        <p class="evidence"><span>Evidence</span>Supabase client/RPC usage; schema SQL uses bound parameters / plpgsql variables, not string-glued visitor SQL.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>The server does not fetch a URL from the visitor</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A feature that requests an address the visitor chose can be aimed at a private service, or at the cloud metadata address that hands out the server's credentials.</p>
+        <p class="evidence"><span>Evidence</span>Server geo lookup uses the request IP against a fixed ipwho.is URL template, not a visitor-supplied URL.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Visitor input never becomes a file path</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A filename or path taken from a visitor can step outside the folder you meant to open, and read the server's own files.</p>
+        <p class="evidence"><span>Evidence</span>Avatar paths are built as employeeId/timestamp.ext with sanitized extension in admin.js.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>The server chooses which fields are saved</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Saving the whole request body lets a person set their own role, price, or admin flag.</p>
+        <p class="evidence"><span>Evidence</span>Inserts/updates pass explicit column objects (employees, donations, payouts) rather than raw request bodies.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>The server looks up the price</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">An amount that comes from the browser can be changed before it reaches the charge.</p>
+        <p class="evidence"><span>Evidence</span>Donation amount recorded from Stripe session.amount_total in confirm-donation / stripe-webhook, not from a client-posted price.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>A retry cannot create a second charge</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A second tap on a slow connection can create a second charge, or a second record.</p>
+        <p class="evidence"><span>Evidence</span>record_stripe_donation returns existing row when stripe_session_id already present (live DB function).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Forms</p>
+            <h3>Every input has a label</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Placeholder text disappears while typing and is not a name for the field.</p>
+        <p class="evidence"><span>Evidence</span>join.html / admin employee &amp; payout dialogs associate labels with inputs.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Forms</p>
+            <h3>Inline errors</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">An error has to say which field failed and how to fix it.</p>
+        <p class="evidence"><span>Evidence</span>field-error elements (err-join-*, err-emp-*, err-pay-amount) shown inline.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Forms</p>
+            <h3>Pending submit state</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A slow submit without a pending state gets clicked again.</p>
+        <p class="evidence"><span>Evidence</span>join.js and admin save paths disable submit / show progress banners while waiting.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Forms</p>
+            <h3>Success confirmation</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Silence after submit looks like a failure.</p>
+        <p class="evidence"><span>Evidence</span>join-success and donate-success panels; admin banners with is-ok.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Accounts and settings</p>
+            <h3>People can delete their personal data</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">If the app stores personal data, people need a way to delete it. Keeping it with no way out is a problem in a lot of places, including Europe, even when you are based somewhere else.</p>
+        <p class="evidence"><span>Evidence</span>privacy.html deletion form via js/privacy.js inserts into data_deletion_requests.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Forms ask only for data the app uses</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A phone number, birthday, or address the product never uses is data you cannot justify keeping.</p>
+        <p class="evidence"><span>Evidence</span>join.html asks name, phone, payout type/handle used for QR and payouts; donate collects amount via Stripe.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>A plan for telling people about a breach</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">If account data leaks, you are expected to tell the people affected. A plan written after the breach is late.</p>
+        <p class="evidence"><span>Evidence</span>docs/breach-plan.md describes detect, contain, notify, and follow-up.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Accounts and settings</p>
+            <h3>Autocomplete on auth fields</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Password managers need autocomplete hints such as username, current-password, and new-password.</p>
+        <p class="evidence"><span>Evidence</span>login.html PIN input uses inputmode numeric; password-type field supports browser managers where applicable.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Project hygiene</p>
+            <h3>README explains how to run the app</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A vibe-coded repo that only runs inside one chat session is not finished.</p>
+        <p class="evidence"><span>Evidence</span>README.md explains local serve, config, Supabase, and tests.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Project hygiene</p>
+            <h3>A map of where things live</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">The next session should not have to open every file to learn where a feature lives.</p>
+        <p class="evidence"><span>Evidence</span>README Project map table lists HTML entry points, css/, js/, supabase/, docs/.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Project hygiene</p>
+            <h3>A test covers a behavior that matters</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A path nobody has run since the last change is how an app breaks after it ships.</p>
+        <p class="evidence"><span>Evidence</span>tests/commission.test.mjs covers commission attribution math; README documents node tests/commission.test.mjs.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Project hygiene</p>
+            <h3>.env.example without secrets</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">People need the variable names. They should never receive a real secret in the example file.</p>
+        <p class="evidence"><span>Evidence</span>.env.example lists required keys without live secrets.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Project hygiene</p>
+            <h3>A package earns its place</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A package that only wraps the standard library is more code to trust, update, and ship.</p>
+        <p class="evidence"><span>Evidence</span>Uses Stripe Checkout and Supabase RPCs instead of reinventing payments/auth primitives.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Project hygiene</p>
+            <h3>Database backups</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A database with no backup can lose people's data from one bad command.</p>
+        <p class="evidence"><span>Evidence</span>docs/backups.md instructs enabling Supabase backups.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Visitor text is escaped</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Text a visitor typed, dropped straight into the page as HTML, lets them run script in someone else's browser.</p>
+        <p class="evidence"><span>Evidence</span>admin.js escapeHtml used for donor/employee/place strings interpolated into innerHTML.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Production hides internal errors</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A stack trace, SQL error, or debug screen tells a stranger your paths, versions, and queries.</p>
+        <p class="evidence"><span>Evidence</span>Client banners show short messages; Edge Functions return generic error strings without stack traces to the browser.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>The database is not open to the internet</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A database that accepts connections from any address can be guessed at by the whole internet.</p>
+        <p class="evidence"><span>Evidence</span>Supabase hosted Postgres is not exposed as a public DB port in this static app; access is via API.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Public forms are rate-limited</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A public form with no limit is easy to hammer with a script.</p>
+        <p class="evidence"><span>Evidence</span>record_donation / record_visit RPCs enforce per-minute ceilings in schema.sql.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Failed sign-ins get slowed or blocked</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Unlimited password guesses are how accounts get broken into.</p>
+        <p class="evidence"><span>Evidence</span>js/pin-lock.js locks out after repeated PIN failures (MAX_FAIL / LOCKOUT_MS).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Each person has a request ceiling</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A route a script can call with no per-person limit is how a host decides the app is abuse and suspends it.</p>
+        <p class="evidence"><span>Evidence</span>Public RPCs rate-limit donations/visits; Edge Functions are project-scoped.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Uploads are limited</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">An upload with no type or size limit is how untrusted files land on the server.</p>
+        <p class="evidence"><span>Evidence</span>admin.js rejects avatar files over 2MB and restricts accept types on file inputs.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Email, text messages, paid APIs, and uploads have a ceiling</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Hosts suspend apps that send unlimited email or text messages, call a paid API with no cap, or accept unlimited uploads. You pay for every text a script can trigger.</p>
+        <p class="evidence"><span>Evidence</span>Stripe and geo calls run in Edge Functions under Supabase/Stripe account quotas; uploads capped at 2MB client-side.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Redirects stay on your site</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A redirect that trusts a URL from the query string can send people to a lookalike site.</p>
+        <p class="evidence"><span>Evidence</span>login.js next param is sanitized to [a-z0-9._-] filenames before redirect.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Payment webhooks check the signature</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A webhook that trusts the body can be told a payment succeeded when nobody paid.</p>
+        <p class="evidence"><span>Evidence</span>stripe-webhook/index.ts verifies Stripe-Signature via constructEventAsync.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Refund or cancellation policy</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Charging people with no written refund or cancellation rule is how a small app ends up in a dispute. A subscription has to say when it renews and how to cancel, next to the button that starts it.</p>
+        <p class="evidence"><span>Evidence</span>terms.html Donations section: generally final once Stripe confirms, except issuer/Stripe requirements.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Images, fonts, and code are licensed</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Shipping someone else's photo, font, icon set, or code without a license is a copyright problem.</p>
+        <p class="evidence"><span>Evidence</span>Self-hosted fonts/ and brand assets under doc/; vendor scripts vendored in js/vendor/.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Fonts load from your own site</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A font file loaded from Google or another company sends the visitor's address to that company.</p>
+        <p class="evidence"><span>Evidence</span>css/fonts.css loads DM Sans / IBM Plex Mono from local fonts/.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Performance</p>
+            <h3>Text responses are compressed</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">Uncompressed HTML, CSS, and JavaScript make the first visit slower than it looks.</p>
+        <p class="evidence"><span>Evidence</span>README notes GitHub Pages compresses static text; production is github.io / Pages.</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Performance</p>
+            <h3>The first page is not a huge script</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A vibe-coded app often sends every library on the first page.</p>
+        <p class="evidence"><span>Evidence</span>No webpack bundle; pages load discrete scripts (config, page js, vendor supabase/qr).</p>
+        
+      </article>
+<article class="finding pass">
+        <header>
+          <div>
+            <p class="cat">Performance</p>
+            <h3>Text stays visible while fonts load</h3>
+          </div>
+          <p class="status">Done</p>
+        </header>
+        <p class="why">A custom font that blocks rendering leaves the page blank on a slow connection.</p>
+        <p class="evidence"><span>Evidence</span>css/fonts.css uses font-display strategies for self-hosted faces.</p>
+        
+      </article>
+    </section>
+    <section>
+      <h2>Does not apply</h2>
+      <article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Search engine optimization</p>
+            <h3>Dates on articles</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A published or updated date tells readers and citation systems whether a post is current.</p>
+        <p class="evidence"><span>Evidence</span>This product does not publish articles or a blog.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Cookie banner and a refusal path</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">Non-essential cookies and analytics need a choice, including the choice to refuse them.</p>
+        <p class="evidence"><span>Evidence</span>No third-party analytics or non-essential cookie SDK found; visit geo is server-side IP lookup.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Session replay is off or inputs are masked</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A recording tool that catches passwords, cards, or messages stores more than a page view.</p>
+        <p class="evidence"><span>Evidence</span>No session-replay vendor scripts found in the workspace.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Small actions update before the request returns</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A like, a checkbox, or a rename that waits on the network feels stuck when the request almost always works.</p>
+        <p class="evidence"><span>Evidence</span>No like/toggle/rename that saves silently in the background; admin waits on banners.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Shortcuts are visible where the action is</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A shortcut nobody can see never gets learned.</p>
+        <p class="evidence"><span>Evidence</span>No documented keyboard shortcuts beyond native browser behavior.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Back can preview the previous screen</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A back swipe that shows the previous screen lets the person change their mind before they leave.</p>
+        <p class="evidence"><span>Evidence</span>Not a native Android / React Native app.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>A texted code fills in with one tap</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A login code from a text should land in the field without retyping.</p>
+        <p class="evidence"><span>Evidence</span>Login uses a 4-digit site PIN field, not an emailed/SMS one-time code.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Interface details</p>
+            <h3>Hover menus stay open on the way to a submenu</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A submenu that switches while the pointer moves toward it makes the menu feel broken.</p>
+        <p class="evidence"><span>Evidence</span>No hover flyout submenus that need a safe triangle.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Session cookie flags</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A session cookie should be HttpOnly and Secure, with SameSite set, so scripts and stray requests have a harder time carrying it.</p>
+        <p class="evidence"><span>Evidence</span>Operator unlock uses sessionStorage flag, not cookie sessions; Supabase Auth cookies are not the login path for the current PIN portal.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Login tokens use a strong secret and a checked signature</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A short or well-known signing secret lets someone mint a token that claims to be any account.</p>
+        <p class="evidence"><span>Evidence</span>Current operator login is a shared PIN compared in the browser, not a custom JWT issuer.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>A limit and its update happen together</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">Two requests at the same moment can each pass a check you make first and write second, and spend a one-time code, a balance, or a quota twice.</p>
+        <p class="evidence"><span>Evidence</span>No one-time redeemable code or decrementing inventory quota; commission owed is computed from donations minus payouts.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Accounts and settings</p>
+            <h3>Email is verified before the account is active</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A signup that trusts a typed email can lock a real person out, or open an account they never asked for.</p>
+        <p class="evidence"><span>Evidence</span>Promoter join and operator PIN flows do not create email/password accounts.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Accounts and settings</p>
+            <h3>Password reset or equivalent</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">Password accounts need a recovery path. Passwordless accounts need a way back in if the email or device changes.</p>
+        <p class="evidence"><span>Evidence</span>No password accounts on the current login path; PIN is configured in js/config.js.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Project hygiene</p>
+            <h3>No known high-severity holes in dependencies</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A vibe-coded app often installs packages and never checks them. A published hole in a dependency is already public.</p>
+        <p class="evidence"><span>Evidence</span>No package.json / npm dependency tree to audit; scripts are static + vendored.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Project hygiene</p>
+            <h3>Lockfile committed</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">Without a lockfile, the next install can pull different versions than the ones you shipped.</p>
+        <p class="evidence"><span>Evidence</span>No npm package manager project.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Project hygiene</p>
+            <h3>Supported framework and runtime</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">Unsupported frameworks and runtimes stop receiving security fixes.</p>
+        <p class="evidence"><span>Evidence</span>No framework package.json; Edge Functions pin npm:stripe and supabase-js versions in imports.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Passwords are hashed</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A database of readable passwords is a breach the moment it leaks.</p>
+        <p class="evidence"><span>Evidence</span>Operator portal uses a shared PIN, not password accounts. (README still mentions a legacy seed password — not used by login.js.)</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Accounts and settings</p>
+            <h3>Passwords have a minimum length</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A very short password is easy to guess. Requiring a symbol does not fix a password that can be one character long.</p>
+        <p class="evidence"><span>Evidence</span>No password registration field.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Production source maps stay unpublished</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A source map shipped with the live build lets someone rebuild the original code.</p>
+        <p class="evidence"><span>Evidence</span>No JS bundler build publishing .map files.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Login, signup, and reset hide which emails exist</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A different message for a real email than for a fake one lets someone test a list and learn who has an account.</p>
+        <p class="evidence"><span>Evidence</span>PIN login does not reveal whether an email exists.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Sign-in resists passwords leaked elsewhere</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">Bots try email and password pairs from other sites' breaches against this login.</p>
+        <p class="evidence"><span>Evidence</span>No password sign-in on the current login.html flow.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>An AI feature has the least access it needs</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">Text a person types, or text on a page the model reads, can change what that feature does, including leaking its instructions or calling a tool it should not have.</p>
+        <p class="evidence"><span>Evidence</span>No AI/model integration.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>A model limit does not hang the page</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">When the model provider hits a limit or goes down, a spinner that never ends looks like the app froze.</p>
+        <p class="evidence"><span>Evidence</span>No AI/model integration.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Security</p>
+            <h3>Cookie actions check the sender</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">A cookie session that accepts a request from any site can be triggered by another page.</p>
+        <p class="evidence"><span>Evidence</span>Mutations use bearer anon key from the browser, not cookie-authenticated form posts.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Marketing email is opt-in</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">Marketing email without consent, with no way to stop, or with no postal address, is a legal problem in many places.</p>
+        <p class="evidence"><span>Evidence</span>App does not send marketing email.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>A way to report and remove user content</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">If visitors can post or upload, a host or a copyright owner will contact you. One illegal or copyrighted file with nobody to reach is how the app gets suspended. Hosting that content for people in the United States also needs a DMCA designated agent on file with the Copyright Office.</p>
+        <p class="evidence"><span>Evidence</span>Visitors do not publish a public feed of posts; join creates operator-managed employee rows, not visitor UGC walls.</p>
+        
+      </article>
+<article class="finding na">
+        <header>
+          <div>
+            <p class="cat">Legal and consent</p>
+            <h3>Reviews and stats are real</h3>
+          </div>
+          <p class="status">Does not apply</p>
+        </header>
+        <p class="why">Invented reviews, user counts, or awards are a deception problem.</p>
+        <p class="evidence"><span>Evidence</span>No testimonials or third-party review widgets; commission rate is product config, not a fabricated review.</p>
+        
+      </article>
+    </section>
+    <footer>The score counts checks that are done, out of the checks that apply. A warning still counts. Something that does not apply does not. This file is the report. It does not change the app. Checklist version 14.</footer>
+  </main>
 </body>
 </html>

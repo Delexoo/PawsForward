@@ -16,13 +16,33 @@
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
   <link rel="preload" href="media/hero-poster.jpg" as="image">
   <link rel="preload" href="media/hero-fast.mp4" as="video" type="video/mp4">
-  <link rel="manifest" href="manifest.webmanifest?v=20261105y">
-  <link rel="stylesheet" href="css/fonts.css?v=20261105y">
-  <script src="js/theme.js?v=20261105y"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261105y">
-  <link rel="stylesheet" href="css/paws.css?v=20261105y">
-  <script src="js/config.js?v=20261105y"></script>
-  <script src="js/canonical.js?v=20261105y"></script>
+  <link rel="manifest" href="manifest.webmanifest?v=20261106a">
+  <link rel="stylesheet" href="css/fonts.css?v=20261106a">
+  <script src="js/theme.js?v=20261106a"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261106a">
+  <link rel="stylesheet" href="css/paws.css?v=20261106a">
+  <script src="js/config.js?v=20261106a"></script>
+  <script src="js/canonical.js?v=20261106a"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Paws Forward",
+    "url": "https://delexoo.github.io/PawsForward/",
+    "logo": "https://delexoo.github.io/PawsForward/doc/brand-mark.png",
+    "email": "hello@pawsforward.org",
+    "description": "Dog-rescue fundraising organization. Donate directly or share a personal QR and earn 50% of attributed gifts.",
+    "sameAs": []
+  }
+  </script>
+  <script type="speculationrules">
+  {
+    "prerender": [{
+      "where": { "href_matches": ["donate.html", "join.html", "privacy.html", "terms.html"] },
+      "eagerness": "moderate"
+    }]
+  }
+  </script>
   <style>
     /* Critical loader — visible before paws.css */
     #home-loader {
@@ -165,6 +185,28 @@
       </ol>
     </section>
 
+    <section class="pf-home-faq" aria-labelledby="faq-heading">
+      <h2 class="pf-home-how-title" id="faq-heading">Questions</h2>
+      <div class="pf-faq-list">
+        <details class="pf-faq-item">
+          <summary>How do donations work?</summary>
+          <p>You choose any amount on Stripe Checkout. The gift supports food, water, and shelter for dogs.</p>
+        </details>
+        <details class="pf-faq-item">
+          <summary>What is a promoter QR?</summary>
+          <p>A personal link and QR that attributes gifts to you. Unless we publish a different rate, you earn 50% of attributed donations.</p>
+        </details>
+        <details class="pf-faq-item">
+          <summary>Do I need a QR to donate?</summary>
+          <p>No. Direct donations on the Donate page support Paws Forward without promoter attribution.</p>
+        </details>
+        <details class="pf-faq-item">
+          <summary>Who processes payments and data?</summary>
+          <p>Stripe processes payments. Supabase stores application data for profiles, gifts, and attribution. See our privacy policy for details.</p>
+        </details>
+      </div>
+    </section>
+
     <footer class="pf-home-foot">
       <p>
         <a id="home-contact" href="mailto:hello@pawsforward.org">hello@pawsforward.org</a>
@@ -178,6 +220,6 @@
     </footer>
   </div>
 
-  <script src="js/home.js?v=20261105y"></script>
+  <script src="js/home.js?v=20261106a"></script>
 </body>
 </html>

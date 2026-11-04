@@ -22,6 +22,8 @@
     errPhone: document.getElementById("err-join-phone"),
     errPayment: document.getElementById("err-join-payment"),
     errHandle: document.getElementById("err-join-handle"),
+    age: document.getElementById("join-age"),
+    errAge: document.getElementById("err-join-age"),
   };
 
   let current = { url: "", name: "", code: "" };
@@ -52,6 +54,7 @@
     setFieldError(els.errPhone, "");
     setFieldError(els.errPayment, "");
     setFieldError(els.errHandle, "");
+    setFieldError(els.errAge, "");
   }
 
   function normalizeHandle(raw) {
@@ -98,6 +101,10 @@
     }
     if (!payload.payment_handle) {
       setFieldError(els.errHandle, "Enter a payout handle.");
+      bad = true;
+    }
+    if (!els.age?.checked) {
+      setFieldError(els.errAge, "Confirm you are old enough to join.");
       bad = true;
     }
     return !bad;

@@ -1,0 +1,15 @@
+# Paws Forward
+
+> Dog-rescue fundraising organization. Donate any amount, or get a personal QR and earn 50% of attributed gifts.
+
+## Site
+- Home: https://delexoo.github.io/PawsForward/
+- Donate: https://delexoo.github.io/PawsForward/donate.html
+- Get your QR: https://delexoo.github.io/PawsForward/join.html
+- Privacy: https://delexoo.github.io/PawsForward/privacy.html
+- Terms: https://delexoo.github.io/PawsForward/terms.html
+
+## Notes
+- Payments are processed by Stripe.
+- Application data is stored with Supabase.
+- Employee portal is for authorized operators only.

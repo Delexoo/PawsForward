@@ -13,12 +13,12 @@
   <title>Get your QR · Paws Forward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="stylesheet" href="css/fonts.css?v=20261105v">
-  <script src="js/theme.js?v=20261105v"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261105v">
-  <link rel="stylesheet" href="css/paws.css?v=20261105v">
-  <script src="js/config.js?v=20261105v"></script>
-  <script src="js/canonical.js?v=20261105v"></script>
+  <link rel="stylesheet" href="css/fonts.css?v=20261106a">
+  <script src="js/theme.js?v=20261106a"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261106a">
+  <link rel="stylesheet" href="css/paws.css?v=20261106a">
+  <script src="js/config.js?v=20261106a"></script>
+  <script src="js/canonical.js?v=20261106a"></script>
 </head>
 <body data-page="join" data-public="1">
   <script>
@@ -88,6 +88,13 @@
             <input id="join-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, or email">
             <p class="field-error" id="err-join-handle" hidden></p>
           </div>
+          <div class="field pf-join-age">
+            <label class="pf-join-check">
+              <input id="join-age" name="age_confirm" type="checkbox" required>
+              <span>I confirm I am at least 18 years old (or the age of majority where I live).</span>
+            </label>
+            <p class="field-error" id="err-join-age" hidden></p>
+          </div>
           <button type="submit" class="btn pf-join-submit" id="join-submit">Create my QR</button>
           <p class="pf-join-fineprint">
             By continuing you agree to our <a href="terms.html">terms</a> and
@@ -111,10 +118,10 @@
     </main>
   </div>
 
-  <script src="js/vendor/supabase.js?v=20261105v"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261105v"></script>
-  <script src="js/supabase-client.js?v=20261105v"></script>
-  <script src="js/qr.js?v=20261105v"></script>
-  <script src="js/join.js?v=20261105v"></script>
+  <script src="js/vendor/supabase.js?v=20261106a"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261106a"></script>
+  <script src="js/supabase-client.js?v=20261106a"></script>
+  <script src="js/qr.js?v=20261106a"></script>
+  <script src="js/join.js?v=20261106a"></script>
 </body>
 </html>

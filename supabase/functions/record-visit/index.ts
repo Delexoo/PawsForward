@@ -1,16 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.49.1";
+import { corsHeaders } from "./cors.ts";
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-function json(body: unknown, status = 200) {
+function json(req: Request, body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...cors, "Content-Type": "application/json" },
+    headers: { ...corsHeaders(req), "Content-Type": "application/json" },
   });
 }
 
@@ -69,8 +64,8 @@ async function lookupGeo(ip: string | null) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(req) });
+  if (req.method !== "POST") return json(req, { error: "Method not allowed" }, 405);
 
   try {
     const payload = await req.json().catch(() => ({}));
@@ -78,7 +73,7 @@ Deno.serve(async (req) => {
     const employeeId = String(payload?.employee_id || "").trim() || null;
     const path = String(payload?.path || "").trim() || null;
     if (!referralCode && !employeeId) {
-      return json({ error: "referral_code or employee_id required" }, 400);
+      return json(req, { error: "referral_code or employee_id required" }, 400);
     }
 
     const geo = await lookupGeo(clientIp(req));
@@ -93,7 +88,7 @@ Deno.serve(async (req) => {
     });
     if (error) throw error;
 
-    return json({
+    return json(req, {
       ok: true,
       city: geo.city,
       region: geo.region,
@@ -101,6 +96,6 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error(err);
-    return json({ error: (err as Error)?.message || "Could not record visit." }, 500);
+    return json(req, { error: (err as Error)?.message || "Could not record visit." }, 500);
   }
 });

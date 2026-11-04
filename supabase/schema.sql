@@ -89,8 +89,6 @@ create policy "visits_all_auth" on public.visits
   for all to authenticated using (true) with check (true);
 
 drop policy if exists "payouts_all_anon" on public.payouts;
-create policy "payouts_all_anon" on public.payouts
-  for all to anon using (true) with check (true);
 
 drop policy if exists "payouts_all_auth" on public.payouts;
 create policy "payouts_all_auth" on public.payouts
@@ -313,14 +311,24 @@ revoke all on public.visits from anon;
 grant select, insert, update, delete on public.employees to authenticated;
 grant select, insert, update, delete on public.donations to authenticated;
 grant select, insert, update, delete on public.visits to authenticated;
-grant select, insert, update, delete on public.payouts to anon, authenticated;
+revoke all on public.payouts from anon;
+grant select, insert, update, delete on public.payouts to authenticated;
 grant select, insert on public.data_deletion_requests to anon, authenticated;
 grant select, update on public.data_deletion_requests to authenticated;
 
 drop policy if exists "employees_all_anon" on public.employees;
 drop policy if exists "donations_all_anon" on public.donations;
 drop policy if exists "visits_all_anon" on public.visits;
-
+drop policy if exists "payouts_all_anon" on public.payouts;
 drop policy if exists "deletion_select_anon" on public.data_deletion_requests;
-create policy "deletion_select_anon" on public.data_deletion_requests
-  for select to anon using (true);
+
+create table if not exists public.operator_login_events (
+  id uuid primary key default gen_random_uuid(),
+  ok boolean not null,
+  reason text,
+  ip text,
+  user_agent text,
+  created_at timestamptz not null default now()
+);
+alter table public.operator_login_events enable row level security;
+revoke all on table public.operator_login_events from anon, authenticated;

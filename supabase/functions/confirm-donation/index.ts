@@ -1,17 +1,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import Stripe from "npm:stripe@14.25.0";
 import { createClient } from "npm:@supabase/supabase-js@2.49.1";
+import { corsHeaders } from "./cors.ts";
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-function json(body: unknown, status = 200) {
+function json(req: Request, body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...cors, "Content-Type": "application/json" },
+    headers: { ...corsHeaders(req), "Content-Type": "application/json" },
   });
 }
 
@@ -31,22 +26,22 @@ async function stripeSecret(supabase: ReturnType<typeof adminClient>) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(req) });
+  if (req.method !== "POST") return json(req, { error: "Method not allowed" }, 405);
 
   try {
     const supabase = adminClient();
     const stripeKey = await stripeSecret(supabase);
-    if (!stripeKey) return json({ error: "Stripe is not configured." }, 500);
+    if (!stripeKey) return json(req, { error: "Stripe is not configured." }, 500);
 
     const { session_id: sessionId } = await req.json();
-    if (!sessionId) return json({ error: "Missing session_id." }, 400);
+    if (!sessionId) return json(req, { error: "Missing session_id." }, 400);
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const session = await stripe.checkout.sessions.retrieve(String(sessionId));
 
     if (session.payment_status !== "paid" && session.status !== "complete") {
-      return json({ error: "Payment is not complete yet.", status: session.payment_status }, 402);
+      return json(req, { error: "Payment is not complete yet.", status: session.payment_status }, 402);
     }
 
     const amountTotal = Number(session.amount_total || 0) / 100;
@@ -72,9 +67,9 @@ Deno.serve(async (req) => {
     });
     if (error) throw error;
 
-    return json({ ok: true, donation: data });
+    return json(req, { ok: true, donation: data });
   } catch (err) {
     console.error(err);
-    return json({ error: err?.message || "Could not confirm donation." }, 500);
+    return json(req, { error: (err as Error)?.message || "Could not confirm donation." }, 500);
   }
 });
