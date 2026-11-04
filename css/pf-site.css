@@ -354,10 +354,16 @@ main { flex: 1; }
 .section-link:hover { text-decoration: underline; }
 
 /* ---- FAQ ---- */
-.faq-list { margin-top: 1.5rem; }
+.faq-list {
+  display: grid;
+  gap: 0.65rem;
+}
 
-.faq-item { border-top: 1px solid var(--line); }
-.faq-item:last-child { border-bottom: 1px solid var(--line); }
+.faq-item {
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #fff;
+}
 
 .faq-q {
   display: flex;
@@ -365,13 +371,14 @@ main { flex: 1; }
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
-  padding: 1rem 0;
+  padding: 1.05rem 1.15rem;
   border: 0;
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-weight: 600;
+  letter-spacing: -0.02em;
   line-height: 1.35;
   text-align: left;
   cursor: pointer;
@@ -380,11 +387,11 @@ main { flex: 1; }
 .faq-q::after {
   content: "";
   flex: none;
-  width: 0.45rem;
-  height: 0.45rem;
-  margin-right: 0.2rem;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-right: 0.1rem;
+  border-right: 1.6px solid #1d1d1f;
+  border-bottom: 1.6px solid #1d1d1f;
   transform: translateY(-0.1rem) rotate(45deg);
   transition: transform 0.4s var(--ease);
 }
@@ -402,10 +409,11 @@ main { flex: 1; }
 .faq-a > div { overflow: hidden; }
 
 .faq-a p {
-  margin: 0 0 1rem;
-  color: var(--muted);
-  font-size: 0.98rem;
-  line-height: 1.45;
+  margin: 0;
+  padding: 0 1.15rem 1.15rem;
+  color: #6e6e73;
+  font-size: 0.96rem;
+  line-height: 1.5;
 }
 
 /* ---- Loader ---- */
