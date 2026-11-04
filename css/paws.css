@@ -4632,43 +4632,43 @@ body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--secondary:hover {
 }
 
 .pf-home-about {
-  width: min(920px, calc(100% - 40px));
+  width: min(640px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 96px 0 48px;
-  text-align: center;
+  padding: 72px 0 40px;
+  text-align: left;
   color: var(--pf-ink);
 }
 
 .pf-home-about-kicker {
-  margin: 0 0 16px;
+  margin: 0 0 10px;
   font-family: "DM Sans", system-ui, sans-serif;
-  font-size: 0.88rem;
-  font-weight: 750;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--pf-salmon);
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--pf-taupe);
 }
 
 .pf-home-about-title {
-  margin: 0 auto 28px;
-  max-width: 16ch;
+  margin: 0 0 20px;
+  max-width: 18ch;
   font-family: "DM Sans", system-ui, sans-serif;
-  font-size: clamp(2rem, 5.2vw, 3.15rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.08;
+  font-size: clamp(1.65rem, 4vw, 2.35rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
   color: var(--pf-ink);
   text-wrap: balance;
 }
 
 .pf-home-about-body {
-  margin: 0 auto 20px;
-  max-width: 48rem;
+  margin: 0 0 14px;
+  max-width: 38rem;
   font-family: "DM Sans", system-ui, sans-serif;
-  font-size: clamp(1.12rem, 2.2vw, 1.35rem);
-  font-weight: 500;
-  line-height: 1.6;
-  color: color-mix(in srgb, var(--pf-ink) 72%, var(--pf-taupe));
+  font-size: clamp(0.98rem, 1.8vw, 1.08rem);
+  font-weight: 450;
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--pf-ink) 62%, var(--pf-taupe));
 }
 
 .pf-home-about-body:last-child {
