@@ -133,11 +133,11 @@ async function buildCheckout(input: {
   }
 
   const successUrl = referralCode
-    ? `${siteOrigin}/donate.html?ref=${encodeURIComponent(referralCode)}&success=1&session_id={CHECKOUT_SESSION_ID}`
-    : `${siteOrigin}/donate.html?success=1&session_id={CHECKOUT_SESSION_ID}`;
+    ? `${siteOrigin}/donate?ref=${encodeURIComponent(referralCode)}&success=1&session_id={CHECKOUT_SESSION_ID}`
+    : `${siteOrigin}/donate?success=1&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = referralCode
-    ? `${siteOrigin}/donate.html?ref=${encodeURIComponent(referralCode)}&cancelled=1`
-    : `${siteOrigin}/donate.html?cancelled=1`;
+    ? `${siteOrigin}/donate?ref=${encodeURIComponent(referralCode)}&cancelled=1`
+    : `${siteOrigin}/donate?cancelled=1`;
 
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: "payment",

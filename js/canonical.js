@@ -6,19 +6,22 @@
   const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
   if (!origin) return;
 
-  const file = location.pathname.split("/").pop() || "index.html";
+  let path = String(location.pathname || "/").replace(/\/+$/, "") || "/";
+  path = path.replace(/\.html$/i, "");
+  if (path === "/index") path = "/";
+
   const map = {
-    "index.html": `${origin}/`,
-    "": `${origin}/`,
-    "admin.html": `${origin}/admin.html`,
-    "donate.html": `${origin}/donate.html`,
-    "join.html": `${origin}/join.html`,
-    "privacy.html": `${origin}/privacy.html`,
-    "terms.html": `${origin}/terms.html`,
-    "login.html": `${origin}/login.html`,
-    "404.html": `${origin}/404.html`,
+    "/": `${origin}/`,
+    "/admin": `${origin}/admin`,
+    "/donate": `${origin}/donate`,
+    "/join": `${origin}/join`,
+    "/privacy": `${origin}/privacy`,
+    "/terms": `${origin}/terms`,
+    "/login": `${origin}/login`,
+    "/404": `${origin}/404`,
+    "/qr": `${origin}/qr`,
   };
-  const href = map[file] || `${origin}/${file}`;
+  const href = map[path] || `${origin}${path}`;
 
   let link = document.querySelector('link[rel="canonical"]');
   if (!link) {
@@ -28,7 +31,6 @@
   }
   link.href = href;
 
-  // Keep Open Graph URL in sync when present (dashboard SEO tooling).
   let og = document.querySelector('meta[property="og:url"]');
   if (!og) {
     og = document.createElement("meta");

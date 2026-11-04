@@ -33,10 +33,11 @@
 
   function nextUrl() {
     const params = new URLSearchParams(location.search);
-    const next = String(params.get("next") || "admin.html").replace(/[^a-z0-9._-]/gi, "");
-    const page = !next || next === "login.html" ? "admin.html" : next;
+    let next = String(params.get("next") || "admin").replace(/[^a-z0-9._-]/gi, "");
+    next = next.replace(/\.html$/i, "");
+    if (!next || next === "login") next = "admin";
     const bust = String(window.SITE_CONFIG?.assetVersion || Date.now());
-    return `${page}?v=${encodeURIComponent(bust)}`;
+    return `/${next}?v=${encodeURIComponent(bust)}`;
   }
 
   async function attempt() {

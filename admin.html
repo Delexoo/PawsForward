@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="PawsForward admin console — track donations, volunteer QR codes, payouts owed, and supportive locations. Operators only.">
-  <link rel="canonical" href="https://joinpawsforward.com/admin.html">
+  <link rel="canonical" href="https://joinpawsforward.com/admin">
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png?v=20261107m" type="image/png" sizes="64x64">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261107m" sizes="180x180">
@@ -29,7 +29,7 @@
       try {
         var ref = new URLSearchParams(location.search).get("ref");
         if (ref) {
-          location.replace("donate.html?ref=" + encodeURIComponent(ref));
+          location.replace("/donate?ref=" + encodeURIComponent(ref));
           return;
         }
       } catch (e) {}

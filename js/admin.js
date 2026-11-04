@@ -330,9 +330,9 @@
     if (typeof window.SITE_CONFIG?.checkoutUrl === "function") {
       return window.SITE_CONFIG.checkoutUrl(ref);
     }
-    if (origin && ref) return `${origin}/donate.html?ref=${encodeURIComponent(ref)}`;
-    if (ref) return new URL(`donate.html?ref=${encodeURIComponent(ref)}`, window.location.href).href;
-    return origin ? `${origin}/donate.html` : new URL("donate.html", window.location.href).href;
+    if (origin && ref) return `${origin}/donate?ref=${encodeURIComponent(ref)}`;
+    if (ref) return new URL(`/donate?ref=${encodeURIComponent(ref)}`, window.location.origin).href;
+    return origin ? `${origin}/donate` : new URL("/donate", window.location.origin).href;
   }
 
   function paymentLabel(type) {
@@ -2171,14 +2171,14 @@
     const auth = await window.SiteSupabase?.requireAdminSession?.();
     if (!auth?.ok) {
       await window.SitePin?.lock?.();
-      location.replace("login.html?next=admin.html");
+      location.replace("/login?next=admin");
       return;
     }
 
     document.body.classList.add("site-unlocked");
     document.getElementById("admin-lock-btn")?.addEventListener("click", async () => {
       await window.SitePin?.lock?.();
-      location.replace("login.html");
+      location.replace("/login");
     });
     window.PfShell?.renderShell("dashboard");
     wireDialogs();

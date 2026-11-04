@@ -2,7 +2,7 @@
   "name": "Paws Forward",
   "short_name": "Paws Forward",
   "description": "Volunteer portal for Paws Forward operators.",
-  "start_url": "./login.html",
+  "start_url": "./login",
   "scope": "./",
   "id": "./",
   "display": "standalone",

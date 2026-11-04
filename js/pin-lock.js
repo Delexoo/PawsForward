@@ -182,7 +182,7 @@
     if (isLoginPage()) {
       if (isUnlocked()) {
         const bust = String(global.SITE_CONFIG?.assetVersion || Date.now());
-        location.replace(`admin.html?v=${encodeURIComponent(bust)}`);
+        location.replace(`/admin?v=${encodeURIComponent(bust)}`);
         return false;
       }
       document.documentElement.classList.remove("site-lock-active");
@@ -195,8 +195,9 @@
       return true;
     }
     applyLockedUi();
-    const next = encodeURIComponent(location.pathname.split("/").pop() || "admin.html");
-    location.replace("login.html?next=" + next);
+    const leaf = String(location.pathname.split("/").pop() || "admin").replace(/\.html$/i, "") || "admin";
+    const next = encodeURIComponent(leaf);
+    location.replace("/login?next=" + next);
     return false;
   }
 
@@ -210,7 +211,7 @@
     });
     window.setInterval(() => {
       if (!isUnlocked() && isAdminPage()) {
-        location.replace("login.html?next=admin.html");
+        location.replace("/login?next=admin");
       }
     }, 60 * 1000);
   }

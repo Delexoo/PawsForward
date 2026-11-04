@@ -14,8 +14,11 @@ function isShellAsset(url) {
     const u = new URL(url);
     if (u.origin !== self.location.origin) return false;
     const path = u.pathname.toLowerCase();
+    const leaf = path.split("/").pop() || "";
+    const cleanPage = leaf && !leaf.includes(".");
     return (
       path.endsWith(".html") ||
+      cleanPage ||
       path.endsWith(".js") ||
       path.endsWith(".css") ||
       path.endsWith(".webmanifest") ||

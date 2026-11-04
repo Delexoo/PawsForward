@@ -101,17 +101,17 @@
     }
     const origin = siteOrigin();
     const ref = String(code || "").trim();
-    if (origin && ref) return `${origin}/donate.html?ref=${encodeURIComponent(ref)}`;
-    if (ref) return new URL(`donate.html?ref=${encodeURIComponent(ref)}`, location.href).href;
-    return origin ? `${origin}/donate.html` : new URL("donate.html", location.href).href;
+    if (origin && ref) return `${origin}/donate?ref=${encodeURIComponent(ref)}`;
+    if (ref) return new URL(`/donate?ref=${encodeURIComponent(ref)}`, location.origin).href;
+    return origin ? `${origin}/donate` : new URL("/donate", location.origin).href;
   }
 
   function qrPageUrlFor(code) {
     const origin = siteOrigin();
     const ref = String(code || "").trim();
-    if (origin && ref) return `${origin}/qr.html?ref=${encodeURIComponent(ref)}`;
-    if (ref) return new URL(`qr.html?ref=${encodeURIComponent(ref)}`, location.href).href;
-    return origin ? `${origin}/qr.html` : new URL("qr.html", location.href).href;
+    if (origin && ref) return `${origin}/qr?ref=${encodeURIComponent(ref)}`;
+    if (ref) return new URL(`/qr?ref=${encodeURIComponent(ref)}`, location.origin).href;
+    return origin ? `${origin}/qr` : new URL("/qr", location.origin).href;
   }
 
   function toE164(phone) {

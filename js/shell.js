@@ -195,13 +195,13 @@
       `<div class="sidebar-overlay" id="sidebar-overlay"></div>` +
         `<aside class="sidebar" id="sidebar">` +
         `<div class="sidebar-panel">` +
-        `<a class="brand" href="admin.html" aria-label="Go to Dashboard">` +
+        `<a class="brand" href="/admin" aria-label="Go to Dashboard">` +
         `<span class="brand-mark brand-mark--logo" aria-hidden="true"><img class="brand-mark-img" src="doc/brand-mark.png" width="36" height="36" alt=""></span>` +
         `<span class="brand-text"><strong>${appName}</strong><span class="brand-sub">${brandSub(active)}</span></span>` +
         `</a>` +
         `<div class="nav-group nav-group-home" data-nav-group="dashboard">` +
         `<ul class="nav-list nav-list-standalone">` +
-        navItem("admin.html", "Dashboard", "layout-dashboard", active === "dashboard") +
+        navItem("/admin", "Dashboard", "layout-dashboard", active === "dashboard") +
         `</ul></div>` +
         `<p class="sidebar-foot">Operator dashboard for PawsForward.</p>` +
         `</div>` +

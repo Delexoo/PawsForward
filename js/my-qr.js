@@ -31,9 +31,9 @@
       return window.SITE_CONFIG.checkoutUrl(ref);
     }
     const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
-    if (origin && ref) return `${origin}/donate.html?ref=${encodeURIComponent(ref)}`;
-    if (ref) return new URL(`donate.html?ref=${encodeURIComponent(ref)}`, location.href).href;
-    return origin ? `${origin}/donate.html` : new URL("donate.html", location.href).href;
+    if (origin && ref) return `${origin}/donate?ref=${encodeURIComponent(ref)}`;
+    if (ref) return new URL(`/donate?ref=${encodeURIComponent(ref)}`, location.origin).href;
+    return origin ? `${origin}/donate` : new URL("/donate", location.origin).href;
   }
 
   document.addEventListener("DOMContentLoaded", async () => {

@@ -4,10 +4,10 @@
 
 ## Site
 - Home: https://joinpawsforward.com/
-- Donate: https://joinpawsforward.com/donate.html
-- Get your QR: https://joinpawsforward.com/join.html
-- Privacy: https://joinpawsforward.com/privacy.html
-- Terms: https://joinpawsforward.com/terms.html
+- Donate: https://joinpawsforward.com/donate
+- Get your QR: https://joinpawsforward.com/join
+- Privacy: https://joinpawsforward.com/privacy
+- Terms: https://joinpawsforward.com/terms
 
 ## Notes
 - Payments are processed by Stripe.
