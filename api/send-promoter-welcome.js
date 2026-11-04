@@ -167,10 +167,17 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const chunks = [];
-    for await (const chunk of req) chunks.push(chunk);
-    const raw = Buffer.concat(chunks).toString("utf8");
-    const payload = raw ? JSON.parse(raw) : {};
+    let payload = {};
+    if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) {
+      payload = req.body;
+    } else if (typeof req.body === "string" && req.body.trim()) {
+      payload = JSON.parse(req.body);
+    } else {
+      const chunks = [];
+      for await (const chunk of req) chunks.push(chunk);
+      const raw = Buffer.concat(chunks).toString("utf8");
+      payload = raw ? JSON.parse(raw) : {};
+    }
 
     const referralCode = String(payload.referral_code || "").trim();
     const email = String(payload.email || "")

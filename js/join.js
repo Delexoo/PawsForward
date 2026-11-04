@@ -26,9 +26,30 @@
     errHandle: document.getElementById("err-join-handle"),
     age: document.getElementById("join-age"),
     errAge: document.getElementById("err-join-age"),
+    junkToast: document.getElementById("join-junk-toast"),
+    junkToastClose: document.getElementById("join-junk-toast-close"),
   };
 
   let current = { url: "", name: "", code: "", email: "", phone: "", qrPage: "", shareText: "" };
+  let junkToastTimer = 0;
+
+  function hideJunkToast() {
+    if (!els.junkToast || els.junkToast.hidden) return;
+    window.clearTimeout(junkToastTimer);
+    els.junkToast.classList.add("is-out");
+    window.setTimeout(() => {
+      els.junkToast.hidden = true;
+      els.junkToast.classList.remove("is-out");
+    }, 220);
+  }
+
+  function showJunkToast() {
+    if (!els.junkToast) return;
+    window.clearTimeout(junkToastTimer);
+    els.junkToast.classList.remove("is-out");
+    els.junkToast.hidden = false;
+    junkToastTimer = window.setTimeout(hideJunkToast, 10000);
+  }
 
   function setBanner(msg, kind) {
     if (!els.banner) return;
@@ -138,21 +159,31 @@
     return email.length >= 5 && email.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
+  function publicSiteOrigin() {
+    return (
+      String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "") ||
+      "https://joinpawsforward.com"
+    );
+  }
+
   async function emailWelcome() {
     if (!current.email || !current.code) {
       return { ok: false, error: "Email is not ready yet." };
     }
-    const origin = siteOrigin() || location.origin.replace(/\/$/, "");
+    // Always hit the production API — local preview has no /api route.
+    const apiOrigin = publicSiteOrigin();
+    const linkOrigin = siteOrigin() || apiOrigin;
     try {
-      const res = await fetch(`${origin}/api/send-promoter-welcome`, {
+      const res = await fetch(`${apiOrigin}/api/send-promoter-welcome`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: current.email,
           referral_code: current.code,
-          share_url: current.url,
-          qr_page_url: current.qrPage,
-          site_origin: origin,
+          share_url: current.url || `${apiOrigin}/donate?ref=${encodeURIComponent(current.code)}`,
+          qr_page_url: current.qrPage || `${apiOrigin}/qr?ref=${encodeURIComponent(current.code)}`,
+          site_origin: apiOrigin,
+          link_origin: linkOrigin,
         }),
       });
       if (res.status === 404) return { ok: false, error: "Welcome email is not deployed yet." };
@@ -253,6 +284,7 @@
     if (els.shareUrl) els.shareUrl.value = url;
     if (els.code) els.code.textContent = code || "—";
     setBanner("You’re set — copy, download, or share below.", "ok");
+    showJunkToast();
 
     try {
       await window.PfQr.renderInto(els.qr, url, 220);
@@ -556,5 +588,6 @@
         setBanner("Could not share — copy your donation link instead.", "err");
       }
     });
+    els.junkToastClose?.addEventListener("click", hideJunkToast);
   });
 })();
