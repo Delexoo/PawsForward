@@ -195,6 +195,11 @@ body[data-page="admin"] {
   overscroll-behavior: none;
 }
 
+/* Keep modal sheets above the locked admin shell */
+body[data-page="admin"] dialog.pf-dialog {
+  z-index: 80;
+}
+
 body[data-page="admin"] .main {
   height: 100%;
   min-height: 0;
@@ -2694,6 +2699,9 @@ button.pf-stat-chip--link:focus-visible {
 
 .pf-emp-detail {
   text-align: left;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .pf-emp-detail-head {
@@ -2703,13 +2711,14 @@ button.pf-stat-chip--link:focus-visible {
   gap: 14px;
   margin: 0 0 16px;
   text-align: left;
+  min-width: 0;
 }
 
 .pf-emp-detail-copy {
   min-width: 0;
   flex: 1 1 auto;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px 12px;
@@ -2717,6 +2726,7 @@ button.pf-stat-chip--link:focus-visible {
 
 .pf-emp-detail-identity {
   min-width: 0;
+  flex: 1 1 auto;
   display: grid;
   gap: 4px;
   justify-items: start;
@@ -2727,6 +2737,9 @@ button.pf-stat-chip--link:focus-visible {
   font-size: 1.2rem;
   letter-spacing: -0.02em;
   line-height: 1.2;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .pf-emp-detail-phone {
@@ -2735,11 +2748,13 @@ button.pf-stat-chip--link:focus-visible {
   font-weight: 600;
   color: #475569;
   font-variant-numeric: tabular-nums;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .pf-emp-detail-copy .pf-seg {
   flex: 0 0 auto;
-  margin-left: auto;
+  margin-left: 0;
 }
 
 .pf-avatar--lg {
@@ -3344,6 +3359,124 @@ button.pf-stat-chip--link:focus-visible {
   .pf-emp-detail-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: none;
+  }
+
+  /* Volunteer detail sheet: stable mobile layout (no wrap/clip glitches) */
+  body[data-page="admin"] #employee-detail-dialog[open] {
+    z-index: 80;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .site-leave-dialog-panel.pf-emp-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 4px 16px 0 !important;
+    max-height: min(90dvh, 100%);
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-head {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 14px;
+    text-align: center;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-detail-avatar-wrap {
+    margin: 0 auto;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-avatar--lg {
+    width: 72px;
+    height: 72px;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-copy {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: 100%;
+    gap: 12px;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-identity {
+    justify-items: center;
+    width: 100%;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-copy .site-leave-dialog-title,
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-phone {
+    text-align: center;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-copy .pf-seg {
+    width: 100%;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-seg-btn {
+    min-height: 42px;
+    font-size: 13px;
+    padding: 0 10px;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-seg-btn + .pf-seg-btn {
+    border-left: 1px solid #e2e8f0;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-stat {
+    padding: 12px 10px;
+    border-radius: 12px;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-stat-value {
+    font-size: 1rem;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    max-width: none;
+    margin: 0 0 8px;
+    justify-content: stretch;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-chip-btn {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 12px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-chip-btn--icon {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-foot {
+    margin-top: auto;
+    flex-shrink: 0;
   }
 
   .pf-stat-strip {

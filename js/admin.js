@@ -605,10 +605,25 @@
     if (!isMobileSheetViewport()) return;
     dialog.classList.add("is-sheet");
     dialog.classList.add("is-entering");
+    if (panel) {
+      panel.style.transform = "translate3d(0, 110%, 0)";
+      panel.style.transition = "none";
+    }
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
+        if (panel) {
+          panel.style.transition = "transform 0.32s cubic-bezier(0.32, 0.72, 0, 1)";
+          panel.style.transform = "translate3d(0, 0, 0)";
+        }
         dialog.classList.remove("is-entering");
         dialog.classList.add("is-open");
+        window.setTimeout(() => {
+          if (!dialog.open || dialog.classList.contains("is-closing")) return;
+          if (panel) {
+            panel.style.transform = "";
+            panel.style.transition = "";
+          }
+        }, 340);
       });
     });
   }
