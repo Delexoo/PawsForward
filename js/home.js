@@ -12,11 +12,15 @@
   }
 
   const CIRC = 2 * Math.PI * 40;
+  const MIN_MS = 2200;
+  const EXIT_MS = 1100;
+  const startedAt = performance.now();
   let shown = 0;
   let target = 0;
   let ready = false;
   let dismissed = false;
   let raf = 0;
+  let lastTs = 0;
 
   if (ring) {
     ring.style.strokeDasharray = String(CIRC);
@@ -24,17 +28,32 @@
   }
 
   function setProgress(n) {
-    target = Math.max(target, Math.min(100, Math.round(n)));
+    target = Math.max(target, Math.min(100, n));
   }
 
-  function paint() {
-    shown += (target - shown) * 0.18;
-    if (target >= 100 && shown > 99.4) shown = 100;
+  function paint(ts) {
+    if (!lastTs) lastTs = ts;
+    const dt = Math.min(48, ts - lastTs);
+    lastTs = ts;
+
+    // Frame-rate independent ease — slower chase toward target
+    const ease = 1 - Math.pow(0.965, dt);
+    shown += (target - shown) * ease;
+
+    // Soft ceiling until truly ready so % never snaps
+    if (!ready && shown > 90) {
+      shown = 90 + (shown - 90) * 0.35;
+      if (target > 92) target = 92;
+    }
+
+    if (ready && target >= 100 && shown > 99.2) shown = 100;
+
     const value = Math.round(shown);
     if (pctEl) pctEl.textContent = value + "%";
     if (ring) {
       ring.style.strokeDashoffset = String(CIRC * (1 - shown / 100));
     }
+
     if (shown < 100) {
       raf = requestAnimationFrame(paint);
       return;
@@ -44,19 +63,25 @@
   }
 
   function bump() {
-    if (!raf) raf = requestAnimationFrame(paint);
+    if (!raf) {
+      lastTs = 0;
+      raf = requestAnimationFrame(paint);
+    }
   }
 
   function finish() {
     if (dismissed) return;
     dismissed = true;
     if (loader) {
-      loader.classList.add("is-done");
-      loader.setAttribute("aria-busy", "false");
-      loader.setAttribute("aria-label", "Loaded");
+      // One frame so the 100% paint settles, then ease the sheet up
+      requestAnimationFrame(() => {
+        loader.classList.add("is-done");
+        loader.setAttribute("aria-busy", "false");
+        loader.setAttribute("aria-label", "Loaded");
+      });
       window.setTimeout(() => {
         loader.hidden = true;
-      }, 600);
+      }, EXIT_MS + 80);
     }
     document.body.classList.remove("pf-home-loading");
     document.body.classList.add("pf-home-ready");
@@ -82,9 +107,12 @@
   function markReady() {
     if (ready) return;
     ready = true;
-    setProgress(100);
-    bump();
     tryPlay();
+    const wait = Math.max(0, MIN_MS - (performance.now() - startedAt));
+    window.setTimeout(() => {
+      setProgress(100);
+      bump();
+    }, wait);
   }
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -108,39 +136,38 @@
     return;
   }
 
-  setProgress(8);
+  setProgress(6);
   bump();
 
   video.addEventListener("loadstart", () => {
-    setProgress(12);
+    setProgress(14);
     bump();
   });
   video.addEventListener("loadedmetadata", () => {
-    setProgress(28);
+    setProgress(26);
     bump();
   });
   video.addEventListener("loadeddata", () => {
-    setProgress(55);
+    setProgress(48);
     bump();
     tryPlay();
   });
   video.addEventListener("canplay", () => {
-    setProgress(Math.max(78, bufferedPct()));
+    setProgress(Math.max(64, Math.min(82, 40 + bufferedPct() * 0.4)));
     bump();
     tryPlay();
   });
   video.addEventListener("canplaythrough", markReady);
   video.addEventListener("playing", () => {
-    setProgress(Math.max(88, bufferedPct()));
+    setProgress(Math.max(78, Math.min(88, 50 + bufferedPct() * 0.35)));
     bump();
-    // Enough to show — don't wait for full file
-    window.setTimeout(markReady, 180);
+    window.setTimeout(markReady, 420);
   });
   video.addEventListener("progress", () => {
     if (ready) return;
     const b = bufferedPct();
     if (b > 0) {
-      setProgress(Math.min(92, 30 + b * 0.62));
+      setProgress(Math.min(86, 24 + b * 0.55));
       bump();
     }
   });
@@ -149,13 +176,15 @@
     markReady();
   });
 
-  // Safety: never leave users stuck on the loader
-  window.setTimeout(markReady, 8000);
+  window.setTimeout(markReady, 10000);
 
   if (video.readyState >= 3) {
-    markReady();
+    setProgress(72);
+    bump();
+    tryPlay();
+    window.setTimeout(markReady, 500);
   } else if (video.readyState >= 2) {
-    setProgress(70);
+    setProgress(58);
     bump();
     tryPlay();
   }
