@@ -1275,6 +1275,52 @@ body[data-page="login"]:not(.site-unlocked) #site-lock {
   pointer-events: auto !important;
 }
 
+body[data-page="login"] .site-lock-error.is-loading {
+  color: #64748b;
+  background: transparent;
+  border: 0;
+  min-height: 1.4rem;
+  display: grid;
+  place-items: center;
+}
+
+.pf-pin-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 1rem;
+}
+
+.pf-pin-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.35;
+  animation: pf-pin-dot 1s ease-in-out infinite;
+}
+
+.pf-pin-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.pf-pin-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes pf-pin-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.28;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
 body[data-page="login"] .site-lock-error {
   margin: 0 0 12px;
   min-height: 1.2em;

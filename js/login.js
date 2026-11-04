@@ -5,15 +5,26 @@
   const lockRoot = document.getElementById("site-lock");
   let busy = false;
 
-  function setBanner(msg) {
+  function setBanner(msg, opts) {
     if (!banner) return;
-    if (!msg) {
+    const loading = !!(opts && opts.loading);
+    banner.classList.toggle("is-loading", loading);
+    if (!msg && !loading) {
       banner.hidden = true;
       banner.textContent = "";
+      banner.innerHTML = "";
       lockRoot?.classList.remove("site-lock-shake");
       return;
     }
     banner.hidden = false;
+    if (loading) {
+      banner.setAttribute("aria-label", "Checking PIN");
+      banner.innerHTML =
+        '<span class="pf-pin-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
+      lockRoot?.classList.remove("site-lock-shake");
+      return;
+    }
+    banner.removeAttribute("aria-label");
     banner.textContent = msg;
     lockRoot?.classList.remove("site-lock-shake");
     void lockRoot?.offsetWidth;
@@ -35,7 +46,7 @@
       return;
     }
     busy = true;
-    setBanner("Checking PIN…");
+    setBanner("", { loading: true });
     const result = await window.SitePin.verifyRemote(input.value);
     busy = false;
     if (result.ok) {
