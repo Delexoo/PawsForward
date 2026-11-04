@@ -333,12 +333,168 @@
     await showSuccess(row, payload.phone);
   }
 
+  function enhanceSelect(select) {
+    if (!select || select.dataset.pfSelect === "1") return;
+    if (window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(hover: hover)").matches) {
+      return;
+    }
+
+    select.dataset.pfSelect = "1";
+    const wrap = document.createElement("div");
+    wrap.className = "pf-select";
+    select.parentNode.insertBefore(wrap, select);
+    wrap.appendChild(select);
+    select.classList.add("pf-select-native");
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden", "true");
+
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "pf-select-trigger";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.id = `${select.id}-trigger`;
+
+    const menu = document.createElement("ul");
+    menu.className = "pf-select-menu";
+    menu.setAttribute("role", "listbox");
+    menu.hidden = true;
+    menu.id = `${select.id}-menu`;
+    trigger.setAttribute("aria-controls", menu.id);
+
+    const label = document.querySelector(`label[for="${select.id}"]`);
+    if (label) {
+      label.removeAttribute("for");
+      label.id = label.id || `${select.id}-label`;
+      trigger.setAttribute("aria-labelledby", label.id);
+      label.addEventListener("click", (e) => {
+        e.preventDefault();
+        trigger.focus();
+        open();
+      });
+    }
+
+    const options = [...select.options].filter((opt) => !opt.disabled || opt.value === "");
+    let activeIndex = -1;
+
+    function selectedOption() {
+      return select.options[select.selectedIndex] || null;
+    }
+
+    function syncTrigger() {
+      const opt = selectedOption();
+      const empty = !opt || !opt.value;
+      trigger.textContent = empty ? (select.options[0]?.textContent || "Choose one") : opt.textContent;
+      trigger.classList.toggle("is-placeholder", empty);
+      [...menu.querySelectorAll(".pf-select-option")].forEach((btn) => {
+        const on = btn.dataset.value === select.value;
+        btn.classList.toggle("is-selected", on);
+        btn.setAttribute("aria-selected", on ? "true" : "false");
+      });
+    }
+
+    function setActive(index) {
+      const buttons = [...menu.querySelectorAll(".pf-select-option:not(:disabled)")];
+      if (!buttons.length) return;
+      activeIndex = (index + buttons.length) % buttons.length;
+      buttons.forEach((btn, i) => btn.classList.toggle("is-active", i === activeIndex));
+      buttons[activeIndex]?.scrollIntoView({ block: "nearest" });
+    }
+
+    function close() {
+      wrap.classList.remove("is-open");
+      menu.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      activeIndex = -1;
+      [...menu.querySelectorAll(".pf-select-option")].forEach((btn) => btn.classList.remove("is-active"));
+    }
+
+    function open() {
+      wrap.classList.add("is-open");
+      menu.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      const buttons = [...menu.querySelectorAll(".pf-select-option:not(:disabled)")];
+      const selected = buttons.findIndex((btn) => btn.dataset.value === select.value);
+      setActive(selected >= 0 ? selected : 0);
+    }
+
+    function choose(value) {
+      if (select.value !== value) {
+        select.value = value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        select.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+      syncTrigger();
+      close();
+      trigger.focus();
+    }
+
+    options.forEach((opt) => {
+      if (!opt.value && opt.disabled) return;
+      const li = document.createElement("li");
+      li.setAttribute("role", "presentation");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "pf-select-option";
+      btn.setAttribute("role", "option");
+      btn.dataset.value = opt.value;
+      btn.textContent = opt.textContent;
+      if (!opt.value) {
+        btn.disabled = true;
+        btn.textContent = opt.textContent;
+      }
+      btn.addEventListener("click", () => {
+        if (!opt.value) return;
+        choose(opt.value);
+      });
+      li.appendChild(btn);
+      menu.appendChild(li);
+    });
+
+    trigger.addEventListener("click", () => {
+      if (menu.hidden) open();
+      else close();
+    });
+
+    trigger.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (menu.hidden) open();
+        else if (e.key === "ArrowDown") setActive(activeIndex + 1);
+        else if (e.key === "Enter" || e.key === " ") {
+          const buttons = [...menu.querySelectorAll(".pf-select-option:not(:disabled)")];
+          const btn = buttons[activeIndex];
+          if (btn) choose(btn.dataset.value);
+        }
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (menu.hidden) open();
+        else setActive(activeIndex - 1);
+      } else if (e.key === "Escape") {
+        close();
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!wrap.contains(e.target)) close();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !menu.hidden) close();
+    });
+
+    wrap.appendChild(trigger);
+    wrap.appendChild(menu);
+    syncTrigger();
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     const rate = Number(window.SITE_CONFIG?.commissionRate ?? 0.5);
     if (els.commission && Number.isFinite(rate)) {
       els.commission.textContent = `${Math.round(rate * 100)}%`;
     }
 
+    enhanceSelect(els.payment);
     els.form?.addEventListener("submit", onSubmit);
     els.phone?.addEventListener("input", () => applyPhoneInputFormat(els.phone));
     if (els.phone?.value) applyPhoneInputFormat(els.phone);

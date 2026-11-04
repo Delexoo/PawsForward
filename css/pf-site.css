@@ -586,6 +586,16 @@ html.can-reveal .reveal.is-in {
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
+.field select {
+  appearance: none;
+  padding-right: 2.4rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%231d1d1f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.95rem center;
+  background-size: 0.75rem;
+  cursor: pointer;
+}
+
 .field textarea { height: auto; min-height: 6rem; padding: 0.75rem 0.9rem; }
 
 .field input:focus,
@@ -594,6 +604,142 @@ html.can-reveal .reveal.is-in {
   outline: none;
   border-color: var(--ink);
   box-shadow: 0 0 0 3px rgb(29 29 31 / 8%);
+}
+
+/* Custom select (desktop-friendly menu; native select stays for value/submit) */
+.pf-select {
+  position: relative;
+}
+
+.pf-select-native {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  appearance: none !important;
+  background: none !important;
+  pointer-events: none;
+}
+
+.pf-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  height: 2.85rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.pf-select-trigger:hover { border-color: #b0b0b5; }
+
+.pf-select-trigger:focus-visible,
+.pf-select.is-open .pf-select-trigger {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgb(29 29 31 / 8%);
+}
+
+.pf-select-trigger.is-placeholder {
+  color: var(--muted);
+}
+
+.pf-select-trigger::after {
+  content: "";
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-top: -0.15rem;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 220ms var(--ease);
+}
+
+.pf-select.is-open .pf-select-trigger::after {
+  margin-top: 0.15rem;
+  transform: rotate(225deg);
+}
+
+.pf-select-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 0.95rem;
+  background: #fff;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 12%), 0 2px 8px rgb(0 0 0 / 6%);
+  max-height: min(18.5rem, 55vh);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.pf-select-menu[hidden] { display: none; }
+
+.pf-select-option {
+  display: block;
+  width: 100%;
+  padding: 0.72rem 0.85rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.pf-select-option:hover,
+.pf-select-option.is-active {
+  background: #f5f5f7;
+}
+
+.pf-select-option.is-selected {
+  background: #1d1d1f;
+  color: #fff;
+}
+
+.pf-select-option.is-selected:hover,
+.pf-select-option.is-selected.is-active {
+  background: #000;
+}
+
+.pf-select-option:disabled {
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.7;
+}
+
+.pf-select-option:disabled:hover {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-select-trigger,
+  .pf-select-trigger::after,
+  .pf-select-option { transition: none; }
 }
 
 .field-error {
