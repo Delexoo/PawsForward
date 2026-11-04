@@ -15,12 +15,20 @@
   <title>Get your QR · Paws Forward</title>
   <link rel="icon" href="icons/favicon.png?v=20261108z" type="image/png" sizes="64x64">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261108z" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261108u">
+  <link rel="manifest" href="manifest.webmanifest?v=20261108z">
+  <script>
+    (function () {
+      try {
+        if (sessionStorage.getItem("pf-nav") !== "1") return;
+        document.documentElement.classList.add("pf-nav-skip");
+      } catch (e) {}
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/pf-site.css?v=20261108z">
-  <link rel="stylesheet" href="css/pf-join.css?v=20261108z">
+  <link rel="stylesheet" href="css/pf-site.css?v=20261108aa">
+  <link rel="stylesheet" href="css/pf-join.css?v=20261108aa">
   <script src="js/config.js?v=20261108z"></script>
   <script src="js/canonical.js?v=20261108z"></script>
 </head>
@@ -34,17 +42,7 @@
       <span class="loader-count">0%</span>
     </div>
   </div>
-  <script>
-    (function () {
-      try {
-        if (sessionStorage.getItem("pf-nav") !== "1") return;
-        document.documentElement.classList.add("pf-nav-in");
-        var el = document.querySelector("#loader .loader-count");
-        if (el) el.textContent = "100%";
-      } catch (e) {}
-    })();
-  </script>
-  <script src="js/pf-load.js?v=20261108z"></script>
+  <script src="js/pf-load.js?v=20261108aa"></script>
 
   <a class="skip" href="#content">Skip to content</a>
   <div class="scroll-line" aria-hidden="true"></div>
@@ -84,8 +82,8 @@
         <form class="join-form" id="join-form" action="#" method="post">
           <div class="join-row">
             <div class="field">
-              <label for="join-first">First name <span class="pf-optional">(optional)</span></label>
-              <input id="join-first" name="first_name" type="text" autocomplete="given-name" maxlength="80" placeholder="Jordan">
+              <label for="join-first">First name <span class="pf-required" aria-hidden="true">*</span></label>
+              <input id="join-first" name="first_name" type="text" required autocomplete="given-name" maxlength="80" placeholder="Jordan">
               <p class="field-error" id="err-join-first" hidden></p>
             </div>
             <div class="field">

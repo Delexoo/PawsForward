@@ -69,14 +69,34 @@
     }
   }
 
-  const arriving = readNav() || document.documentElement.classList.contains("pf-nav-in");
-  clearNav();
-  document.documentElement.classList.remove("pf-nav-in");
+  function navType() {
+    try {
+      const entry = performance.getEntriesByType?.("navigation")?.[0];
+      return entry?.type || "";
+    } catch {
+      return "";
+    }
+  }
 
-  const drawRing = mountRing();
-  let busy = false;
-  let leaving = false;
-  let pendingHref = "";
+  // Internal in-site clicks set pf-nav / pf-nav-skip. Loader only for visit + refresh.
+  const arriving =
+    readNav() || document.documentElement.classList.contains("pf-nav-skip");
+  clearNav();
+
+  function hideLoader() {
+    if (!loader) return;
+    loader.classList.add("is-done");
+    loader.setAttribute("aria-hidden", "true");
+    document.documentElement.style.overflow = "";
+    document.documentElement.classList.remove("pf-nav-skip", "pf-nav-in");
+  }
+
+  function showLoader() {
+    if (!loader) return;
+    loader.classList.remove("is-done", "is-leave");
+    loader.setAttribute("aria-hidden", "false");
+    document.documentElement.style.overflow = "hidden";
+  }
 
   function ease(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
@@ -88,7 +108,9 @@
     drawRing(next);
   }
 
+  let drawRing = () => {};
   let countRun = 0;
+  let busy = false;
 
   function animateCount(ms, from = 0, to = 100) {
     const run = ++countRun;
@@ -126,55 +148,45 @@
         { once: true }
       );
       loader.classList.add("is-leave");
-      setTimeout(finish, 1300);
+      setTimeout(finish, 700);
     });
   }
 
-  function showLoader() {
-    if (!loader) return;
-    loader.classList.remove("is-done", "is-leave");
-    document.documentElement.style.overflow = "hidden";
-  }
-
-  function hideLoader() {
-    if (!loader) return;
-    loader.classList.add("is-done");
-    document.documentElement.style.overflow = "";
-  }
-
-  function go(href) {
-    if (!href || leaving) return;
-    leaving = true;
-    markNav();
-    location.assign(href);
+  function warmHeroVideo() {
+    const video = document.querySelector(".hero-video");
+    if (!video) return;
+    try {
+      video.preload = "auto";
+      const play = video.play();
+      if (play && typeof play.catch === "function") play.catch(() => {});
+    } catch {
+      /* ignore */
+    }
   }
 
   function finishCover() {
-    if (pendingHref) {
-      go(pendingHref);
-      return;
-    }
     busy = true;
     slideAway().then(() => {
       hideLoader();
       busy = false;
-      if (pendingHref) go(pendingHref);
+      warmHeroVideo();
     });
   }
 
-  function playOnce(done) {
-    if (busy || leaving) return;
+  function playIntro() {
+    if (busy) return;
     busy = true;
     showLoader();
+    drawRing = mountRing();
     let settled = false;
     const finish = () => {
       if (settled) return;
       settled = true;
       busy = false;
-      done();
+      finishCover();
     };
-    const failsafe = setTimeout(finish, 1600);
-    animateCount(700).then(() => {
+    const failsafe = setTimeout(finish, 1200);
+    animateCount(480).then(() => {
       clearTimeout(failsafe);
       finish();
     });
@@ -183,24 +195,19 @@
   function openPage() {
     if (!loader || reduced) {
       hideLoader();
+      warmHeroVideo();
       return;
     }
 
-    if (arriving) {
-      // Continue from the previous page's cover — no 0% flash.
-      showLoader();
-      setProgress(100);
-      busy = true;
-      requestAnimationFrame(() => {
-        slideAway().then(() => {
-          hideLoader();
-          busy = false;
-        });
-      });
+    // In-site navigation: never show the loading screen.
+    if (arriving || navType() === "back_forward") {
+      hideLoader();
+      warmHeroVideo();
       return;
     }
 
-    playOnce(finishCover);
+    // First visit or refresh only.
+    playIntro();
   }
 
   function internalPage(anchor, event) {
@@ -209,7 +216,9 @@
     if (anchor.target && anchor.target !== "_self") return false;
     if (anchor.hasAttribute("download")) return false;
     const href = anchor.getAttribute("href") || "";
-    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("sms:")) return false;
+    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("sms:")) {
+      return false;
+    }
     let url;
     try {
       url = new URL(anchor.href, location.href);
@@ -217,32 +226,24 @@
       return false;
     }
     if (url.origin !== location.origin) return false;
-    if (url.pathname === location.pathname && url.search === location.search) {
-      if (url.hash) return false;
-      return false;
-    }
+    if (url.pathname === location.pathname && url.search === location.search) return false;
     return true;
   }
 
-  document.addEventListener("click", (event) => {
-    const anchor = event.target.closest?.("a");
-    if (!anchor) return;
-    if (reduced || !internalPage(anchor, event)) return;
-    event.preventDefault();
-    pendingHref = anchor.href;
-    if (leaving) return;
-    if (busy) return;
-    // Cover, hit 100%, then navigate so the next page can slide away cleanly.
-    playOnce(() => {
-      if (pendingHref) go(pendingHref);
-    });
-  });
+  // Mark internal navigations so the next page skips the loader. Do not intercept.
+  document.addEventListener(
+    "click",
+    (event) => {
+      const anchor = event.target.closest?.("a");
+      if (!anchor || !internalPage(anchor, event)) return;
+      markNav();
+    },
+    true
+  );
 
   window.addEventListener("pageshow", (event) => {
     if (!event.persisted) return;
-    pendingHref = "";
     busy = false;
-    leaving = false;
     hideLoader();
   });
 
@@ -287,9 +288,127 @@
     });
   }
 
+  async function hardRefresh() {
+    document.body.classList.add("pf-pull-refreshing");
+    try {
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+      if (navigator.serviceWorker?.getRegistrations) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((reg) => reg.unregister()));
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+    const next = new URL(location.href);
+    next.searchParams.set("_", String(Date.now()));
+    location.replace(next.toString());
+  }
+
+  function setupPullToHardRefresh() {
+    if (document.body.dataset.pfPull === "off") return;
+
+    let indicator = document.getElementById("pull-refresh-indicator");
+    if (!indicator) {
+      indicator = document.createElement("div");
+      indicator.id = "pull-refresh-indicator";
+      indicator.className = "pf-pull-indicator";
+      indicator.setAttribute("aria-hidden", "true");
+      indicator.innerHTML =
+        '<span class="pf-pull-indicator-icon" aria-hidden="true"></span>' +
+        '<span class="pf-pull-indicator-label">Pull to refresh</span>';
+      document.body.prepend(indicator);
+    }
+
+    const THRESHOLD = 96;
+    const MAX_PULL = 140;
+    let startY = 0;
+    let pulling = false;
+    let armed = false;
+    let triggered = false;
+
+    function scrollTop() {
+      return window.scrollY || document.documentElement.scrollTop || 0;
+    }
+
+    function setPull(distance) {
+      const progress = Math.min(1, distance / THRESHOLD);
+      document.body.style.setProperty("--pf-pull", `${Math.min(MAX_PULL, distance)}px`);
+      document.body.style.setProperty("--pf-pull-progress", String(progress));
+      document.body.classList.toggle("pf-pulling", distance > 8);
+      document.body.classList.toggle("pf-pull-ready", distance >= THRESHOLD);
+      const label = indicator.querySelector(".pf-pull-indicator-label");
+      if (label) {
+        label.textContent =
+          distance >= THRESHOLD ? "Release to hard refresh" : "Pull to hard refresh";
+      }
+    }
+
+    function endPull() {
+      pulling = false;
+      armed = false;
+      document.body.classList.remove("pf-pulling", "pf-pull-ready");
+      document.body.style.removeProperty("--pf-pull");
+      document.body.style.removeProperty("--pf-pull-progress");
+    }
+
+    window.addEventListener(
+      "touchstart",
+      (event) => {
+        if (triggered || event.touches.length !== 1 || scrollTop() > 2) return;
+        if (document.documentElement.classList.contains("menu-open")) return;
+        startY = event.touches[0].clientY;
+        pulling = true;
+        armed = false;
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      "touchmove",
+      (event) => {
+        if (!pulling || triggered || event.touches.length !== 1) return;
+        if (scrollTop() > 2 && !armed) {
+          endPull();
+          return;
+        }
+        const delta = event.touches[0].clientY - startY;
+        if (delta <= 0) {
+          setPull(0);
+          return;
+        }
+        armed = true;
+        if (event.cancelable) event.preventDefault();
+        setPull(delta * 0.55);
+      },
+      { passive: false }
+    );
+
+    window.addEventListener(
+      "touchend",
+      () => {
+        if (!pulling || triggered) return;
+        const distance = Number.parseFloat(document.body.style.getPropertyValue("--pf-pull")) || 0;
+        if (distance >= THRESHOLD) {
+          triggered = true;
+          document.body.classList.add("pf-pull-refreshing");
+          void hardRefresh();
+          return;
+        }
+        endPull();
+      },
+      { passive: true }
+    );
+
+    window.addEventListener("touchcancel", endPull, { passive: true });
+  }
+
   function setupPage() {
     setupMenu();
     setupFaq();
+    setupPullToHardRefresh();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupPage);

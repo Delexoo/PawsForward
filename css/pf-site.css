@@ -457,16 +457,15 @@ main { flex: 1; }
 
 .loader.is-leave {
   transform: translate3d(0, -100%, 0);
-  transition: transform 1.15s var(--ease);
+  transition: transform 0.55s var(--ease);
   pointer-events: none;
 }
 
 .loader.is-done { display: none; }
 
-/* Internal nav: avoid a 0% flash before pf-load continues the cover */
-html.pf-nav-in .loader-bar {
-  stroke-dasharray: 289;
-  stroke-dashoffset: 0;
+/* In-site navigation: hide loader before first paint (no cover flash) */
+html.pf-nav-skip .loader {
+  display: none !important;
 }
 
 .scroll-line {
@@ -555,6 +554,71 @@ html.pf-nav-in .loader-bar {
   .footer-grid a {
     font-size: 0.74rem;
     line-height: 1.4;
+  }
+}
+
+/* ---- Pull to hard refresh ---- */
+.pf-pull-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  color: #6e6e73;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgb(255 255 255 / 96%), rgb(255 255 255 / 0%));
+  transition: opacity 160ms ease;
+}
+
+.pf-pull-indicator-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  transform: rotate(calc(var(--pf-pull-progress, 0) * 180deg));
+}
+
+body.pf-pulling .pf-pull-indicator,
+body.pf-pull-ready .pf-pull-indicator,
+body.pf-pull-refreshing .pf-pull-indicator {
+  height: calc(var(--pf-pull, 0px) * 0.45 + 2.4rem);
+  padding-top: env(safe-area-inset-top, 0);
+  opacity: 1;
+}
+
+body.pf-pull-ready .pf-pull-indicator {
+  color: #1d1d1f;
+}
+
+body.pf-pull-refreshing .pf-pull-indicator {
+  height: calc(2.75rem + env(safe-area-inset-top, 0px));
+  opacity: 1;
+}
+
+body.pf-pull-refreshing .pf-pull-indicator-icon {
+  animation: pf-pull-spin 0.75s linear infinite;
+}
+
+@keyframes pf-pull-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-pull-indicator-icon,
+  body.pf-pull-refreshing .pf-pull-indicator-icon {
+    animation: none;
+    transition: none;
   }
 }
 
