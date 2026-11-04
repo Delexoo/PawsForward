@@ -3458,7 +3458,8 @@ body[data-page="admin"] .btn:active {
   color: #64748b;
 }
 
-/* ---- Public join / promoter signup (landing palette) ---- */
+/* ---- Shared public site system (home + join) ---- */
+body[data-page="home"],
 body[data-page="join"] {
   --pf-cream: #fff9f3;
   --pf-ink: #2d312b;
@@ -3467,13 +3468,111 @@ body[data-page="join"] {
   --pf-green: #6b8361;
   --pf-peach: #f5ded2;
   --pf-rule: #e5e0d8;
+  --pf-btn-radius: 999px;
+  --pf-control-radius: 16px;
+  --pf-ease: cubic-bezier(0.22, 1, 0.36, 1);
   margin: 0;
   min-height: 100dvh;
   background: var(--pf-cream);
   color: var(--pf-ink);
   color-scheme: light;
+  font-family: "DM Sans", system-ui, sans-serif;
 }
 
+/* Shared pill buttons — landing + join */
+body[data-page="home"] .pf-btn,
+body[data-page="join"] .pf-btn,
+body[data-page="home"] a.btn.pf-home-cta,
+body[data-page="join"] .btn.pf-join-submit,
+body[data-page="join"] .btn.pf-join-secondary {
+  appearance: none;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 26px !important;
+  border-radius: var(--pf-btn-radius) !important;
+  border-width: 1.5px !important;
+  border-style: solid !important;
+  font-family: "DM Sans", system-ui, sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  text-decoration: none !important;
+  cursor: pointer;
+  box-sizing: border-box;
+  box-shadow: 0 1px 0 rgba(45, 49, 43, 0.04) !important;
+  transform: translateY(0);
+  transition:
+    background 0.2s var(--pf-ease),
+    border-color 0.2s var(--pf-ease),
+    color 0.2s var(--pf-ease),
+    box-shadow 0.2s var(--pf-ease),
+    transform 0.18s var(--pf-ease),
+    opacity 0.18s ease;
+}
+
+body[data-page="home"] .pf-btn:hover,
+body[data-page="join"] .pf-btn:hover,
+body[data-page="home"] a.btn.pf-home-cta:hover,
+body[data-page="join"] .btn.pf-join-submit:hover,
+body[data-page="join"] .btn.pf-join-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(45, 49, 43, 0.12) !important;
+}
+
+body[data-page="home"] .pf-btn:active,
+body[data-page="join"] .pf-btn:active,
+body[data-page="home"] a.btn.pf-home-cta:active,
+body[data-page="join"] .btn.pf-join-submit:active,
+body[data-page="join"] .btn.pf-join-secondary:active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: 0 2px 8px rgba(45, 49, 43, 0.1) !important;
+}
+
+body[data-page="home"] .pf-btn:focus-visible,
+body[data-page="join"] .pf-btn:focus-visible,
+body[data-page="home"] a.btn.pf-home-cta:focus-visible,
+body[data-page="join"] .btn.pf-join-submit:focus-visible,
+body[data-page="join"] .btn.pf-join-secondary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--pf-peach) 80%, transparent),
+    0 8px 20px rgba(45, 49, 43, 0.1) !important;
+}
+
+/* Primary = green fill (cream pages) / white fill (hero) */
+body[data-page="join"] .pf-btn--primary,
+body[data-page="join"] .btn.pf-join-submit {
+  background: var(--pf-green) !important;
+  border-color: var(--pf-green) !important;
+  color: #fff !important;
+}
+
+body[data-page="join"] .pf-btn--primary:hover,
+body[data-page="join"] .btn.pf-join-submit:hover {
+  background: color-mix(in srgb, var(--pf-green) 88%, #000) !important;
+  border-color: color-mix(in srgb, var(--pf-green) 88%, #000) !important;
+  color: #fff !important;
+}
+
+body[data-page="join"] .pf-btn--secondary,
+body[data-page="join"] .btn.pf-join-secondary {
+  background: #fff !important;
+  border-color: var(--pf-rule) !important;
+  color: var(--pf-ink) !important;
+}
+
+body[data-page="join"] .pf-btn--secondary:hover,
+body[data-page="join"] .btn.pf-join-secondary:hover {
+  background: var(--pf-peach) !important;
+  border-color: color-mix(in srgb, var(--pf-salmon) 28%, var(--pf-rule)) !important;
+  color: var(--pf-ink) !important;
+}
+
+/* ---- Public join / promoter signup ---- */
 body[data-page="join"] #shell,
 body[data-page="join"] .site-lock,
 body[data-page="join"] #site-lock {
@@ -3501,7 +3600,10 @@ body[data-page="join"] #page-body {
     max(12px, env(safe-area-inset-top, 0px))
     var(--join-pad)
     calc(28px + env(safe-area-inset-bottom, 0px));
-  background: var(--pf-cream);
+  background:
+    radial-gradient(900px 420px at 8% -8%, color-mix(in srgb, var(--pf-peach) 45%, transparent), transparent 70%),
+    radial-gradient(700px 360px at 100% 0%, color-mix(in srgb, var(--pf-salmon) 8%, transparent), transparent 60%),
+    var(--pf-cream);
 }
 
 .pf-join-top {
@@ -3560,22 +3662,22 @@ body[data-page="join"] #page-body {
 }
 
 .pf-join-kicker {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-family: "DM Sans", system-ui, sans-serif;
-  font-size: 0.72rem;
-  font-weight: 750;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--pf-salmon);
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--pf-taupe);
 }
 
 .pf-join-title {
   margin: 0 0 8px;
   font-family: "DM Sans", system-ui, sans-serif;
-  font-size: clamp(1.7rem, 5vw, 2.15rem);
-  font-weight: 750;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+  font-size: clamp(1.65rem, 4.5vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
   color: var(--pf-ink);
   text-wrap: balance;
 }
@@ -3584,9 +3686,9 @@ body[data-page="join"] #page-body {
   margin: 0;
   font-family: "DM Sans", system-ui, sans-serif;
   font-size: 0.98rem;
-  font-weight: 500;
-  line-height: 1.45;
-  color: var(--pf-taupe);
+  font-weight: 450;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--pf-ink) 62%, var(--pf-taupe));
   text-wrap: pretty;
 }
 
@@ -3626,11 +3728,11 @@ body[data-page="join"] #page-body {
 
 .pf-join-panel {
   width: 100%;
-  padding: 18px 16px;
+  padding: 20px 18px;
   border: 1px solid var(--pf-rule);
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: none;
+  border-radius: 22px;
+  background: color-mix(in srgb, #fff 92%, var(--pf-cream));
+  box-shadow: 0 12px 32px rgba(45, 49, 43, 0.05);
   box-sizing: border-box;
 }
 
@@ -3683,29 +3785,38 @@ body[data-page="join"] #page-body {
 .pf-join-form .field select,
 .pf-join-share-input {
   width: 100%;
-  min-height: 46px;
+  min-height: 48px;
   box-sizing: border-box;
-  padding: 10px 12px;
-  border: 1px solid var(--pf-rule);
-  border-radius: 10px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--pf-rule);
+  border-radius: var(--pf-control-radius);
   background: #fff;
   color: var(--pf-ink);
   font: inherit;
   font-size: 16px;
-  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  transition:
+    border-color 0.18s var(--pf-ease),
+    box-shadow 0.18s var(--pf-ease),
+    background 0.18s var(--pf-ease);
+}
+
+.pf-join-form .field input:not([type="checkbox"]):hover,
+.pf-join-form .field select:hover,
+.pf-join-share-input:hover {
+  border-color: color-mix(in srgb, var(--pf-ink) 18%, var(--pf-rule));
 }
 
 .pf-join-form .field input:not([type="checkbox"]):focus,
 .pf-join-form .field select:focus,
 .pf-join-share-input:focus {
   outline: none;
-  border-color: color-mix(in srgb, var(--pf-green) 50%, var(--pf-rule));
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pf-peach) 65%, transparent);
+  border-color: color-mix(in srgb, var(--pf-green) 55%, var(--pf-rule));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pf-peach) 70%, transparent);
 }
 
 .pf-join-form .ui-select-trigger {
-  min-height: 46px;
-  border-radius: 10px;
+  min-height: 48px;
+  border-radius: var(--pf-control-radius);
   border-color: var(--pf-rule);
   background: #fff;
 }
@@ -3729,28 +3840,11 @@ body[data-page="join"] #page-body {
 
 .pf-join-submit {
   width: 100%;
-  min-height: 46px !important;
-  margin-top: 4px;
-  border-radius: 10px !important;
-  background: var(--pf-green) !important;
-  border-color: var(--pf-green) !important;
-  color: #fff !important;
-  font-weight: 700 !important;
-  font-size: 0.98rem !important;
-  box-shadow: none !important;
-}
-
-.pf-join-submit:hover {
-  background: color-mix(in srgb, var(--pf-green) 88%, #000) !important;
-  border-color: color-mix(in srgb, var(--pf-green) 88%, #000) !important;
+  margin-top: 6px;
 }
 
 .pf-join-secondary {
-  border-radius: 10px !important;
-  border-color: var(--pf-rule) !important;
-  background: #fff !important;
-  color: var(--pf-ink) !important;
-  box-shadow: none !important;
+  /* inherits shared .pf-btn secondary */
 }
 
 .pf-join-success {
@@ -3871,7 +3965,7 @@ body[data-page="join"] .status-banner {
   padding: 0;
   flex: 0 0 20px;
   border: 1.5px solid var(--pf-rule);
-  border-radius: 6px;
+  border-radius: 8px;
   background: #fff;
   box-shadow: none;
   cursor: pointer;
@@ -4573,32 +4667,7 @@ body.pf-home-video-failed .pf-home-fallback {
 
 body[data-page="home"] a.btn.pf-home-cta {
   flex: 0 0 auto;
-  min-height: 48px;
   min-width: 148px;
-  padding: 12px 28px !important;
-  border-radius: 12px !important;
-  border-width: 1px !important;
-  border-style: solid !important;
-  font-family: "DM Sans", system-ui, sans-serif !important;
-  font-size: 0.95rem !important;
-  font-weight: 650 !important;
-  letter-spacing: -0.015em;
-  line-height: 1.2;
-  text-decoration: none !important;
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  box-shadow: none !important;
-  box-sizing: border-box;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    opacity 0.2s ease;
-}
-
-body[data-page="home"] a.btn.pf-home-cta:active {
-  opacity: 0.88;
 }
 
 body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--primary,
@@ -4610,25 +4679,27 @@ body[data-page="home"] a.btn.pf-home-cta--primary:not(.secondary) {
 
 body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--primary:hover,
 body[data-page="home"] a.btn.pf-home-cta--primary:not(.secondary):hover {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border-color: rgba(255, 255, 255, 0.9) !important;
+  background: #fff !important;
+  border-color: #fff !important;
   color: #141612 !important;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22) !important;
 }
 
 body[data-page="home"] a.btn.secondary.pf-home-cta,
 body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--secondary {
-  background: transparent !important;
-  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
   color: #fff !important;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 body[data-page="home"] a.btn.secondary.pf-home-cta:hover,
 body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--secondary:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: #fff !important;
   color: #fff !important;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2) !important;
 }
 
 .pf-home-about {
@@ -4676,19 +4747,20 @@ body[data-page="home"] a.btn.pf-home-cta.pf-home-cta--secondary:hover {
 }
 
 .pf-home-how {
-  width: min(760px, calc(100% - 40px));
+  width: min(640px, calc(100% - 40px));
   margin: 0 auto;
   padding: 48px 0 28px;
   color: var(--pf-ink);
+  text-align: left;
 }
 
 .pf-home-how-title {
   margin: 0 0 22px;
   font-family: "DM Sans", system-ui, sans-serif;
   font-size: 0.78rem;
-  font-weight: 750;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: none;
   color: var(--pf-taupe);
 }
 
