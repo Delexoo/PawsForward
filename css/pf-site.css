@@ -120,39 +120,9 @@ main { flex: 1; }
   border-radius: 0.35rem;
 }
 
-.topnav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem 1.25rem;
-  margin-left: auto;
-  align-items: center;
-}
-
-.topnav a {
-  color: #1d1d1f;
-  font-size: 1.02rem;
-  font-weight: 500;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.topnav a[aria-current="page"] { font-weight: 650; }
-
-.topnav .nav-cta {
-  display: inline-flex;
-  align-items: center;
-  height: 2.4rem;
-  padding: 0 1.15rem;
-  border-radius: 980px;
-  background: #1d1d1f;
-  color: #fff;
-  font-weight: 600;
-}
-
-.topnav .nav-cta:hover { background: #000; }
-
 .menu-toggle {
-  display: none;
+  display: grid;
+  place-items: center;
   position: relative;
   z-index: 2;
   width: 2.75rem;
@@ -194,62 +164,79 @@ main { flex: 1; }
 .topbar.is-open .menu-bars::before { transform: translateY(6px) rotate(45deg); }
 .topbar.is-open .menu-bars::after { transform: translateY(-6px) rotate(-45deg); }
 
-@media (max-width: 860px) {
-  .menu-toggle { display: grid; place-items: center; }
+.topbar .topnav {
+  position: fixed;
+  z-index: 1;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.15rem;
+  margin: 0;
+  padding: 5.5rem 1.5rem 3rem;
+  background: #fff;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: opacity 0.35s ease, transform 0.45s var(--ease);
+}
 
-  .topbar .topnav {
-    position: fixed;
-    z-index: 1;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: center;
-    gap: 1.15rem;
-    margin: 0;
-    padding: 5.5rem 1.5rem 3rem;
-    background: #fff;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(-10px);
-    transition: opacity 0.35s ease, transform 0.45s var(--ease);
-  }
+.topbar.is-open .topnav {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+}
 
-  .topbar.is-open .topnav {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: none;
-  }
+.topbar .topnav a {
+  color: #1d1d1f;
+  font-size: 1.7rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
 
-  .topbar .topnav a {
-    font-size: 1.7rem;
-    font-weight: 500;
-    opacity: 0;
-    transform: translateY(14px);
-    transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  }
+.topbar .topnav a[aria-current="page"] { font-weight: 650; }
 
-  .topbar.is-open .topnav a {
-    opacity: 1;
-    transform: none;
-  }
+.topbar.is-open .topnav a {
+  opacity: 1;
+  transform: none;
+}
 
-  .topbar.is-open .topnav a:nth-child(1) { transition-delay: 0.08s; }
-  .topbar.is-open .topnav a:nth-child(2) { transition-delay: 0.16s; }
-  .topbar.is-open .topnav a:nth-child(3) { transition-delay: 0.24s; }
-  .topbar.is-open .topnav a:nth-child(4) { transition-delay: 0.32s; }
-  .topbar.is-open .topnav a:nth-child(5) { transition-delay: 0.4s; }
-  .topbar.is-open .topnav a:nth-child(6) { transition-delay: 0.48s; }
+.topbar.is-open .topnav a:nth-child(1) { transition-delay: 0.08s; }
+.topbar.is-open .topnav a:nth-child(2) { transition-delay: 0.16s; }
+.topbar.is-open .topnav a:nth-child(3) { transition-delay: 0.24s; }
+.topbar.is-open .topnav a:nth-child(4) { transition-delay: 0.32s; }
+.topbar.is-open .topnav a:nth-child(5) { transition-delay: 0.4s; }
+.topbar.is-open .topnav a:nth-child(6) { transition-delay: 0.48s; }
 
-  .topbar .topnav .nav-cta {
-    height: 2.75rem;
-    margin-top: 0.55rem;
-    padding: 0 1.35rem;
-    font-size: 1.05rem;
-  }
+.topbar .topnav .nav-cta {
+  display: inline-flex;
+  align-items: center;
+  height: 2.75rem;
+  margin-top: 0.55rem;
+  padding: 0 1.35rem;
+  border-radius: 980px;
+  background: #1d1d1f;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.topbar .topnav .nav-cta:hover { background: #000; }
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar .topnav,
+  .topbar .topnav a,
+  .menu-bars,
+  .menu-bars::before,
+  .menu-bars::after { transition: none; }
 }
 
 /* ---- Buttons ---- */

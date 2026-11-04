@@ -248,10 +248,6 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") setMenu(false);
     });
-
-    window.matchMedia("(min-width: 861px)").addEventListener("change", (event) => {
-      if (event.matches) setMenu(false);
-    });
   }
 
   function setupFaq() {
