@@ -172,16 +172,9 @@ body.join-page {
   color: #6e6e73;
 }
 
-.join-msg {
-  margin: 0;
-  padding: 0.9rem 1rem;
-  border-radius: 0.9rem;
-  background: #fff;
-  color: #3a3a3c;
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.78rem;
-  line-height: 1.45;
-  white-space: pre-wrap;
+.join-detail {
+  display: grid;
+  gap: 0.35rem;
 }
 
 .join-qr {
@@ -198,13 +191,26 @@ body.join-page {
   font-weight: 600;
 }
 
-.join-share-input {
+.join-share-input,
+.join-share-msg {
   width: 100%;
-  height: 2.85rem;
-  padding: 0 0.9rem;
+  padding: 0.75rem 0.9rem;
   border: 1px solid #d2d2d7;
   border-radius: 0.85rem;
   background: #fff;
+  color: #1d1d1f;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.join-share-input {
+  height: 2.85rem;
+}
+
+.join-share-msg {
+  min-height: 7.5rem;
+  resize: vertical;
+  font-family: inherit;
 }
 
 .join-actions {

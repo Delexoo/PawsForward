@@ -7,9 +7,10 @@
     successTitle: document.getElementById("join-success-title"),
     successName: document.getElementById("join-success-name"),
     successLead: document.getElementById("join-success-lead"),
-    successMsg: document.getElementById("join-success-msg"),
     qr: document.getElementById("join-qr"),
     shareUrl: document.getElementById("join-share-url"),
+    qrUrl: document.getElementById("join-qr-url"),
+    shareMsg: document.getElementById("join-share-msg"),
     code: document.getElementById("join-code"),
     copy: document.getElementById("join-copy"),
     download: document.getElementById("join-download"),
@@ -29,7 +30,7 @@
     errAge: document.getElementById("err-join-age"),
   };
 
-  let current = { url: "", name: "", code: "", email: "", phone: "", qrPage: "" };
+  let current = { url: "", name: "", code: "", email: "", phone: "", qrPage: "", shareText: "" };
 
   function setBanner(msg, kind) {
     if (!els.banner) return;
@@ -95,11 +96,8 @@
   }
 
   function shareUrlFor(code) {
-    // QR / share link opens Stripe Checkout directly (Edge redirects 303).
-    if (typeof window.SITE_CONFIG?.checkoutUrl === "function") {
-      return window.SITE_CONFIG.checkoutUrl(code);
-    }
-    const origin = siteOrigin();
+    // Short public donate URL (donate page sends people to Stripe).
+    const origin = siteOrigin() || location.origin.replace(/\/$/, "");
     const ref = String(code || "").trim();
     if (origin && ref) return `${origin}/donate?ref=${encodeURIComponent(ref)}`;
     if (ref) return new URL(`/donate?ref=${encodeURIComponent(ref)}`, location.origin).href;
@@ -107,22 +105,17 @@
   }
 
   function qrPageUrlFor(code) {
-    const origin = siteOrigin();
+    const origin = siteOrigin() || location.origin.replace(/\/$/, "");
     const ref = String(code || "").trim();
     if (origin && ref) return `${origin}/qr?ref=${encodeURIComponent(ref)}`;
     if (ref) return new URL(`/qr?ref=${encodeURIComponent(ref)}`, location.origin).href;
     return origin ? `${origin}/qr` : new URL("/qr", location.origin).href;
   }
 
-  function welcomeMessage(first, url, code, qrPage) {
-    const who = first || "there";
-    const page = qrPage || url;
+  function shareMessage(url, qrPage) {
     return (
-      `Hi ${who} — you’re in at Paws Forward!\n\n` +
-      `Your donation link:\n${url}\n\n` +
-      `Your QR (open & save):\n${page}\n\n` +
-      `Code: ${code}\n` +
-      `Share the link or QR — gifts through them count toward your payout.`
+      `Help dogs with Paws Forward — donate any amount here:\n${url}\n\n` +
+      `Or open / save my QR:\n${qrPage || url}`
     );
   }
 
@@ -222,6 +215,7 @@
     const url = shareUrlFor(row.referral_code);
     const code = row.referral_code || "";
     const qrPage = qrPageUrlFor(code);
+    const shareText = shareMessage(url, qrPage);
     current = {
       url,
       name,
@@ -229,50 +223,37 @@
       email: String(email || row.email || "").trim().toLowerCase(),
       phone: phone || "",
       qrPage,
+      shareText,
     };
 
+    // Show every detail first — never wait on email/QR before revealing the panel.
     if (els.form) els.form.hidden = true;
     if (els.success) els.success.hidden = false;
     if (els.successTitle) {
       els.successTitle.textContent = name ? `You’re in, ${name}` : "You’re in";
     }
-    if (els.shareUrl) els.shareUrl.value = url;
-    if (els.code) els.code.textContent = code || "—";
-
-    const msg = welcomeMessage(name, url, code || "—", qrPage);
-    if (els.successMsg) els.successMsg.textContent = msg;
     if (els.successLead) {
-      els.successLead.textContent = `We’re emailing ${current.email || "you"} your link and QR.`;
+      els.successLead.textContent = "Here’s your donation link and QR. Share either one.";
     }
+    if (els.shareUrl) els.shareUrl.value = url;
+    if (els.qrUrl) els.qrUrl.value = qrPage;
+    if (els.shareMsg) els.shareMsg.value = shareText;
+    if (els.code) els.code.textContent = code || "—";
+    setBanner("You’re set — copy, download, or share below.", "ok");
 
     try {
       await window.PfQr.renderInto(els.qr, url, 220);
     } catch (err) {
       console.error(err);
-      setBanner("Account created, but the QR could not render. Copy your link below.", "err");
-      return;
+      setBanner("Account created. QR image failed — use your donation link or QR page link below.", "err");
     }
 
-    try {
-      await navigator.clipboard.writeText(url);
-    } catch {
-      /* optional */
-    }
-
-    setBanner("Emailing your QR…");
-    const mailed = await emailWelcome();
-    if (mailed.ok) {
-      setBanner(`Sent to ${current.email}. Check your inbox (and spam).`, "ok");
-      if (els.successLead) {
-        els.successLead.textContent = "We emailed your link and QR. Save a copy here too.";
+    // Email in the background; never block or wipe the success UI.
+    void emailWelcome().then((mailed) => {
+      if (mailed.ok) {
+        setBanner(`You’re set — also emailed ${current.email}.`, "ok");
       }
-    } else {
-      setBanner(mailed.error || "Account created — download your QR below while email is set up.", "err");
-      if (els.successLead) {
-        els.successLead.textContent =
-          "Here’s your link and QR — use Download, or tap Resend email once mail is ready.";
-      }
-    }
+    });
   }
 
   async function onSubmit(event) {
@@ -483,10 +464,10 @@
     els.copy?.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(current.url);
-        setBanner("Link copied.", "ok");
+        setBanner("Donation link copied.", "ok");
       } catch {
         els.shareUrl?.select();
-        setBanner("Could not copy automatically — select and copy the link.", "err");
+        setBanner("Could not copy automatically — select and copy the donation link.", "err");
       }
     });
     els.download?.addEventListener("click", async () => {
@@ -499,12 +480,35 @@
       }
     });
     els.share?.addEventListener("click", async () => {
-      setBanner("Resending email…");
-      const mailed = await emailWelcome();
-      if (mailed.ok) {
-        setBanner(`Sent again to ${current.email}.`, "ok");
-      } else {
-        setBanner(mailed.error || "Could not resend email.", "err");
+      const text = current.shareText || shareMessage(current.url, current.qrPage);
+      const url = current.url;
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: "Help dogs with Paws Forward",
+            text,
+            url,
+          });
+          setBanner("Share sheet opened.", "ok");
+          return;
+        }
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+        console.warn(err);
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        setBanner("Share message copied — paste it anywhere.", "ok");
+        if (els.shareMsg) {
+          els.shareMsg.focus();
+          els.shareMsg.select();
+        }
+      } catch {
+        if (els.shareMsg) {
+          els.shareMsg.focus();
+          els.shareMsg.select();
+        }
+        setBanner("Select and copy the share message above.", "err");
       }
     });
   });

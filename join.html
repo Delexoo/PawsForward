@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/pf-site.css?v=20261108ac">
-  <link rel="stylesheet" href="css/pf-join.css?v=20261108ac">
+  <link rel="stylesheet" href="css/pf-join.css?v=20261109b">
   <script src="js/config.js?v=20261109a"></script>
   <script src="js/canonical.js?v=20261108z"></script>
 </head>
@@ -135,19 +135,31 @@
 
         <section class="join-success" id="join-success" hidden>
           <h2 id="join-success-title">You’re in</h2>
-          <p class="lede" id="join-success-lead">We emailed your link and QR. Save a copy here too.</p>
-          <pre class="join-msg" id="join-success-msg" aria-live="polite"></pre>
+          <p class="lede" id="join-success-lead">Here’s your donation link and QR. Share either one.</p>
+
           <div class="join-qr" id="join-qr" role="img" aria-label="Your donation QR code"></div>
-          <label class="join-label" for="join-share-url">Your link</label>
-          <input id="join-share-url" class="join-share-input" type="text" readonly>
+
+          <div class="join-detail">
+            <label class="join-label" for="join-share-url">Donation link</label>
+            <input id="join-share-url" class="join-share-input" type="text" readonly>
+          </div>
+          <div class="join-detail">
+            <label class="join-label" for="join-qr-url">QR page link</label>
+            <input id="join-qr-url" class="join-share-input" type="text" readonly>
+          </div>
+          <div class="join-detail">
+            <label class="join-label" for="join-share-msg">Share message</label>
+            <textarea id="join-share-msg" class="join-share-msg" readonly rows="5"></textarea>
+          </div>
+
           <div class="join-actions">
-            <button type="button" class="btn btn-primary" id="join-copy">Copy link</button>
+            <button type="button" class="btn btn-primary" id="join-copy">Copy donation link</button>
             <button type="button" class="btn btn-ghost" id="join-download">Download QR</button>
-            <button type="button" class="btn btn-ghost" id="join-share">Resend email</button>
+            <button type="button" class="btn btn-ghost" id="join-share">Share</button>
           </div>
           <p class="join-fineprint">
-            Check your inbox (and spam) for your QR and link.
             Code: <code id="join-code"></code>
+            · We also email these to you when mail is set up.
           </p>
         </section>
       </div>
@@ -189,6 +201,6 @@
   <script src="js/vendor/qrcode.min.js?v=20261108z" defer></script>
   <script src="js/supabase-client.js?v=20261108z" defer></script>
   <script src="js/qr.js?v=20261108z" defer></script>
-  <script src="js/join.js?v=20261108ab" defer></script>
+  <script src="js/join.js?v=20261109b" defer></script>
 </body>
 </html>
