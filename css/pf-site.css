@@ -17,6 +17,8 @@
 html {
   scroll-behavior: smooth;
   scrollbar-width: none;
+  background: #000;
+  overscroll-behavior-y: none;
 }
 
 html::-webkit-scrollbar {
@@ -482,6 +484,8 @@ main { flex: 1; }
   overflow: hidden;
   background: #000;
   color: #a1a1a6;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  box-shadow: 0 100vh 0 100vh #000;
 }
 
 .to-top {
