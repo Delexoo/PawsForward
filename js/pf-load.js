@@ -235,6 +235,8 @@
       topbar.classList.toggle("is-open", open);
       menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
       document.documentElement.classList.toggle("menu-open", open);
+      const label = menuToggle.querySelector(".menu-label");
+      if (label) label.textContent = open ? "Close" : "Menu";
     }
 
     menuToggle.addEventListener("click", () => {
