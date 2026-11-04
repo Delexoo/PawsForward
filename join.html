@@ -28,8 +28,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/pf-site.css?v=20261108ae">
-  <link rel="stylesheet" href="css/pf-join.css?v=20261109l">
-  <script src="js/config.js?v=20261109a"></script>
+  <link rel="stylesheet" href="css/pf-join.css?v=20261109m">
+  <script src="js/config.js?v=20261109n"></script>
   <script src="js/canonical.js?v=20261108z"></script>
 </head>
 <body class="join-page">
@@ -61,7 +61,7 @@
       <a href="/#how">How it works</a>
       <a href="/#faq">FAQ</a>
       <a href="/join" aria-current="page">Get your QR</a>
-      <a href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
+      <a href="https://fnkccwjoyfnackmdycti.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
     </nav>
   </header>
 
@@ -132,6 +132,11 @@
           <h2 id="join-success-title">You’re in</h2>
           <p class="lede" id="join-success-lead">Here’s your donation link and QR. Share either one.</p>
 
+          <aside class="join-junk-toast" id="join-junk-toast" hidden role="status" aria-live="polite">
+            <p>Don’t forget to check your junk mail.</p>
+            <button type="button" class="join-junk-toast-close" id="join-junk-toast-close" aria-label="Dismiss">×</button>
+          </aside>
+
           <div class="join-qr" id="join-qr" role="img" aria-label="Your donation QR code"></div>
 
           <div class="join-detail">
@@ -160,7 +165,7 @@
     <div class="wrap footer-grid">
       <div>
         <p class="footer-label">Give</p>
-        <a href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
+        <a href="https://fnkccwjoyfnackmdycti.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
         <a href="/join">Get your QR</a>
         <a href="/#ways">Ways to help</a>
       </div>
@@ -169,7 +174,7 @@
         <a href="/#how">How it works</a>
         <a href="/#why">Why us</a>
         <a href="/#faq">FAQ</a>
-        <a href="/login">Volunteer portal</a>
+        <a href="/login">Portal</a>
       </div>
       <div>
         <p class="footer-label">Legal</p>
@@ -190,6 +195,6 @@
   <script src="js/vendor/qrcode.min.js?v=20261108z" defer></script>
   <script src="js/supabase-client.js?v=20261108z" defer></script>
   <script src="js/qr.js?v=20261108z" defer></script>
-  <script src="js/join.js?v=20261109j" defer></script>
+  <script src="js/join.js?v=20261109q" defer></script>
 </body>
 </html>

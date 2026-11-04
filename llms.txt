@@ -12,4 +12,4 @@
 ## Notes
 - Payments are processed by Stripe.
 - Application data is stored with Supabase.
-- Volunteer portal is for authorized operators only.
+- Portal is for authorized operators only.

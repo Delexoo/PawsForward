@@ -1,7 +1,7 @@
 {
   "name": "Paws Forward",
   "short_name": "Paws Forward",
-  "description": "Volunteer portal for Paws Forward operators.",
+  "description": "Portal for Paws Forward operators.",
   "start_url": "./login",
   "scope": "./",
   "id": "./",
