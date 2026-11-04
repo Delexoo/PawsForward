@@ -83,22 +83,37 @@ Deno.serve(async (req) => {
     const qrPage =
       String(payload?.qr_page_url || "").trim() ||
       `${siteOrigin}/qr?ref=${encodeURIComponent(referralCode)}`;
-    const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(shareUrl)}`;
+    const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&color=000000&bgcolor=ffffff&data=${encodeURIComponent(shareUrl)}`;
 
     const from =
       Deno.env.get("RESEND_FROM") ||
       "Paws Forward <joinpawsforward@outlook.com>";
 
     const html = `<!doctype html>
-<html><body style="font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#1d1d1f;line-height:1.5;padding:24px;">
-  <p>Hi ${escapeHtml(name)} — you’re in at Paws Forward.</p>
-  <p>Your donation link:<br><a href="${escapeHtml(shareUrl)}">${escapeHtml(shareUrl)}</a></p>
-  <p>Your QR (save this image or open the QR page):</p>
-  <p><img src="${escapeHtml(qrImg)}" width="280" height="280" alt="Your Paws Forward QR" style="display:block;border:0;"></p>
-  <p><a href="${escapeHtml(qrPage)}">Open your QR page</a></p>
-  <p>Code: <strong>${escapeHtml(referralCode)}</strong></p>
-  <p style="color:#6e6e73;font-size:14px;">Share the link or QR — gifts through them count toward your payout.</p>
-</body></html>`;
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="light only">
+  <title>You’re in · Paws Forward</title>
+</head>
+<body style="margin:0;padding:40px 20px;background:#ffffff;color:#000000;font-family:Arial,Helvetica,sans-serif;line-height:1.55;">
+  <div style="max-width:480px;margin:0 auto;">
+    <p style="margin:0 0 28px;padding-bottom:16px;border-bottom:1px solid #000000;font-size:16px;font-weight:700;">Paws Forward</p>
+    <h1 style="margin:0 0 12px;font-size:24px;font-weight:700;color:#000000;">Hi ${escapeHtml(name)},</h1>
+    <p style="margin:0 0 28px;font-size:15px;color:#000000;">You’re in. Your donation link and QR are below — share either one and gifts count toward your payout.</p>
+    <p style="margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#000000;">Your QR</p>
+    <p style="margin:0 0 28px;padding:24px;border:1px solid #000000;text-align:center;">
+      <img src="${escapeHtml(qrImg)}" width="200" height="200" alt="Your Paws Forward QR" style="display:block;margin:0 auto;border:0;background:#ffffff;">
+    </p>
+    <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#000000;">Donation link</p>
+    <p style="margin:0 0 24px;font-size:14px;word-break:break-all;"><a href="${escapeHtml(shareUrl)}" style="color:#000000;text-decoration:underline;">${escapeHtml(shareUrl)}</a></p>
+    <p style="margin:0 0 16px;"><a href="${escapeHtml(shareUrl)}" style="display:inline-block;padding:12px 20px;background:#000000;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;">Open donation link</a></p>
+    <p style="margin:0 0 24px;font-size:14px;"><a href="${escapeHtml(qrPage)}" style="color:#000000;text-decoration:underline;">Open QR page</a></p>
+    <p style="margin:0;padding-top:24px;border-top:1px solid #000000;font-size:13px;color:#000000;">Code: <strong>${escapeHtml(referralCode)}</strong></p>
+    <p style="margin:32px 0 0;font-size:12px;color:#000000;">Helping dogs get food, water, and shelter.<br><a href="${escapeHtml(siteOrigin)}" style="color:#000000;text-decoration:underline;">joinpawsforward.com</a></p>
+  </div>
+</body>
+</html>`;
 
     const text =
       `Hi ${name} — you’re in at Paws Forward!\n\n` +
