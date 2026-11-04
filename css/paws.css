@@ -1299,6 +1299,13 @@ h1,
   .site-leave-dialog-panel {
     corner-shape: squircle;
   }
+
+  /* Bottom sheets must stay square at the screen edge */
+  @media (max-width: 900px) {
+    body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel {
+      corner-shape: initial;
+    }
+  }
 }
 
 ::view-transition-old(root),
@@ -1856,54 +1863,127 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
   box-shadow: none;
 }
 
-.pf-donation-row:last-child,
+.pf-donation-row:last-child {
+  margin-bottom: 0;
+}
+
 .pf-employee-row:last-child {
   border-bottom: none;
   padding-bottom: 2px;
 }
 
+.pf-donation-main {
+  display: grid;
+  gap: 10px;
+}
+
 .pf-donation-top {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  align-items: baseline;
-  margin-bottom: 6px;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 0;
 }
 
+.pf-donation-identity {
+  min-width: 0;
+}
+
+.pf-donation-donor,
 .pf-donation-top strong {
-  font-size: 0.9rem;
+  display: block;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.pf-donation-when,
+.pf-donation-employee {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.pf-donation-employee {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.pf-donation-row .feed-amount {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-don-more {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 650;
+  padding: 0;
+  margin: 0;
+  width: fit-content;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pf-don-more:hover {
+  color: #0f172a;
+}
+
+.pf-donation-more {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.pf-donation-more[hidden] {
+  display: none !important;
 }
 
 .pf-donation-details {
   margin: 0;
   display: grid;
-  gap: 3px;
+  gap: 6px;
 }
 
 .pf-donation-details > div {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  gap: 6px;
-  font-size: 11px;
-  line-height: 1.35;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 0.72rem;
+  line-height: 1.4;
 }
 
 .pf-donation-details dt {
   margin: 0;
-  color: var(--muted, #64748b);
+  color: #94a3b8;
   font-weight: 600;
 }
 
 .pf-donation-details dd {
   margin: 0;
-  color: var(--text, #0f172a);
+  color: #0f172a;
+  font-weight: 600;
 }
 
 .pf-donation-details code {
-  font-size: 11px;
-  padding: 1px 5px;
+  font-size: 0.7rem;
+  padding: 2px 6px;
   border-radius: 6px;
-  background: var(--surface-2, #f1f5f9);
+  background: #f1f5f9;
 }
 
 .pf-muted {
@@ -2334,7 +2414,15 @@ button.pf-stat-chip--link:focus-visible {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 10px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.pf-donation-actions .pf-chip-btn {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 0.68rem;
 }
 
 .pf-info-list {
@@ -2426,11 +2514,12 @@ button.pf-stat-chip--link:focus-visible {
     bottom: 0 !important;
     left: 0 !important;
     transform: none !important;
-    overflow: hidden;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
+    overflow: visible !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
 
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog::backdrop,
@@ -2449,8 +2538,13 @@ button.pf-stat-chip--link:focus-visible {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     border-radius: 22px 22px 0 0 !important;
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    corner-shape: initial;
     border: 1px solid var(--border, #e2e8f0);
-    border-bottom: 0;
+    border-bottom: 0 !important;
     box-shadow: 0 -16px 48px rgba(15, 23, 42, 0.18);
   }
 
@@ -2622,9 +2716,8 @@ button.pf-stat-chip--link:focus-visible {
     font-size: 0.88rem;
   }
 
-  .pf-donation-details > div {
-    grid-template-columns: 58px minmax(0, 1fr);
-    gap: 4px;
+  .pf-donation-row {
+    padding: 12px 10px;
   }
 
   .menu-btn {
