@@ -1821,10 +1821,25 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
     box-shadow 0.18s ease;
 }
 
+.pf-donation-row {
+  padding: 14px 12px;
+  margin: 0 0 8px;
+  border: 1px solid #e8eef5;
+  border-bottom: 1px solid #e8eef5;
+  border-radius: 14px;
+  background: #fff;
+}
+
 .pf-donation-row:hover,
 .pf-employee-row:hover {
   background: #f8fafc;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.pf-donation-row:hover {
+  background: #fff;
+  border-color: #dbe4ef;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
 }
 
 .pf-employee-row:active {

@@ -796,28 +796,40 @@
     rows.slice(0, 40).forEach((d) => {
       const emp = d.employee_id ? employeeMap[d.employee_id] : null;
       const attributed = emp
-        ? `${emp.first_name} ${emp.last_name}`
-        : d.referral_code
-          ? `Code ${d.referral_code}`
-          : "General (no employee)";
+        ? `${emp.first_name} ${emp.last_name}`.trim()
+        : "";
       const donor = d.donor_label || "Anonymous";
-      const place = locationIndex?.forDonation(d) || "";
-      const channel = emp || d.referral_code ? "Employee QR" : "Direct";
+      const place = String(locationIndex?.forDonation(d) || "").trim();
+      const viaQr = !!(emp || d.referral_code);
+      const channel = viaQr ? "Employee QR" : "Direct";
+      const whenAbs = absoluteTime(d.created_at);
+      const whenRel = relativeTime(d.created_at);
+      const tags = [
+        `<span class="pf-don-tag ${viaQr ? "pf-don-tag--qr" : "pf-don-tag--direct"}">${escapeHtml(channel)}</span>`,
+      ];
+      if (attributed) {
+        tags.push(`<span class="pf-don-tag pf-don-tag--person">${escapeHtml(attributed)}</span>`);
+      } else if (!viaQr) {
+        tags.push(`<span class="pf-don-tag">Unattributed</span>`);
+      }
+      if (place) {
+        tags.push(`<span class="pf-don-tag pf-don-tag--place">${escapeHtml(place)}</span>`);
+      }
+      if (d.referral_code) {
+        tags.push(`<span class="pf-don-tag pf-don-tag--code"><code>${escapeHtml(d.referral_code)}</code></span>`);
+      }
       const li = document.createElement("li");
       li.className = "pf-donation-row";
       li.dataset.donationId = d.id;
       li.innerHTML = `
         <div class="pf-donation-top">
-          <strong>${escapeHtml(donor)}</strong>
+          <div class="pf-donation-identity">
+            <strong class="pf-donation-donor">${escapeHtml(donor)}</strong>
+            <p class="pf-donation-when">${escapeHtml(whenAbs)}${whenRel ? ` · ${escapeHtml(whenRel)}` : ""}</p>
+          </div>
           <span class="feed-amount">${money(d.amount)}</span>
         </div>
-        <dl class="pf-donation-details">
-          <div><dt>When</dt><dd>${escapeHtml(absoluteTime(d.created_at))} <span class="pf-muted">(${escapeHtml(relativeTime(d.created_at))})</span></dd></div>
-          <div><dt>Attributed to</dt><dd>${escapeHtml(attributed)}</dd></div>
-          <div><dt>Via</dt><dd>${escapeHtml(channel)}</dd></div>
-          <div><dt>Where</dt><dd>${escapeHtml(place || "Location unknown")}</dd></div>
-          ${d.referral_code ? `<div><dt>Code</dt><dd><code>${escapeHtml(d.referral_code)}</code></dd></div>` : ""}
-        </dl>
+        <div class="pf-donation-tags" aria-label="Donation details">${tags.join("")}</div>
         <div class="pf-donation-actions">
           <button type="button" class="pf-chip-btn" data-don-action="edit">Edit</button>
           <button type="button" class="pf-chip-btn pf-chip-btn--danger" data-don-action="delete">Delete</button>
