@@ -1916,8 +1916,9 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
 .pf-dashboard-brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
+  width: 100%;
 }
 
 .pf-dashboard-brand .pf-admin-logo {
@@ -1930,6 +1931,34 @@ body.pf-pull-refreshing .pf-pull-indicator-icon {
 
 .pf-dashboard-brand .pf-mini-heading {
   margin: 0;
+}
+
+.pf-signout-btn {
+  appearance: none;
+  margin-left: auto;
+  flex: 0 0 auto;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, #dc2626 28%, #e2e8f0);
+  background: color-mix(in srgb, #dc2626 8%, #fff);
+  color: #b91c1c;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pf-signout-btn:hover {
+  background: color-mix(in srgb, #dc2626 14%, #fff);
+  border-color: color-mix(in srgb, #dc2626 45%, #e2e8f0);
+  color: #991b1b;
+}
+
+.pf-signout-btn:active {
+  background: color-mix(in srgb, #dc2626 20%, #fff);
 }
 
 .pf-stat-strip {
