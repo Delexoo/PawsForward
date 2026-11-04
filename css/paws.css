@@ -2525,6 +2525,12 @@ button.pf-stat-chip--link:focus-visible {
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog::backdrop,
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide::backdrop {
     background: rgba(15, 23, 42, 0.42);
+    transition: opacity 0.28s ease;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog.is-entering::backdrop,
+  body[data-page="admin"] dialog.pf-dialog.is-closing::backdrop {
+    opacity: 0;
   }
 
   body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel {
@@ -2546,16 +2552,35 @@ button.pf-stat-chip--link:focus-visible {
     border: 1px solid var(--border, #e2e8f0);
     border-bottom: 0 !important;
     box-shadow: 0 -16px 48px rgba(15, 23, 42, 0.18);
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    touch-action: pan-y;
+    will-change: transform;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog.is-entering .site-leave-dialog-panel {
+    transform: translate3d(0, 110%, 0);
+    transition: none;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog.is-closing .site-leave-dialog-panel,
+  body[data-page="admin"] dialog.pf-dialog.is-dragging .site-leave-dialog-panel {
+    transition: none;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog.is-closing .site-leave-dialog-panel {
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel::before {
     content: "";
     display: block;
-    width: 40px;
-    height: 4px;
-    margin: 4px auto 14px;
+    width: 44px;
+    height: 5px;
+    margin: 6px auto 14px;
     border-radius: 999px;
     background: #cbd5e1;
+    box-shadow: 0 0 0 12px transparent; /* larger drag hit area */
   }
 
   .pf-dialog .site-leave-dialog-actions {
