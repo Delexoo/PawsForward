@@ -12,8 +12,8 @@
   }
 
   const CIRC = 2 * Math.PI * 40;
-  const ANIM_MS = 3400;
-  const EXIT_MS = 1100;
+  const ANIM_MS = 1500;
+  const EXIT_MS = 900;
   let videoReady = false;
   let dismissed = false;
   let lastPainted = -1;
@@ -43,14 +43,18 @@
     dismissed = true;
     paintProgress(100);
     if (loader) {
+      // Force layout so the exit transition always runs
+      void loader.offsetWidth;
       requestAnimationFrame(() => {
-        loader.classList.add("is-done");
-        loader.setAttribute("aria-busy", "false");
-        loader.setAttribute("aria-label", "Loaded");
+        requestAnimationFrame(() => {
+          loader.classList.add("is-done");
+          loader.setAttribute("aria-busy", "false");
+          loader.setAttribute("aria-label", "Loaded");
+        });
       });
       window.setTimeout(() => {
         loader.hidden = true;
-      }, EXIT_MS + 80);
+      }, EXIT_MS + 60);
     }
     document.body.classList.remove("pf-home-loading");
     document.body.classList.add("pf-home-ready");
@@ -83,14 +87,13 @@
       }
 
       paintProgress(100);
-      // Brief hold on 100% so it reads, then wait for video if needed
       const after = () => finish();
       if (videoReady || !video) {
-        window.setTimeout(after, 220);
+        window.setTimeout(after, 80);
       } else {
         const waitStart = performance.now();
         const poll = () => {
-          if (videoReady || performance.now() - waitStart > 4000) {
+          if (videoReady || performance.now() - waitStart > 2500) {
             after();
             return;
           }
