@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Paws Forward">
-  <meta name="theme-color" content="#fff9f3">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="Join Paws Forward. Create your own donation QR, share it, and earn 50% of every gift attributed to your code.">
   <meta property="og:title" content="Get your QR · Paws Forward">
   <meta property="og:description" content="Help dogs get food, water, and shelter. Create your QR in about a minute and earn 50% of attributed donations.">
@@ -13,131 +13,182 @@
   <meta name="twitter:card" content="summary">
   <link rel="canonical" href="https://joinpawsforward.com/join.html">
   <title>Get your QR · Paws Forward</title>
-  <link rel="icon" href="icons/favicon.png?v=20261107m" type="image/png" sizes="64x64">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261107m" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261107m">
-  <link rel="stylesheet" href="css/fonts.css?v=20261107m">
-  <script src="js/theme.js?v=20261107m"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261107m">
-  <link rel="stylesheet" href="css/paws.css?v=20261107m">
-  <script src="js/config.js?v=20261107m"></script>
-  <script src="js/canonical.js?v=20261107m"></script>
+  <link rel="icon" href="icons/favicon.png?v=20261108a" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261108a" sizes="180x180">
+  <link rel="manifest" href="manifest.webmanifest?v=20261108a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/pf-site.css?v=20261108a">
+  <link rel="stylesheet" href="css/pf-join.css?v=20261108a">
+  <script src="js/config.js?v=20261108a"></script>
+  <script src="js/canonical.js?v=20261108a"></script>
 </head>
-<body data-page="join" data-public="1">
-  <script>
-    document.body.setAttribute("data-public", "1");
-    document.body.classList.add("site-unlocked");
-  </script>
-  <a class="skip-link" href="#page-body">Skip to content</a>
+<body class="join-page">
+  <div class="loader" id="loader" role="status" aria-live="polite" aria-label="Loading">
+    <div class="loader-mark">
+      <svg class="loader-ring" viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="loader-track" cx="60" cy="60" r="46" fill="none" stroke="#e6e6ea" stroke-width="3.5"></circle>
+        <circle class="loader-bar" cx="60" cy="60" r="46" fill="none" stroke="#1d1d1f" stroke-width="3.5" stroke-linecap="round"></circle>
+      </svg>
+      <span class="loader-count">0%</span>
+    </div>
+  </div>
+  <script src="js/pf-load.js?v=20261108a"></script>
 
-  <div id="page-body" class="pf-join-page">
-    <header class="pf-join-top">
-      <a class="pf-join-brand" href="index.html">
-        <img src="doc/brand-mark.png" width="28" height="28" alt="">
-        <span>Paws Forward</span>
-      </a>
-      <a class="pf-join-top-link" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
+  <a class="skip" href="#content">Skip to content</a>
+  <div class="scroll-line" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="logo" href="index.html">
+      <img src="doc/brand-mark.png" width="24" height="24" alt="">
+      Paws Forward
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+      <span class="menu-bars" aria-hidden="true"></span>
+      <span class="sr">Menu</span>
+    </button>
+    <nav class="topnav" id="site-menu" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="join.html" aria-current="page">Get your QR</a>
+      <a class="nav-cta" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
+    </nav>
+  </header>
+
+  <main id="content" class="join-main">
+    <header class="join-hero reveal">
+      <p class="eyebrow">Get started</p>
+      <h1>Get your QR</h1>
+      <p class="lede">
+        Share your link. Dogs get help — you earn <strong id="join-commission">50%</strong>
+        of every gift that comes through it.
+      </p>
+      <ul class="join-points" aria-label="How it works">
+        <li>Create a personal donation link in about a minute</li>
+        <li>Friends give any amount on Stripe</li>
+        <li>Half of each attributed gift is owed to you</li>
+      </ul>
     </header>
 
-    <main class="pf-join-main">
-      <header class="pf-join-intro">
-        <p class="pf-join-kicker">Get started</p>
-        <h1 class="pf-join-title">Get your QR</h1>
-        <p class="pf-join-lead">
-          Share your link. Dogs get help — you earn <strong id="join-commission">50%</strong>
-          of every gift that comes through it.
-        </p>
-        <ul class="pf-join-points" aria-label="How it works">
-          <li>Create a personal donation link in about a minute</li>
-          <li>Friends give any amount on Stripe</li>
-          <li>Half of each attributed gift is owed to you</li>
-        </ul>
-      </header>
+    <div class="join-panel reveal" id="join-card">
+      <div id="status-banner" class="status-banner" hidden role="status"></div>
 
-      <div class="pf-join-panel" id="join-card">
-        <div id="status-banner" class="status-banner" hidden role="status"></div>
-
-        <form class="pf-join-form" id="join-form" action="#" method="post">
-          <div class="pf-join-row">
-            <div class="field">
-              <label for="join-first">First name <span class="pf-optional">(optional)</span></label>
-              <input id="join-first" name="first_name" type="text" autocomplete="given-name" maxlength="80" placeholder="Jordan">
-              <p class="field-error" id="err-join-first" hidden></p>
-            </div>
-            <div class="field">
-              <label for="join-last">Last name <span class="pf-optional">(optional)</span></label>
-              <input id="join-last" name="last_name" type="text" autocomplete="family-name" maxlength="80" placeholder="Lee">
-              <p class="field-error" id="err-join-last" hidden></p>
-            </div>
-          </div>
-          <div class="pf-join-row">
-            <div class="field">
-              <label for="join-phone">Phone <span class="pf-required" aria-hidden="true">*</span></label>
-              <input id="join-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567" inputmode="tel">
-              <p class="field-error" id="err-join-phone" hidden></p>
-            </div>
-            <div class="field">
-              <label for="join-payment">How you get paid <span class="pf-required" aria-hidden="true">*</span></label>
-              <select id="join-payment" name="payment_type" required>
-                <option value="" disabled selected>Choose one</option>
-                <option value="cashapp" data-brand="cashapp" data-icon="icons/payments/cashapp.svg">Cash App</option>
-                <option value="venmo" data-brand="venmo" data-icon="icons/payments/venmo.svg">Venmo</option>
-                <option value="paypal" data-brand="paypal" data-icon="icons/payments/paypal.svg">PayPal</option>
-                <option value="zelle" data-brand="zelle" data-icon="icons/payments/zelle.svg">Zelle</option>
-                <option value="apple_cash" data-brand="applecash" data-icon="icons/payments/applecash.svg">Apple Cash</option>
-                <option value="apple_pay" data-brand="applepay" data-icon="icons/payments/applepay.svg">Apple Pay</option>
-                <option value="google_pay" data-brand="googlepay" data-icon="icons/payments/googlepay.svg">Google Pay</option>
-                <option value="chime" data-brand="chime" data-icon="icons/payments/chime.svg">Chime</option>
-                <option value="cash" data-brand="cash" data-icon="icons/payments/cash.svg">Cash</option>
-                <option value="other" data-brand="other" data-icon="icons/payments/other.svg">Other</option>
-              </select>
-              <p class="field-error" id="err-join-payment" hidden></p>
-            </div>
+      <form class="join-form" id="join-form" action="#" method="post">
+        <div class="join-row">
+          <div class="field">
+            <label for="join-first">First name <span class="pf-optional">(optional)</span></label>
+            <input id="join-first" name="first_name" type="text" autocomplete="given-name" maxlength="80" placeholder="Jordan">
+            <p class="field-error" id="err-join-first" hidden></p>
           </div>
           <div class="field">
-            <label for="join-handle"><span id="join-handle-label">Your payout handle</span> <span class="pf-required" aria-hidden="true">*</span></label>
-            <input id="join-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, or email">
-            <p class="field-error" id="err-join-handle" hidden></p>
+            <label for="join-last">Last name <span class="pf-optional">(optional)</span></label>
+            <input id="join-last" name="last_name" type="text" autocomplete="family-name" maxlength="80" placeholder="Lee">
+            <p class="field-error" id="err-join-last" hidden></p>
           </div>
-          <div class="field pf-join-age">
-            <label class="pf-join-check">
-              <input id="join-age" name="age_confirm" type="checkbox" required>
-              <span>I confirm I am at least 18 years old (or the age of majority where I live). <span class="pf-required" aria-hidden="true">*</span></span>
-            </label>
-            <p class="field-error" id="err-join-age" hidden></p>
+        </div>
+        <div class="join-row">
+          <div class="field">
+            <label for="join-phone">Phone <span class="pf-required" aria-hidden="true">*</span></label>
+            <input id="join-phone" name="phone" type="tel" required autocomplete="tel" maxlength="40" placeholder="(555) 123-4567" inputmode="tel">
+            <p class="field-error" id="err-join-phone" hidden></p>
           </div>
-          <button type="submit" class="btn pf-btn pf-btn--primary pf-join-submit" id="join-submit">Create my QR</button>
-          <p class="pf-join-fineprint">
-            By continuing you agree to our <a href="terms.html">terms</a> and
-            <a href="privacy.html">privacy policy</a>.
-          </p>
-        </form>
+          <div class="field">
+            <label for="join-payment">How you get paid <span class="pf-required" aria-hidden="true">*</span></label>
+            <select id="join-payment" name="payment_type" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="cashapp">Cash App</option>
+              <option value="venmo">Venmo</option>
+              <option value="paypal">PayPal</option>
+              <option value="zelle">Zelle</option>
+              <option value="apple_cash">Apple Cash</option>
+              <option value="apple_pay">Apple Pay</option>
+              <option value="google_pay">Google Pay</option>
+              <option value="chime">Chime</option>
+              <option value="cash">Cash</option>
+              <option value="other">Other</option>
+            </select>
+            <p class="field-error" id="err-join-payment" hidden></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="join-handle"><span id="join-handle-label">Your payout handle</span> <span class="pf-required" aria-hidden="true">*</span></label>
+          <input id="join-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, or email">
+          <p class="field-error" id="err-join-handle" hidden></p>
+        </div>
+        <div class="field">
+          <label class="join-check">
+            <input id="join-age" name="age_confirm" type="checkbox" required>
+            <span>I confirm I am at least 18 years old (or the age of majority where I live). <span class="pf-required" aria-hidden="true">*</span></span>
+          </label>
+          <p class="field-error" id="err-join-age" hidden></p>
+        </div>
+        <button type="submit" class="join-submit" id="join-submit">Create my QR</button>
+        <p class="join-fineprint">
+          By continuing you agree to our <a href="terms.html">terms</a> and
+          <a href="privacy.html">privacy policy</a>.
+        </p>
+      </form>
 
-        <section class="pf-join-success" id="join-success" hidden>
-          <h2 class="pf-join-title" id="join-success-title">You’re in</h2>
-          <p class="pf-join-lead" id="join-success-lead">Here’s your link and QR — save them now.</p>
-          <pre class="pf-join-msg" id="join-success-msg" aria-live="polite"></pre>
-          <div class="pf-join-qr" id="join-qr" role="img" aria-label="Your donation QR code"></div>
-          <label class="pf-join-label" for="join-share-url">Your link</label>
-          <input id="join-share-url" class="pf-join-share-input" type="text" readonly>
-          <div class="pf-join-actions">
-            <button type="button" class="btn pf-btn pf-btn--primary pf-join-submit" id="join-copy">Copy link</button>
-            <button type="button" class="btn secondary pf-btn pf-btn--secondary pf-join-secondary" id="join-download">Download QR</button>
-            <button type="button" class="btn secondary pf-btn pf-btn--secondary pf-join-secondary" id="join-share">Send to my phone</button>
-          </div>
-          <p class="pf-join-fineprint">
-            We open your Messages app with a draft to your number (you tap Send) and download the QR PNG — no SMS provider.
-            Code: <code id="join-code"></code>
-          </p>
-        </section>
+      <section class="join-success" id="join-success" hidden>
+        <h2 id="join-success-title">You’re in</h2>
+        <p class="lede" id="join-success-lead">Here’s your link and QR — save them now.</p>
+        <pre class="join-msg" id="join-success-msg" aria-live="polite"></pre>
+        <div class="join-qr" id="join-qr" role="img" aria-label="Your donation QR code"></div>
+        <label class="join-label" for="join-share-url">Your link</label>
+        <input id="join-share-url" class="join-share-input" type="text" readonly>
+        <div class="join-actions">
+          <button type="button" class="btn btn-primary" id="join-copy">Copy link</button>
+          <button type="button" class="btn btn-ghost" id="join-download">Download QR</button>
+          <button type="button" class="btn btn-ghost" id="join-share">Send to my phone</button>
+        </div>
+        <p class="join-fineprint">
+          We open your Messages app with a draft to your number (you tap Send) and download the QR PNG — no SMS provider.
+          Code: <code id="join-code"></code>
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <a class="to-top" href="#content"><span aria-hidden="true"></span>Scroll up</a>
+    <div class="wrap footer-grid">
+      <div>
+        <p class="footer-label">Give</p>
+        <a href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
+        <a href="join.html">Get your QR</a>
+        <a href="index.html#ways">Ways to help</a>
       </div>
-    </main>
-  </div>
+      <div>
+        <p class="footer-label">Learn</p>
+        <a href="index.html#how">How it works</a>
+        <a href="index.html#why">Why us</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="login.html">Volunteer portal</a>
+      </div>
+      <div>
+        <p class="footer-label">Legal</p>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="terms.html">Terms of service</a>
+        <a href="mailto:hello@pawsforward.org">Contact</a>
+      </div>
+    </div>
+    <div class="wrap">
+      <p class="footer-note" id="site-notice"><strong>Paws Forward.</strong> Creating a QR does not make you an employee. You must be 18 or older (or the age of majority where you live). Half of attributed gifts stay with the rescue; half is owed to you unless a different rate is published. Payments run through Stripe. Questions: <a href="mailto:hello@pawsforward.org">hello@pawsforward.org</a>. <a href="terms.html">Terms</a>. <a href="privacy.html">Privacy</a>.</p>
+    </div>
+  </footer>
 
-  <script src="js/vendor/supabase.js?v=20261107m"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261107m"></script>
-  <script src="js/supabase-client.js?v=20261107m"></script>
-  <script src="js/qr.js?v=20261107m"></script>
-  <script src="js/join.js?v=20261107m"></script>
+  <script>
+    document.documentElement.classList.add("can-reveal");
+    document.querySelectorAll(".reveal").forEach(function (node) {
+      node.classList.add("is-in");
+    });
+  </script>
+  <script src="js/vendor/supabase.js?v=20261108a"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261108a"></script>
+  <script src="js/supabase-client.js?v=20261108a"></script>
+  <script src="js/qr.js?v=20261108a"></script>
+  <script src="js/join.js?v=20261108a"></script>
 </body>
 </html>

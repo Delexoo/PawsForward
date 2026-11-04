@@ -1,0 +1,201 @@
+body.join-page {
+  background: #fff;
+  color: #1d1d1f;
+}
+
+.join-main {
+  width: min(720px, calc(100% - 2.5rem));
+  margin: 0 auto;
+  padding: 7.25rem 0 4.5rem;
+}
+
+.join-hero {
+  margin-bottom: 2rem;
+}
+
+.join-hero .eyebrow {
+  margin: 0 0 0.55rem;
+  color: #6e6e73;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.join-hero h1 {
+  margin: 0;
+  max-width: 12ch;
+  font-size: clamp(2.6rem, 6vw, 4.4rem);
+  font-weight: 600;
+  letter-spacing: -0.048em;
+  line-height: 0.95;
+}
+
+.join-hero .lede {
+  max-width: 34rem;
+  margin: 0.9rem 0 0;
+  color: #6e6e73;
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.join-points {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.join-points li {
+  position: relative;
+  padding-left: 1.15rem;
+  color: #3a3a3c;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.join-points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #1d1d1f;
+}
+
+.join-panel {
+  margin-top: 2rem;
+  padding: 1.35rem 1.25rem 1.45rem;
+  border-radius: 1.25rem;
+  background: #f5f5f7;
+}
+
+.join-form {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.join-row {
+  display: grid;
+  gap: 0.95rem;
+}
+
+@media (min-width: 640px) {
+  .join-row { grid-template-columns: 1fr 1fr; }
+  .join-panel { padding: 1.6rem 1.55rem 1.7rem; }
+}
+
+.join-check {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #3a3a3c;
+}
+
+.join-check input {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.15rem;
+  flex: none;
+}
+
+.join-submit {
+  width: 100%;
+  height: 2.85rem;
+  margin-top: 0.25rem;
+  border: 0;
+  border-radius: 980px;
+  background: #1d1d1f;
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 280ms ease, background 180ms ease;
+}
+
+.join-submit:hover:not(:disabled) {
+  background: #000;
+  transform: scale(1.02);
+}
+
+.join-fineprint {
+  margin: 0.35rem 0 0;
+  color: #6e6e73;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.join-fineprint a { color: #1d1d1f; }
+
+.join-success {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.join-success h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+.join-success .lede {
+  margin: 0;
+  color: #6e6e73;
+}
+
+.join-msg {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  background: #fff;
+  color: #3a3a3c;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.join-qr {
+  display: grid;
+  place-items: center;
+  min-height: 14rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.join-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.join-share-input {
+  width: 100%;
+  height: 2.85rem;
+  padding: 0 0.9rem;
+  border: 1px solid #d2d2d7;
+  border-radius: 0.85rem;
+  background: #fff;
+}
+
+.join-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.join-actions .btn {
+  height: 2.5rem;
+  padding: 0 1.05rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .join-submit { transition: none; }
+  .join-submit:hover:not(:disabled) { transform: none; }
+}

@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Paws Forward">
-  <meta name="theme-color" content="#fff9f3">
+  <meta name="theme-color" content="#ffffff">
   <script>
-    /* Home-screen / installed app opens the Volunteer portal, not the public landing. */
     (function () {
       var standalone =
         (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
@@ -15,7 +14,7 @@
       if (standalone) location.replace("login.html");
     })();
   </script>
-  <meta name="description" content="Paws Forward is a dog-rescue fundraising organization. Donate directly, or get your own QR — every gift helps dogs get food, water, and shelter.">
+  <meta name="description" content="Paws Forward raises money for dogs that need food, water, and shelter. Donate any amount, or get a personal QR and earn 50% of every gift shared through it.">
   <meta property="og:title" content="Paws Forward">
   <meta property="og:description" content="Donate to help dogs — or get your QR and earn 50% of every gift shared through it.">
   <meta property="og:image" content="https://joinpawsforward.com/doc/brand-mark.png">
@@ -23,17 +22,18 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://joinpawsforward.com/">
   <title>Paws Forward</title>
-  <link rel="icon" href="icons/favicon.png?v=20261107m" type="image/png" sizes="64x64">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261107m" sizes="180x180">
+  <link rel="icon" href="icons/favicon.png?v=20261108a" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261108a" sizes="180x180">
   <link rel="preload" href="media/hero-poster.jpg" as="image">
   <link rel="preload" href="media/hero-fast.mp4" as="video" type="video/mp4">
-  <link rel="manifest" href="manifest.webmanifest?v=20261107m">
-  <link rel="stylesheet" href="css/fonts.css?v=20261107m">
-  <script src="js/theme.js?v=20261107m"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261107m">
-  <link rel="stylesheet" href="css/paws.css?v=20261107m">
-  <script src="js/config.js?v=20261107m"></script>
-  <script src="js/canonical.js?v=20261107m"></script>
+  <link rel="manifest" href="manifest.webmanifest?v=20261108a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/pf-site.css?v=20261108a">
+  <link rel="stylesheet" href="css/pf-home.css?v=20261108a">
+  <script src="js/config.js?v=20261108a"></script>
+  <script src="js/canonical.js?v=20261108a"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -42,213 +42,200 @@
     "url": "https://joinpawsforward.com/",
     "logo": "https://joinpawsforward.com/doc/brand-mark.png",
     "email": "hello@pawsforward.org",
-    "description": "Dog-rescue fundraising organization. Donate directly or share a personal QR and earn 50% of attributed gifts.",
-    "sameAs": []
+    "description": "Dog-rescue fundraising organization. Donate directly or share a personal QR and earn 50% of attributed gifts."
   }
   </script>
-  <script type="speculationrules">
-  {
-    "prerender": [{
-      "where": { "href_matches": ["donate.html", "join.html", "privacy.html", "terms.html"] },
-      "eagerness": "moderate"
-    }]
-  }
-  </script>
-  <style>
-    /* Critical loader — visible before paws.css */
-    #home-loader {
-      position: fixed;
-      inset: 0;
-      z-index: 100000;
-      display: grid;
-      place-items: center;
-      background: #fff9f3;
-      transform: translate3d(0, 0, 0);
-      transition: transform 1.3s cubic-bezier(0.76, 0, 0.24, 1);
-      will-change: transform;
-    }
-    #home-loader.is-done {
-      transform: translate3d(0, -110%, 0);
-      pointer-events: none;
-    }
-  </style>
 </head>
-<body data-page="home" data-public="1" class="pf-home-loading">
-  <script>
-    document.body.setAttribute("data-public", "1");
-    document.body.classList.add("site-unlocked");
-  </script>
-  <a class="skip-link" href="#page-body">Skip to content</a>
-
-  <div id="home-loader" class="pf-home-loader" role="status" aria-live="polite" aria-busy="true" aria-label="Loading">
-    <div class="pf-home-loader-ring" aria-hidden="true">
-      <svg class="pf-home-loader-svg" viewBox="0 0 96 96">
-        <circle class="pf-home-loader-track" cx="48" cy="48" r="40"></circle>
-        <circle class="pf-home-loader-progress" id="home-loader-progress" cx="48" cy="48" r="40"></circle>
+<body class="home">
+  <div class="loader" id="loader" role="status" aria-live="polite" aria-label="Loading">
+    <div class="loader-mark">
+      <svg class="loader-ring" viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="loader-track" cx="60" cy="60" r="46" fill="none" stroke="#e6e6ea" stroke-width="3.5"></circle>
+        <circle class="loader-bar" cx="60" cy="60" r="46" fill="none" stroke="#1d1d1f" stroke-width="3.5" stroke-linecap="round"></circle>
       </svg>
-      <span class="pf-home-loader-pct" id="home-loader-pct">0%</span>
+      <span class="loader-count">0%</span>
     </div>
   </div>
+  <script src="js/pf-load.js?v=20261108a"></script>
 
-  <div id="page-body" class="pf-home">
-    <header class="pf-site-bar" id="site-bar">
-      <a class="pf-site-bar-brand" href="index.html">
-        <img src="doc/brand-mark.png" width="28" height="28" alt="">
-        <span>Paws Forward</span>
-      </a>
-      <button
-        type="button"
-        class="pf-site-menu-btn"
-        id="site-menu-btn"
-        aria-expanded="false"
-        aria-controls="site-menu"
-        aria-label="Open menu"
-      >
-        <span class="pf-site-menu-btn-bars" aria-hidden="true"></span>
-      </button>
-    </header>
+  <a class="skip" href="#content">Skip to content</a>
+  <div class="scroll-line" aria-hidden="true"></div>
 
-    <div class="pf-site-menu" id="site-menu" hidden>
-      <div class="pf-site-menu-backdrop" id="site-menu-backdrop" tabindex="-1"></div>
-      <nav class="pf-site-menu-panel" aria-label="Site">
-        <p class="pf-site-menu-label">Pages</p>
-        <a href="index.html" aria-current="page">Home</a>
-        <a href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
-        <a href="join.html">Get your QR</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
-        <a href="login.html">Volunteer portal</a>
-        <button type="button" class="pf-site-menu-close" id="site-menu-close">Close</button>
-      </nav>
-    </div>
+  <header class="topbar">
+    <a class="logo" href="index.html">
+      <img src="doc/brand-mark.png" width="24" height="24" alt="">
+      Paws Forward
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+      <span class="menu-bars" aria-hidden="true"></span>
+      <span class="sr">Menu</span>
+    </button>
+    <nav class="topnav" id="site-menu" aria-label="Primary">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="#how">How it works</a>
+      <a href="#why">Why us</a>
+      <a href="#faq">FAQ</a>
+      <a href="join.html">Get your QR</a>
+      <a class="nav-cta" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
+    </nav>
+  </header>
 
-    <section class="pf-home-hero" aria-label="Paws Forward">
-      <div class="pf-home-media" aria-hidden="true">
-        <video
-          class="pf-home-video"
-          id="home-hero-video"
-          poster="media/hero-poster.jpg"
-          muted
-          playsinline
-          loop
-          autoplay
-          preload="auto"
-        >
+  <main id="content">
+    <section class="stage" aria-label="Paws Forward">
+      <div class="hero-media">
+        <video class="hero-video" autoplay muted loop playsinline poster="media/hero-poster.jpg" preload="auto">
           <source src="media/hero-fast.mp4" type="video/mp4">
         </video>
-        <div class="pf-home-scrim"></div>
-        <div class="pf-home-fallback">
-          <img src="doc/brand-mark.png" width="120" height="120" alt="">
+      </div>
+      <div class="stage-shade"></div>
+      <div class="stage-copy">
+        <p class="win">Dog rescue fundraising</p>
+        <h1>Help dogs in need.</h1>
+        <p class="stage-lead">Donate any amount for food, water, and shelter — or get your QR and earn while you share.</p>
+        <div class="stage-actions">
+          <a class="discover" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate now</a>
+          <a class="discover discover-ghost" href="join.html">Get your QR</a>
         </div>
       </div>
+      <p class="stage-note">Half of every QR gift stays with the rescue. Half goes to the person who shared it. <a href="#site-notice">Notice</a></p>
+    </section>
 
-      <div class="pf-home-hero-inner">
-        <h1 class="pf-home-headline">Help dogs in need</h1>
-        <p class="pf-home-lead">
-          Donate any amount to put food, water, and shelter in reach.
-          Or get your QR and earn for spreading the word.
-        </p>
-        <div class="pf-home-ctas">
-          <a class="btn pf-btn pf-home-cta pf-home-cta--primary" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
-          <a class="btn secondary pf-btn pf-home-cta pf-home-cta--secondary" href="join.html">Get your QR</a>
-        </div>
+    <section class="journey reveal" id="ways" aria-labelledby="ways-title">
+      <h2 id="ways-title">Ways to help</h2>
+      <div class="journey-grid">
+        <article class="journey-card">
+          <a class="journey-media" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">
+            <img src="media/placeholders/donate.svg" alt="Donate to Paws Forward">
+            <span class="journey-shade"></span>
+            <span class="journey-name">Donate</span>
+          </a>
+          <a class="journey-enter" href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Give any amount</a>
+        </article>
+        <article class="journey-card">
+          <a class="journey-media" href="join.html">
+            <img src="media/placeholders/qr.svg" alt="Create your personal donation QR">
+            <span class="journey-shade"></span>
+            <span class="journey-name">Get your QR</span>
+          </a>
+          <a class="journey-enter" href="join.html">Create link</a>
+        </article>
       </div>
     </section>
 
-    <section class="pf-home-about" aria-labelledby="about-heading">
-      <p class="pf-home-about-kicker">Who we are</p>
-      <h2 class="pf-home-about-title" id="about-heading">Support for dogs. Reward for sharing.</h2>
-      <p class="pf-home-about-body">
-        Paws Forward raises money for dogs that need food, water, and shelter.
-        We turn everyday sharing into real support: create a personal donation QR Code,
-        and whenever someone gives through yours, that gift helps the dogs — and benefits you.
-        It’s a simple way to earn while promoting the rescue.
-      </p>
-      <p class="pf-home-about-body">
-        Half of every gift that comes through a QR stays with the rescue.
-        The other half goes to the person who shared it — so helping dogs and getting paid
-        for spreading the word happen in the same scan.
-      </p>
+    <section class="works reveal" id="how" aria-labelledby="how-title">
+      <div class="works-photo">
+        <img class="is-on" src="media/placeholders/works-1.svg" alt="Rescue story photo placeholder">
+        <img src="media/placeholders/works-2.svg" alt="Shelter care photo placeholder">
+        <img src="media/placeholders/works-3.svg" alt="Community sharing photo placeholder">
+        <div class="works-dots" role="tablist" aria-label="Story photos">
+          <button type="button" class="is-on" role="tab" aria-selected="true" aria-label="Photo 1"></button>
+          <button type="button" role="tab" aria-selected="false" aria-label="Photo 2"></button>
+          <button type="button" role="tab" aria-selected="false" aria-label="Photo 3"></button>
+        </div>
+      </div>
+      <div>
+        <h2 id="how-title">How it works</h2>
+        <ol>
+          <li><strong>Create your QR.</strong> Make a personal donation link in about a minute. Name is optional — phone and payout details are enough.</li>
+          <li><strong>Share it.</strong> Friends scan, give any amount on Stripe, and the gift is tracked to your code.</li>
+          <li><strong>Dogs get help — you earn 50%.</strong> Half of every attributed gift supports the rescue; half is owed to you.</li>
+        </ol>
+        <a class="section-link" href="join.html">Get started with your QR</a>
+      </div>
     </section>
 
-    <section class="pf-home-how" aria-labelledby="how-heading">
-      <h2 class="pf-home-how-title" id="how-heading">How it works</h2>
-      <ol class="pf-home-steps">
+    <section class="why reveal" id="why" aria-labelledby="why-title">
+      <h2 id="why-title">Why Paws Forward?</h2>
+      <ol>
         <li>
-          <span class="pf-home-step-num">1</span>
-          <div>
-            <strong>Create your QR</strong>
-            <p>Make a personal donation link in about a minute.</p>
-          </div>
+          <strong>Support for dogs. Reward for sharing.</strong>
+          <p>We raise money for dogs that need food, water, and shelter — and turn everyday sharing into real support.</p>
         </li>
         <li>
-          <span class="pf-home-step-num">2</span>
-          <div>
-            <strong>Share it</strong>
-            <p>Friends scan, give any amount on Stripe, and the gift is tracked to you.</p>
-          </div>
+          <strong>A clear 50 / 50 split.</strong>
+          <p>Half of every gift through a QR stays with the rescue. The other half goes to the person who shared it.</p>
         </li>
         <li>
-          <span class="pf-home-step-num">3</span>
-          <div>
-            <strong>Dogs get help — you earn 50%</strong>
-            <p>Half of every attributed gift supports the rescue; half is owed to you.</p>
-          </div>
+          <strong>Simple Stripe checkout.</strong>
+          <p>Donors give any amount. No account required to donate. Payments are processed securely by Stripe.</p>
         </li>
       </ol>
     </section>
 
-    <section class="pf-home-faq" aria-labelledby="faq-heading">
-      <h2 class="pf-home-how-title" id="faq-heading">Questions</h2>
-      <div class="pf-faq-list">
-        <details class="pf-faq-item">
-          <summary>How do donations work?</summary>
-          <div class="pf-faq-panel">
-            <div class="pf-faq-panel-inner">
-              <p>You choose any amount on Stripe Checkout. The gift supports food, water, and shelter for dogs.</p>
-            </div>
-          </div>
-        </details>
-        <details class="pf-faq-item">
-          <summary>What is a promoter QR?</summary>
-          <div class="pf-faq-panel">
-            <div class="pf-faq-panel-inner">
-              <p>A personal link and QR that attributes gifts to you. Unless we publish a different rate, you earn 50% of attributed donations.</p>
-            </div>
-          </div>
-        </details>
-        <details class="pf-faq-item">
-          <summary>Do I need a QR to donate?</summary>
-          <div class="pf-faq-panel">
-            <div class="pf-faq-panel-inner">
-              <p>No. Direct donations on the Donate page support Paws Forward without promoter attribution.</p>
-            </div>
-          </div>
-        </details>
-        <details class="pf-faq-item">
-          <summary>Who processes payments and data?</summary>
-          <div class="pf-faq-panel">
-            <div class="pf-faq-panel-inner">
-              <p>Stripe processes payments. Supabase stores application data for profiles, gifts, and attribution. See our privacy policy for details.</p>
-            </div>
-          </div>
-        </details>
-      </div>
+    <section class="impact-home reveal" id="community" aria-labelledby="community-title">
+      <h2 id="community-title">Built for sharers</h2>
+      <p class="lede">Volunteers and promoters use personal QRs to move donations forward. Photos below are placeholders — replace with real community shots.</p>
+      <ul class="impact-stack" aria-label="Community placeholders">
+        <li><img src="media/placeholders/avatar.svg" alt=""></li>
+        <li><img src="media/placeholders/avatar.svg" alt=""></li>
+        <li><img src="media/placeholders/avatar.svg" alt=""></li>
+        <li><img src="media/placeholders/avatar.svg" alt=""></li>
+      </ul>
+      <a class="impact-cta" href="join.html">Join with a QR</a>
     </section>
 
-    <footer class="pf-home-foot">
-      <p>
-        <a id="home-contact" href="mailto:hello@pawsforward.org">hello@pawsforward.org</a>
-        ·
-        <a href="privacy.html">Privacy</a>
-        ·
-        <a href="terms.html">Terms</a>
-        ·
-        <a href="login.html">Volunteer portal</a>
-      </p>
-    </footer>
-  </div>
+    <section class="faq-home reveal" id="faq" aria-labelledby="faq-title">
+      <div class="faq-layout">
+        <div>
+          <h2 id="faq-title">FAQ</h2>
+          <div class="faq-list">
+            <div class="faq-item">
+              <button class="faq-q" type="button" aria-expanded="false">How do donations work?</button>
+              <div class="faq-a"><div><p>You choose any amount on Stripe Checkout. The gift supports food, water, and shelter for dogs.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q" type="button" aria-expanded="false">What is a promoter QR?</button>
+              <div class="faq-a"><div><p>A personal link and QR that attributes gifts to you. Unless we publish a different rate, you earn 50% of attributed donations.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q" type="button" aria-expanded="false">Do I need a QR to donate?</button>
+              <div class="faq-a"><div><p>No. Direct donations support Paws Forward without promoter attribution.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q" type="button" aria-expanded="false">Who processes payments and data?</button>
+              <div class="faq-a"><div><p>Stripe processes payments. Application data for profiles, gifts, and attribution is stored securely. See our privacy policy for details.</p></div></div>
+            </div>
+          </div>
+          <a class="section-link" href="privacy.html">Read the privacy policy</a>
+        </div>
+        <div class="faq-actions" aria-label="Quick actions">
+          <a href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
+          <a href="join.html">Get your QR</a>
+          <a href="#how">How it works</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </div>
+    </section>
+  </main>
 
-  <script src="js/home.js?v=20261107m"></script>
+  <footer class="site-footer">
+    <a class="to-top" href="#content"><span aria-hidden="true"></span>Scroll up</a>
+    <div class="wrap footer-grid">
+      <div>
+        <p class="footer-label">Give</p>
+        <a href="https://tauiyhyjujddsgvlihef.supabase.co/functions/v1/create-checkout?site_origin=https://joinpawsforward.com">Donate</a>
+        <a href="join.html">Get your QR</a>
+        <a href="#ways">Ways to help</a>
+      </div>
+      <div>
+        <p class="footer-label">Learn</p>
+        <a href="#how">How it works</a>
+        <a href="#why">Why us</a>
+        <a href="#faq">FAQ</a>
+        <a href="login.html">Volunteer portal</a>
+      </div>
+      <div>
+        <p class="footer-label">Legal</p>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="terms.html">Terms of service</a>
+        <a href="mailto:hello@pawsforward.org">Contact</a>
+      </div>
+    </div>
+    <div class="wrap">
+      <p class="footer-note" id="site-notice"><strong>Paws Forward.</strong> A dog-rescue fundraising program. Direct donations support food, water, and shelter. Promoter QRs attribute gifts for a 50% share unless a different rate is published. You must be 18 or older (or the age of majority where you live) to create a QR. Payments are processed by Stripe — we do not collect or store card numbers. This notice is plain-language information, not legal advice. Questions: <a href="mailto:hello@pawsforward.org">hello@pawsforward.org</a>. <a href="terms.html">Terms</a>. <a href="privacy.html">Privacy</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/pf-home.js?v=20261108a"></script>
 </body>
 </html>

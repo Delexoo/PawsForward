@@ -1,0 +1,13 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200" role="img" aria-label="Donate placeholder">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1d1d1f"/>
+      <stop offset="100%" stop-color="#3a3a3c"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="1200" fill="url(#g)"/>
+  <circle cx="450" cy="480" r="120" fill="#2d2d30"/>
+  <ellipse cx="450" cy="620" rx="160" ry="90" fill="#2d2d30"/>
+  <text x="450" y="820" text-anchor="middle" fill="#f5f5f7" font-family="system-ui,sans-serif" font-size="42" font-weight="600">Donate</text>
+  <text x="450" y="870" text-anchor="middle" fill="#a1a1a6" font-family="system-ui,sans-serif" font-size="22">Photo placeholder</text>
+</svg>
