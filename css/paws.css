@@ -2446,6 +2446,105 @@ button.pf-stat-chip--link:focus-visible {
   height: 64px;
 }
 
+.pf-detail-avatar-wrap {
+  position: relative;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.pf-detail-avatar-btn {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 0;
+  display: block;
+}
+
+.pf-detail-avatar-btn:focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: 3px;
+}
+
+.pf-detail-avatar-btn:hover .pf-avatar--lg {
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12);
+}
+
+.pf-detail-avatar-reset {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #0f172a;
+  font-size: 13px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+.pf-detail-avatar-reset:hover {
+  background: #f8fafc;
+}
+
+.pf-seg {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.pf-seg-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  min-height: 32px;
+  padding: 0 14px;
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.pf-seg-btn + .pf-seg-btn {
+  border-left: 1px solid #e2e8f0;
+}
+
+.pf-seg-btn:hover {
+  background: #f1f5f9;
+}
+
+.pf-seg-btn:active {
+  background: #e2e8f0;
+}
+
+.pf-chip-btn--icon {
+  width: 32px;
+  min-width: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pf-chip-btn--icon .ico {
+  width: 14px;
+  height: 14px;
+}
+
 .pf-emp-detail-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

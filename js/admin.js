@@ -84,7 +84,6 @@
     payoutTitle: document.getElementById("payout-dialog-title"),
     payoutLead: document.getElementById("payout-dialog-lead"),
     payoutSummary: document.getElementById("payout-summary"),
-    payoutOpenApp: document.getElementById("payout-open-app"),
     payoutCancel: document.getElementById("payout-cancel"),
     payoutSubmit: document.getElementById("payout-submit"),
     payEmployeeId: document.getElementById("pay-employee-id"),
@@ -508,9 +507,9 @@
     const owed = netOwedFor(emp.id, stats.raised);
     const name = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "employee";
     if (els.payEmployeeId) els.payEmployeeId.value = emp.id;
-    if (els.payoutTitle) els.payoutTitle.textContent = `Pay ${name}`;
+    if (els.payoutTitle) els.payoutTitle.textContent = `Mark ${name} as paid`;
     if (els.payoutLead) {
-      els.payoutLead.textContent = "Record what you already sent so their owed balance updates.";
+      els.payoutLead.textContent = "Enter how much you paid so their owed balance updates.";
     }
     if (els.payoutSummary) {
       els.payoutSummary.innerHTML = `
@@ -581,29 +580,22 @@
 
   function openAdminDialog(dialog) {
     if (!dialog) return;
-    dialog.classList.remove("is-closing", "is-dragging", "is-entering");
+    dialog.classList.remove("is-closing", "is-dragging");
     const panel = dialogPanel(dialog);
     if (panel) {
       panel.style.transform = "";
       panel.style.transition = "";
-      panel.scrollTop = 0;
     }
     if (typeof dialog.showModal === "function" && !dialog.open) {
       dialog.showModal();
     }
-    if (!isMobileSheetViewport()) {
-      dialog.classList.add("is-open");
-      return;
-    }
-    dialog.classList.add("is-sheet", "is-entering");
+    if (!isMobileSheetViewport()) return;
+    dialog.classList.add("is-sheet");
+    dialog.classList.add("is-entering");
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         dialog.classList.remove("is-entering");
         dialog.classList.add("is-open");
-        if (panel) {
-          panel.style.transform = "";
-          panel.style.transition = "";
-        }
       });
     });
   }
@@ -976,6 +968,28 @@
     } catch (err) {
       console.error(err);
       setBanner(err.message || "Could not update photo.", "err");
+    }
+  }
+
+  async function resetEmployeePhoto(emp) {
+    if (!emp?.id) return;
+    const sb = window.SiteSupabase.getClient();
+    if (!sb) {
+      setBanner("Supabase is not configured.", "err");
+      return;
+    }
+    try {
+      setBanner(`Resetting photo for ${emp.first_name}…`);
+      const { error } = await sb.from("employees").update({ avatar_url: null }).eq("id", emp.id);
+      if (error) throw error;
+      if (els.detailAvatar) els.detailAvatar.src = DEFAULT_AVATAR;
+      setBanner(`Photo reset for ${emp.first_name}.`, "ok");
+      await loadDashboard({ skipCachePaint: true });
+      const refreshed = latestEmployees.find((e) => e.id === emp.id);
+      if (refreshed && els.detailDialog?.open) fillEmployeeDetail(refreshed);
+    } catch (err) {
+      console.error(err);
+      setBanner(err.message || "Could not reset photo.", "err");
     }
   }
 
@@ -1778,11 +1792,6 @@
       closeAdminDialog(els.payoutDialog);
     });
     els.payoutForm?.addEventListener("submit", recordPayout);
-    els.payoutOpenApp?.addEventListener("click", async () => {
-      const emp = payoutEmployee || detailEmployee;
-      if (!emp) return;
-      await openPayoutApp(emp);
-    });
     els.payoutDialog?.addEventListener("close", () => {
       payoutEmployee = null;
     });
@@ -1812,6 +1821,16 @@
       setAvatarPreview(DEFAULT_AVATAR);
     });
 
+    document.getElementById("detail-avatar-pick")?.addEventListener("click", () => {
+      if (!detailEmployee) return;
+      els.detailAvatarFile?.click();
+    });
+    document.getElementById("detail-avatar-reset")?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!detailEmployee) return;
+      await resetEmployeePhoto(detailEmployee);
+    });
     els.detailAvatarFile?.addEventListener("change", async () => {
       const file = els.detailAvatarFile.files?.[0];
       els.detailAvatarFile.value = "";
@@ -1825,6 +1844,10 @@
         if (!emp) return;
         const action = btn.getAttribute("data-detail");
         if (action === "pay") {
+          await openPayoutApp(emp);
+          return;
+        }
+        if (action === "paid") {
           openPayoutDialog(emp);
           return;
         }
@@ -1838,22 +1861,9 @@
           openEditEmployee(emp);
           return;
         }
-        if (action === "copy") {
-          try {
-            await navigator.clipboard.writeText(String(emp.referral_code || ""));
-            setBanner(`Copied referral code for ${emp.first_name}.`, "ok");
-          } catch {
-            setBanner("Could not copy code.", "err");
-          }
-          return;
-        }
         if (action === "dupe") {
           closeEmployeeDetail();
           await duplicateEmployee(emp);
-          return;
-        }
-        if (action === "photo") {
-          els.detailAvatarFile?.click();
           return;
         }
         if (action === "visits") {
