@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261104i">
-  <link rel="stylesheet" href="css/fonts.css?v=20261104i">
-  <script src="js/theme.js?v=20261104i"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261104i">
-  <link rel="stylesheet" href="css/paws.css?v=20261104i">
+  <link rel="manifest" href="manifest.webmanifest?v=20261104j">
+  <link rel="stylesheet" href="css/fonts.css?v=20261104j">
+  <script src="js/theme.js?v=20261104j"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261104j">
+  <link rel="stylesheet" href="css/paws.css?v=20261104j">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261104i"></script>
-  <script src="js/canonical.js?v=20261104i"></script>
+  <script src="js/config.js?v=20261104j"></script>
+  <script src="js/canonical.js?v=20261104j"></script>
   <script>
     (function () {
       try {
@@ -33,7 +33,7 @@
       } catch (e) {}
     })();
   </script>
-  <script src="js/pin-lock.js?v=20261104i"></script>
+  <script src="js/pin-lock.js?v=20261104j"></script>
   <script>
     (function () {
       try {
@@ -204,8 +204,8 @@
         <p class="field-error" id="err-emp-payment" hidden></p>
       </div>
       <div class="field">
-        <label for="emp-payment-handle">Payout handle <span class="pf-required" aria-hidden="true">*</span></label>
-        <input id="emp-payment-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="$cashtag, @handle, wallet, email…">
+        <label for="emp-payment-handle"><span id="emp-payment-handle-label">Payout handle</span> <span class="pf-required" aria-hidden="true">*</span></label>
+        <input id="emp-payment-handle" name="payment_handle" type="text" required autocomplete="off" maxlength="80" placeholder="Choose a payment type first">
         <p class="field-error" id="err-emp-handle" hidden></p>
       </div>
 
@@ -373,12 +373,12 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261104i"></script>
-  <script src="js/shell.js?v=20261104i"></script>
-  <script src="js/vendor/supabase.js?v=20261104i"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261104i"></script>
-  <script src="js/supabase-client.js?v=20261104i"></script>
-  <script src="js/qr.js?v=20261104i"></script>
-  <script src="js/admin.js?v=20261104i"></script>
+  <script src="js/icons.js?v=20261104j"></script>
+  <script src="js/shell.js?v=20261104j"></script>
+  <script src="js/vendor/supabase.js?v=20261104j"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261104j"></script>
+  <script src="js/supabase-client.js?v=20261104j"></script>
+  <script src="js/qr.js?v=20261104j"></script>
+  <script src="js/admin.js?v=20261104j"></script>
 </body>
 </html>

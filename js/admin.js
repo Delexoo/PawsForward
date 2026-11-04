@@ -29,6 +29,7 @@
     empPhone: document.getElementById("emp-phone"),
     empPayment: document.getElementById("emp-payment"),
     empPaymentHandle: document.getElementById("emp-payment-handle"),
+    empPaymentHandleLabel: document.getElementById("emp-payment-handle-label"),
     empAvatarPreview: document.getElementById("emp-avatar-preview"),
     empAvatarFile: document.getElementById("emp-avatar-file"),
     empAvatarReset: document.getElementById("emp-avatar-reset"),
@@ -340,6 +341,51 @@
       other: "Other",
     };
     return map[type] || type || "—";
+  }
+
+  function paymentHandleMeta(type) {
+    const map = {
+      cashapp: { label: "Cashtag", placeholder: "$cashtag", inputType: "text", autocomplete: "username" },
+      cashapp_business: { label: "Business cashtag", placeholder: "$businesscashtag", inputType: "text", autocomplete: "username" },
+      venmo: { label: "Venmo username", placeholder: "@username", inputType: "text", autocomplete: "username" },
+      paypal: { label: "PayPal email or @username", placeholder: "name@email.com or @username", inputType: "text", autocomplete: "email" },
+      paypal_friends: { label: "PayPal email or @username", placeholder: "name@email.com or @username", inputType: "text", autocomplete: "email" },
+      zelle: { label: "Zelle phone or email", placeholder: "(555) 123-4567 or name@email.com", inputType: "text", autocomplete: "email" },
+      apple_cash: { label: "Phone number", placeholder: "(555) 123-4567", inputType: "tel", autocomplete: "tel" },
+      apple_pay: { label: "Phone number", placeholder: "(555) 123-4567", inputType: "tel", autocomplete: "tel" },
+      google_pay: { label: "Phone number or email", placeholder: "(555) 123-4567 or name@email.com", inputType: "text", autocomplete: "email" },
+      chime: { label: "Chime $Tag or phone", placeholder: "$Tag or (555) 123-4567", inputType: "text", autocomplete: "username" },
+      cash: { label: "Payout note", placeholder: "In person / front desk", inputType: "text", autocomplete: "off" },
+      check: { label: "Payee name", placeholder: "Name on the check", inputType: "text", autocomplete: "name" },
+      bank_transfer: { label: "Account or routing details", placeholder: "Bank + last 4 / account tip", inputType: "text", autocomplete: "off" },
+      wire: { label: "Wire instructions", placeholder: "Bank + account reference", inputType: "text", autocomplete: "off" },
+      wise: { label: "Wise email or @username", placeholder: "name@email.com or @username", inputType: "text", autocomplete: "email" },
+      revolut: { label: "Revolut @Revtag or phone", placeholder: "@revtag or phone", inputType: "text", autocomplete: "username" },
+      stripe: { label: "Stripe email or account", placeholder: "name@email.com", inputType: "email", autocomplete: "email" },
+      square: { label: "Square Cash App tag or email", placeholder: "$cashtag or email", inputType: "text", autocomplete: "email" },
+      bitcoin: { label: "Bitcoin address", placeholder: "bc1… or wallet address", inputType: "text", autocomplete: "off" },
+      ethereum: { label: "Ethereum address", placeholder: "0x…", inputType: "text", autocomplete: "off" },
+      usdc: { label: "USDC wallet address", placeholder: "Wallet address", inputType: "text", autocomplete: "off" },
+      other: { label: "Payout details", placeholder: "How to send payment", inputType: "text", autocomplete: "off" },
+    };
+    return (
+      map[type] || {
+        label: "Payout handle",
+        placeholder: "Choose a payment type first",
+        inputType: "text",
+        autocomplete: "off",
+      }
+    );
+  }
+
+  function syncPaymentHandleField(type) {
+    const meta = paymentHandleMeta(String(type || "").trim());
+    if (els.empPaymentHandleLabel) els.empPaymentHandleLabel.textContent = meta.label;
+    if (!els.empPaymentHandle) return;
+    els.empPaymentHandle.placeholder = meta.placeholder;
+    els.empPaymentHandle.type = meta.inputType || "text";
+    els.empPaymentHandle.autocomplete = meta.autocomplete || "off";
+    els.empPaymentHandle.setAttribute("aria-label", meta.label);
   }
 
   function normalizeHandle(raw) {
@@ -1434,7 +1480,8 @@
       bad = true;
     }
     if (!payload.payment_handle) {
-      setFieldError(els.errHandle, "Enter a payout handle.");
+      const handleLabel = paymentHandleMeta(payload.payment_type).label || "payout details";
+      setFieldError(els.errHandle, `Enter ${handleLabel.toLowerCase()}.`);
       bad = true;
     }
     return !bad;
@@ -1448,6 +1495,7 @@
     } else {
       els.empPayment.selectedIndex = 0;
     }
+    syncPaymentHandleField(els.empPayment.value);
     els.empPayment.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
@@ -1463,6 +1511,7 @@
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Create & generate QR";
     setPaymentSelect("");
     if (els.empPaymentHandle) els.empPaymentHandle.value = "";
+    syncPaymentHandleField("");
     openAdminDialog(els.employeeDialog);
     // Avoid iOS input zoom jump: don't autofocus on small screens.
     if (window.matchMedia && window.matchMedia("(min-width: 700px)").matches) {
@@ -1678,6 +1727,9 @@
       closeAdminDialog(els.donationDialog);
     });
     els.donationForm?.addEventListener("submit", saveDonation);
+    els.empPayment?.addEventListener("change", () => {
+      syncPaymentHandleField(els.empPayment.value);
+    });
     els.payoutCancel?.addEventListener("click", () => {
       payoutEmployee = null;
       closeAdminDialog(els.payoutDialog);
