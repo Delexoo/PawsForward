@@ -245,7 +245,7 @@ Deno.serve(async (req) => {
 
   try {
     const siteDefault =
-      Deno.env.get("SITE_ORIGIN") || "https://delexoo.github.io/PawsForward";
+      Deno.env.get("SITE_ORIGIN") || "https://joinpawsforward.com";
 
     if (req.method === "GET") {
       const url = new URL(req.url);

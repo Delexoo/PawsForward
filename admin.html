@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,23 +7,23 @@
   <meta name="apple-mobile-web-app-title" content="Paws Forward">
   <meta name="theme-color" content="#0f172a">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="description" content="PawsForward admin console — track donations, employee QR codes, payouts owed, and supportive locations. Operators only.">
+  <meta name="description" content="PawsForward admin console — track donations, volunteer QR codes, payouts owed, and supportive locations. Operators only.">
   <link rel="canonical" href="https://joinpawsforward.com/admin.html">
   <title>Admin · PawsForward</title>
-  <link rel="icon" href="icons/favicon.png?v=20261107h" type="image/png" sizes="64x64">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261107h" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261107h">
-  <link rel="stylesheet" href="css/fonts.css?v=20261107h">
-  <script src="js/theme.js?v=20261107h"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261107h">
-  <link rel="stylesheet" href="css/paws.css?v=20261107h">
+  <link rel="icon" href="icons/favicon.png?v=20261107i" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261107i" sizes="180x180">
+  <link rel="manifest" href="manifest.webmanifest?v=20261107i">
+  <link rel="stylesheet" href="css/fonts.css?v=20261107i">
+  <script src="js/theme.js?v=20261107i"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261107i">
+  <link rel="stylesheet" href="css/paws.css?v=20261107i">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261107h"></script>
-  <script src="js/canonical.js?v=20261107h"></script>
+  <script src="js/config.js?v=20261107i"></script>
+  <script src="js/canonical.js?v=20261107i"></script>
   <script>
     (function () {
       try {
@@ -35,9 +35,9 @@
       } catch (e) {}
     })();
   </script>
-  <script src="js/vendor/supabase.js?v=20261107h"></script>
-  <script src="js/supabase-client.js?v=20261107h"></script>
-  <script src="js/pin-lock.js?v=20261107h"></script>
+  <script src="js/vendor/supabase.js?v=20261107i"></script>
+  <script src="js/supabase-client.js?v=20261107i"></script>
+  <script src="js/pin-lock.js?v=20261107i"></script>
   <script>
     (function () {
       try {
@@ -113,15 +113,15 @@
 
       <section class="pf-mini-panel pf-admin-page" id="employees" data-admin-page="employees" aria-labelledby="employees-heading" hidden>
         <div class="pf-section-head pf-section-head--compact">
-          <h2 class="pf-mini-heading" id="employees-heading">Employees</h2>
+          <h2 class="pf-mini-heading" id="employees-heading">Volunteers</h2>
           <div class="pf-section-actions">
             <button type="button" class="pf-tool-btn" id="btn-add-placeholders">Add 5 placeholders</button>
-            <button type="button" class="pf-tool-btn pf-tool-btn--primary" id="btn-new-employee">Add employee</button>
+            <button type="button" class="pf-tool-btn pf-tool-btn--primary" id="btn-new-employee">Add volunteer</button>
           </div>
         </div>
         <ul class="pf-employee-list" id="employees-body"></ul>
         <div class="dash-empty" id="employees-empty" hidden>
-          <p class="dash-empty-title">No employees yet</p>
+          <p class="dash-empty-title">No volunteers yet</p>
           <p class="dash-empty-desc">Create a profile to generate a unique QR.</p>
         </div>
       </section>
@@ -142,7 +142,7 @@
     <nav class="pf-dock" aria-label="PawsForward admin">
       <div class="pf-dock-tabs" role="tablist" aria-label="Dashboard pages">
         <button type="button" class="pf-dock-tab is-active" role="tab" aria-selected="true" data-admin-nav="dashboard"><span class="pf-dock-tab-full">Dashboard</span><span class="pf-dock-tab-short" aria-hidden="true">Home</span></button>
-        <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="employees"><span class="pf-dock-tab-full">Employees</span><span class="pf-dock-tab-short" aria-hidden="true">Team</span></button>
+        <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="employees"><span class="pf-dock-tab-full">Volunteers</span><span class="pf-dock-tab-short" aria-hidden="true">Team</span></button>
         <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="donations"><span class="pf-dock-tab-full">Donations</span><span class="pf-dock-tab-short" aria-hidden="true">Gifts</span></button>
       </div>
     </nav>
@@ -150,14 +150,14 @@
 
   <dialog class="site-leave-dialog pf-dialog" id="employee-dialog" aria-labelledby="employee-dialog-title">
     <form class="site-leave-dialog-panel" id="employee-form" action="#" method="post">
-      <h2 class="site-leave-dialog-title" id="employee-dialog-title">New employee</h2>
-      <p class="site-leave-dialog-text" id="employee-dialog-lead">Add a hire and generate their Stripe donation QR.</p>
+      <h2 class="site-leave-dialog-title" id="employee-dialog-title">New volunteer</h2>
+      <p class="site-leave-dialog-text" id="employee-dialog-lead">Add a volunteer and generate their Stripe donation QR.</p>
       <input type="hidden" id="emp-id" name="id" value="">
 
       <div class="pf-emp-identity-block">
         <div class="pf-avatar-editor" id="emp-avatar-editor">
           <label class="pf-avatar-pick" for="emp-avatar-file" title="Choose photo">
-            <img id="emp-avatar-preview" class="pf-avatar-preview" src="doc/default-avatar.jpg" alt="Tap to choose employee photo" width="72" height="72">
+            <img id="emp-avatar-preview" class="pf-avatar-preview" src="doc/default-avatar.jpg" alt="Tap to choose volunteer photo" width="72" height="72">
           </label>
           <input id="emp-avatar-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
           <button type="button" class="pf-avatar-reset" id="emp-avatar-reset" title="Reset to default photo" aria-label="Reset to default photo">
@@ -226,7 +226,7 @@
 
   <dialog class="site-leave-dialog pf-dialog site-leave-dialog--wide" id="qr-dialog" aria-labelledby="qr-dialog-title">
     <div class="site-leave-dialog-panel">
-      <h2 class="site-leave-dialog-title" id="qr-dialog-title">Employee QR</h2>
+      <h2 class="site-leave-dialog-title" id="qr-dialog-title">Volunteer QR</h2>
       <p class="site-leave-dialog-text" id="qr-dialog-lead">Share this code. Scanning opens Stripe Checkout directly so donors can give any amount.</p>
       <div class="qr-box">
         <div id="qr-canvas-host"></div>
@@ -243,7 +243,7 @@
   <dialog class="site-leave-dialog pf-dialog" id="visits-dialog" aria-labelledby="visits-dialog-title">
     <div class="site-leave-dialog-panel">
       <h2 class="site-leave-dialog-title" id="visits-dialog-title">Visit locations</h2>
-      <p class="site-leave-dialog-text" id="visits-dialog-lead">Location breakdown for this employee.</p>
+      <p class="site-leave-dialog-text" id="visits-dialog-lead">Location breakdown for this volunteer.</p>
       <ul class="pf-visits-list" id="visits-dialog-list"></ul>
       <div class="dash-empty" id="visits-dialog-empty" hidden>
         <p class="dash-empty-title">No locations yet</p>
@@ -270,7 +270,7 @@
     <div class="site-leave-dialog-panel pf-emp-detail">
       <div class="pf-emp-detail-head">
         <div class="pf-detail-avatar-wrap">
-          <button type="button" class="pf-detail-avatar-btn" id="detail-avatar-pick" title="Change photo" aria-label="Change employee photo">
+          <button type="button" class="pf-detail-avatar-btn" id="detail-avatar-pick" title="Change photo" aria-label="Change volunteer photo">
             <img id="detail-avatar" class="pf-avatar pf-avatar--lg" src="doc/default-avatar.jpg" alt="" width="64" height="64">
           </button>
           <button type="button" class="pf-detail-avatar-reset" id="detail-avatar-reset" title="Reset to default photo" aria-label="Reset to default photo">
@@ -279,7 +279,7 @@
         </div>
         <div class="pf-emp-detail-copy">
           <div class="pf-emp-detail-identity">
-            <h2 class="site-leave-dialog-title" id="employee-detail-title">Employee</h2>
+            <h2 class="site-leave-dialog-title" id="employee-detail-title">Volunteer</h2>
             <p class="pf-emp-detail-phone" id="employee-detail-phone">—</p>
           </div>
           <div class="pf-seg" role="group" aria-label="Payout">
@@ -289,7 +289,7 @@
         </div>
       </div>
 
-      <div class="pf-emp-detail-stats" aria-label="Employee stats">
+      <div class="pf-emp-detail-stats" aria-label="Volunteer stats">
         <div class="pf-emp-stat">
           <span class="pf-emp-stat-label">Visits</span>
           <span class="pf-emp-stat-value" id="detail-visits">—</span>
@@ -308,7 +308,7 @@
         </div>
       </div>
 
-      <div class="pf-emp-detail-actions" role="group" aria-label="Employee actions">
+      <div class="pf-emp-detail-actions" role="group" aria-label="Volunteer actions">
         <button type="button" class="pf-chip-btn" data-detail="qr">QR Code</button>
         <button type="button" class="pf-chip-btn" data-detail="edit">Edit</button>
         <button type="button" class="pf-chip-btn pf-chip-btn--icon" data-detail="visits" data-icon="map-pin" title="Locations" aria-label="View locations"></button>
@@ -379,7 +379,7 @@
       <div class="field">
         <label for="don-employee">Attributed to</label>
         <select id="don-employee" name="employee_id" aria-label="Attributed to">
-          <option value="">General (no employee)</option>
+          <option value="">General (no volunteer)</option>
         </select>
       </div>
 
@@ -390,10 +390,10 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261107h"></script>
-  <script src="js/shell.js?v=20261107h"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261107h"></script>
-  <script src="js/qr.js?v=20261107h"></script>
-  <script src="js/admin.js?v=20261107h"></script>
+  <script src="js/icons.js?v=20261107i"></script>
+  <script src="js/shell.js?v=20261107i"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261107i"></script>
+  <script src="js/qr.js?v=20261107i"></script>
+  <script src="js/admin.js?v=20261107i"></script>
 </body>
 </html>

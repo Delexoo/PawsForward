@@ -464,7 +464,7 @@
 
   async function openPayoutApp(emp) {
     const target = payoutTarget(emp);
-    const name = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "employee";
+    const name = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "volunteer";
     if (target.copy) {
       try {
         await navigator.clipboard.writeText(String(target.copy));
@@ -496,7 +496,7 @@
     const stats = latestDonationStats[emp.id] || { count: 0, raised: 0 };
     const paid = paidFor(emp.id);
     const owed = netOwedFor(emp.id, stats.raised);
-    const name = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "employee";
+    const name = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "volunteer";
     if (els.payEmployeeId) els.payEmployeeId.value = emp.id;
     if (els.payoutTitle) els.payoutTitle.textContent = `Mark ${name} as paid`;
     if (els.payoutLead) {
@@ -1001,7 +1001,7 @@
     if (els.visitsLead) {
       els.visitsLead.textContent = visitInfo.count
         ? `${visitInfo.count} visit${visitInfo.count === 1 ? "" : "s"} with location detail.`
-        : "No visits recorded for this employee yet.";
+        : "No visits recorded for this volunteer yet.";
     }
     const list = els.visitsList;
     if (list) list.innerHTML = "";
@@ -1123,7 +1123,7 @@
           <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="36" height="36" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
           <div class="pf-employee-main">
             <strong>${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</strong>
-            <div class="pf-employee-stats" aria-label="Employee snapshot">
+            <div class="pf-employee-stats" aria-label="Volunteer snapshot">
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Visits</span><span class="pf-stat-chip-value">${visits.count}</span></span>
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Raised</span><span class="pf-stat-chip-value">${money(stats.raised)}</span></span>
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Owed</span><span class="pf-stat-chip-value">${money(owed)}</span></span>
@@ -1161,7 +1161,7 @@
       const donor = d.donor_label || "Anonymous";
       const place = String(locationIndex?.forDonation(d) || "").trim();
       const viaQr = !!(emp || d.referral_code);
-      const channel = viaQr ? "Employee QR" : "Direct";
+      const channel = viaQr ? "Volunteer QR" : "Direct";
       const whenAbs = absoluteTime(d.created_at);
       const whenRel = relativeTime(d.created_at);
       const li = document.createElement("li");
@@ -1173,7 +1173,7 @@
             <div class="pf-donation-identity">
               <strong class="pf-donation-donor">${escapeHtml(donor)}</strong>
               <p class="pf-donation-when">${escapeHtml(whenAbs)}${whenRel ? ` · ${escapeHtml(whenRel)}` : ""}</p>
-              <p class="pf-donation-employee">Employee: ${escapeHtml(employeeName || "None")}</p>
+              <p class="pf-donation-employee">Volunteer: ${escapeHtml(employeeName || "None")}</p>
         </div>
         <span class="feed-amount">${money(d.amount)}</span>
           </div>
@@ -1215,7 +1215,7 @@
   function fillDonationEmployeeOptions(selectedId) {
     if (!els.donEmployee) return;
     const current = selectedId || "";
-    els.donEmployee.innerHTML = `<option value="">General (no employee)</option>`;
+    els.donEmployee.innerHTML = `<option value="">General (no volunteer)</option>`;
     latestEmployees.forEach((emp) => {
       const opt = document.createElement("option");
       opt.value = emp.id;
@@ -1342,7 +1342,7 @@
         lead: "Total gift records currently loaded in Donations.",
         items: [
           `${latestSnapshot.donors} donation${latestSnapshot.donors === 1 ? "" : "s"} total`,
-          `${attributedCount} attributed to an employee`,
+          `${attributedCount} attributed to a volunteer`,
           `${generalCount} general / unattributed`,
           ...recent.map(
             (d) =>
@@ -1366,20 +1366,20 @@
         lead: "Sum of all donation amounts in the feed.",
         items: [
           `${money(latestSnapshot.raised)} total raised`,
-          `${money(latestSnapshot.attributedRaised)} attributed to employees`,
+          `${money(latestSnapshot.attributedRaised)} attributed to volunteers`,
           `${money(latestSnapshot.raised - latestSnapshot.attributedRaised)} general / unattributed`,
           `${latestSnapshot.donors} gifts counted`,
         ],
       },
       owed: {
         title: "Owed",
-        lead: `Employee commission on attributed gifts (${rate}%), minus recorded payouts.`,
+        lead: `Volunteer commission on attributed gifts (${rate}%), minus recorded payouts.`,
         items: [
           `${money(latestSnapshot.owed)} still owed`,
           `${money(latestSnapshot.paid)} already paid out`,
           `Based on ${money(latestSnapshot.attributedRaised)} attributed raised`,
           `Commission rate ${rate}%`,
-          "Use Pay on an employee to record a payout and reduce owed",
+          "Use Pay on a volunteer to record a payout and reduce owed",
         ],
       },
       visits: {
@@ -1665,8 +1665,8 @@
     if (els.empId) els.empId.value = "";
     clearEmployeeErrors();
     setAvatarPreview(DEFAULT_AVATAR);
-    if (els.employeeTitle) els.employeeTitle.textContent = "New employee";
-    if (els.employeeLead) els.employeeLead.textContent = "Add a hire and generate their Stripe donation QR.";
+    if (els.employeeTitle) els.employeeTitle.textContent = "New volunteer";
+    if (els.employeeLead) els.employeeLead.textContent = "Add a volunteer and generate their Stripe donation QR.";
     if (els.employeeSubmit) els.employeeSubmit.textContent = "Create & generate QR";
     setPaymentSelect("");
     if (els.empPaymentHandle) els.empPaymentHandle.value = "";
@@ -1689,7 +1689,7 @@
     setPaymentSelect(emp.payment_type || "");
     if (els.empPaymentHandle) els.empPaymentHandle.value = emp.payment_handle || "";
     setAvatarPreview(avatarUrl(emp));
-    if (els.employeeTitle) els.employeeTitle.textContent = "Edit employee";
+    if (els.employeeTitle) els.employeeTitle.textContent = "Edit volunteer";
     if (els.employeeLead) {
       els.employeeLead.textContent = "Rename, update payout details, or change their photo. QR code stays the same.";
     }
@@ -1744,7 +1744,7 @@
     els.employeeSubmit.disabled = false;
 
     if (error) {
-      setBanner(error.message || (isEdit ? "Could not save employee." : "Could not create employee."), "err");
+      setBanner(error.message || (isEdit ? "Could not save volunteer." : "Could not create volunteer."), "err");
       return;
     }
 
@@ -1779,7 +1779,7 @@
     setBanner(`Duplicating ${emp.first_name}…`);
     const { data, error } = await sb.from("employees").insert(payload).select("*").single();
     if (error) {
-      setBanner(error.message || "Could not duplicate employee.", "err");
+      setBanner(error.message || "Could not duplicate volunteer.", "err");
       return;
     }
     setBanner(`Duplicated as ${data.first_name} ${data.last_name}.`, "ok");
@@ -1913,7 +1913,7 @@
       await loadDashboard({ skipCachePaint: true });
     } catch (err) {
       console.error(err);
-      setBanner(err.message || "Could not delete employee.", "err");
+      setBanner(err.message || "Could not delete volunteer.", "err");
     }
   }
 
@@ -2034,7 +2034,7 @@
     els.qrCopy?.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(currentQr.url);
-        setBanner("Employee link copied.", "ok");
+        setBanner("Volunteer link copied.", "ok");
       } catch {
         setBanner("Could not copy link.", "err");
       }
