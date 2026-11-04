@@ -4196,11 +4196,13 @@ body.pf-home-video-failed .pf-home-fallback {
   position: relative;
   z-index: 1;
   width: min(640px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: calc(88px + env(safe-area-inset-top, 0px)) 0 calc(36px + env(safe-area-inset-bottom, 0px));
-  display: grid;
-  gap: 16px;
-  justify-items: center;
+  margin: auto;
+  padding: 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
   text-align: center;
 }
 
@@ -4232,8 +4234,10 @@ body.pf-home-video-failed .pf-home-fallback {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 10px;
-  margin-top: 4px;
+  width: 100%;
+  margin: 0;
 }
 
 .pf-home-cta {
@@ -4411,7 +4415,6 @@ body.pf-home-video-failed .pf-home-fallback {
 @media (min-width: 900px) {
   .pf-home-hero-inner {
     width: min(700px, calc(100% - 80px));
-    padding-bottom: 0;
   }
 }
 
