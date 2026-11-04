@@ -182,10 +182,16 @@
 
     adminPageBusy = true;
     syncAdminNav(next);
+    // Hide every other page first so volunteers never flash under transitions.
+    document.querySelectorAll(".pf-admin-page").forEach((panel) => {
+      if (panel === current || panel === incoming) return;
+      panel.hidden = true;
+      panel.classList.remove("is-active", "is-enter", "is-exit");
+    });
     current.classList.add("is-exit");
     current.classList.remove("is-active");
     await new Promise((resolve) => {
-      window.setTimeout(resolve, 180);
+      window.setTimeout(resolve, 160);
     });
     current.hidden = true;
     current.classList.remove("is-exit");
@@ -193,7 +199,7 @@
     incoming.hidden = false;
     incoming.classList.add("is-active", "is-enter");
     await new Promise((resolve) => {
-      window.setTimeout(resolve, 280);
+      window.setTimeout(resolve, 240);
     });
     incoming.classList.remove("is-enter");
     adminPageBusy = false;
@@ -1146,7 +1152,7 @@
       li.dataset.employeeId = emp.id;
       li.innerHTML = `
         <div class="pf-employee-identity">
-          <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="36" height="36" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
+          <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="64" height="64" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
           <div class="pf-employee-main">
             <strong>${escapeHtml(personLabel(emp))}</strong>
             <div class="pf-employee-stats" aria-label="Volunteer snapshot">
@@ -1442,7 +1448,7 @@
       const key = formatPlace(v) || "Unknown";
       counts.set(key, (counts.get(key) || 0) + 1);
     });
-    const ranked = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 7);
+    const ranked = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
     if (!els.geoChart) return;
     els.geoChart.innerHTML = "";
     if (!ranked.length) {
@@ -1452,12 +1458,12 @@
     if (els.geoEmpty) els.geoEmpty.hidden = true;
 
     const max = ranked[0][1] || 1;
-    const rowH = 18;
-    const labelW = 128;
-    const gap = 6;
-    const chartW = 360;
-    const barMax = chartW - labelW - 26;
-    const height = ranked.length * rowH + 2;
+    const rowH = 11;
+    const labelW = 96;
+    const gap = 3;
+    const chartW = 260;
+    const barMax = chartW - labelW - 18;
+    const height = ranked.length * rowH + 1;
     const ns = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(ns, "svg");
     svg.setAttribute("viewBox", `0 0 ${chartW} ${height}`);
@@ -1467,12 +1473,12 @@
 
     ranked.forEach(([label, count], i) => {
       const y = i * rowH;
-      const barW = Math.max(4, Math.round((count / max) * barMax));
-      const short = label.length > 22 ? label.slice(0, 20) + "…" : label;
+      const barW = Math.max(3, Math.round((count / max) * barMax));
+      const short = label.length > 16 ? label.slice(0, 14) + "…" : label;
 
       const text = document.createElementNS(ns, "text");
       text.setAttribute("x", "0");
-      text.setAttribute("y", String(y + 11));
+      text.setAttribute("y", String(y + 8));
       text.setAttribute("class", "pf-geo-label");
       text.textContent = short;
       text.appendChild(document.createElementNS(ns, "title")).textContent = `${label}: ${count}`;
@@ -1480,25 +1486,25 @@
 
       const track = document.createElementNS(ns, "rect");
       track.setAttribute("x", String(labelW));
-      track.setAttribute("y", String(y + 4));
+      track.setAttribute("y", String(y + 3));
       track.setAttribute("width", String(barMax));
-      track.setAttribute("height", "7");
-      track.setAttribute("rx", "4");
+      track.setAttribute("height", "4");
+      track.setAttribute("rx", "2");
       track.setAttribute("class", "pf-geo-track");
       svg.appendChild(track);
 
       const bar = document.createElementNS(ns, "rect");
       bar.setAttribute("x", String(labelW));
-      bar.setAttribute("y", String(y + 4));
+      bar.setAttribute("y", String(y + 3));
       bar.setAttribute("width", String(barW));
-      bar.setAttribute("height", "7");
-      bar.setAttribute("rx", "4");
+      bar.setAttribute("height", "4");
+      bar.setAttribute("rx", "2");
       bar.setAttribute("class", "pf-geo-bar");
       svg.appendChild(bar);
 
       const countText = document.createElementNS(ns, "text");
       countText.setAttribute("x", String(labelW + barW + gap));
-      countText.setAttribute("y", String(y + 11));
+      countText.setAttribute("y", String(y + 8));
       countText.setAttribute("class", "pf-geo-count");
       countText.textContent = String(count);
       svg.appendChild(countText);
