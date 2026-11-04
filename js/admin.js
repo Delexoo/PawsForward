@@ -306,6 +306,36 @@
     el.textContent = msg || "";
   }
 
+  function digitsOnly(value) {
+    return String(value || "").replace(/\D/g, "");
+  }
+
+  /** Format US numbers as (401) 300-0957 while typing. */
+  function formatPhoneDisplay(value) {
+    let digits = digitsOnly(value);
+    if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+    digits = digits.slice(0, 10);
+    if (!digits) return "";
+    if (digits.length < 4) return `(${digits}`;
+    if (digits.length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+
+  function applyPhoneInputFormat(input) {
+    if (!input) return;
+    const formatted = formatPhoneDisplay(input.value);
+    if (input.value === formatted) return;
+    const wasEnd = input.selectionStart === input.value.length;
+    input.value = formatted;
+    if (wasEnd) {
+      try {
+        input.setSelectionRange(formatted.length, formatted.length);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
   function employeeShareUrl(code) {
     const ref = String(code || "").trim();
     const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
@@ -1454,7 +1484,7 @@
     return {
       first_name: String(fd.get("first_name") || "").trim(),
       last_name: String(fd.get("last_name") || "").trim(),
-      phone: String(fd.get("phone") || "").trim(),
+      phone: formatPhoneDisplay(fd.get("phone")),
       payment_type: String(fd.get("payment_type") || "").trim(),
       payment_handle: handle,
     };
@@ -1471,8 +1501,12 @@
       setFieldError(els.errLast, "Enter a last name.");
       bad = true;
     }
-    if (!payload.phone) {
+    const phoneDigits = digitsOnly(payload.phone);
+    if (!phoneDigits) {
       setFieldError(els.errPhone, "Enter a phone number.");
+      bad = true;
+    } else if (phoneDigits.length < 10) {
+      setFieldError(els.errPhone, "Enter a 10-digit phone number.");
       bad = true;
     }
     if (!payload.payment_type) {
@@ -1526,7 +1560,7 @@
     if (els.empId) els.empId.value = emp.id;
     if (els.empFirst) els.empFirst.value = emp.first_name || "";
     if (els.empLast) els.empLast.value = emp.last_name || "";
-    if (els.empPhone) els.empPhone.value = emp.phone || "";
+    if (els.empPhone) els.empPhone.value = formatPhoneDisplay(emp.phone || "");
     setPaymentSelect(emp.payment_type || "");
     if (els.empPaymentHandle) els.empPaymentHandle.value = emp.payment_handle || "";
     setAvatarPreview(avatarUrl(emp));
@@ -1730,6 +1764,8 @@
     els.empPayment?.addEventListener("change", () => {
       syncPaymentHandleField(els.empPayment.value);
     });
+    els.empPhone?.addEventListener("input", () => applyPhoneInputFormat(els.empPhone));
+    els.empPhone?.addEventListener("blur", () => applyPhoneInputFormat(els.empPhone));
     els.payoutCancel?.addEventListener("click", () => {
       payoutEmployee = null;
       closeAdminDialog(els.payoutDialog);
