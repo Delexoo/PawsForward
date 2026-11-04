@@ -1149,37 +1149,61 @@ body[data-page="donate"] .amount-pills .pill.active {
 
 .money-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  background: var(--input-bg, var(--surface, #fff));
+}
+
+.money-wrap:focus-within {
+  border-color: color-mix(in srgb, var(--accent, #0f172a) 55%, var(--border, #e2e8f0));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-soft, #cbd5e1) 55%, transparent);
 }
 
 .money-wrap .money-symbol {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
+  position: static;
+  left: auto;
+  top: auto;
+  transform: none;
+  flex: 0 0 auto;
   color: var(--muted);
   font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1;
   pointer-events: none;
 }
 
 .money-wrap input {
-  padding-left: 30px;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
   min-height: 48px;
+  margin: 0;
+  padding: 12px 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* Modern currency field (payout amount, etc.) — no native spin buttons */
 .pf-money-input {
-  display: block;
+  min-height: 52px;
 }
 
 .pf-dialog .pf-money-input input[type="number"] {
-  width: 100%;
-  padding: 12px 14px 12px 34px;
+  width: auto;
   min-height: 52px;
+  padding: 14px 0 !important;
   font-size: 1.35rem !important;
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-  border-radius: 12px;
   appearance: textfield;
   -moz-appearance: textfield;
 }
@@ -1191,8 +1215,7 @@ body[data-page="donate"] .amount-pills .pill.active {
 }
 
 .pf-dialog .pf-money-input .money-symbol {
-  left: 14px;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--muted, #64748b);
 }
@@ -3381,4 +3404,307 @@ body[data-page="join"] .main > #page-body {
 .pf-join-success .pf-donate-input {
   text-align: center;
   font-size: 0.82rem;
+}
+
+/* ---- Official landing (home) ---- */
+body[data-page="home"] {
+  margin: 0;
+  min-height: 100dvh;
+  background: #0b1220;
+  color: #f8fafc;
+}
+
+body[data-page="home"] #shell,
+body[data-page="home"] .site-lock,
+body[data-page="home"] #site-lock {
+  display: none !important;
+}
+
+body[data-page="home"] #page-body.pf-home,
+body[data-page="home"] .pf-home,
+body[data-page="home"] #page-body {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #0b1220 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+.pf-home-hero {
+  position: relative;
+  min-height: 100dvh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.pf-home-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #0b1220;
+}
+
+.pf-home-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.pf-home-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(11, 18, 32, 0.28) 0%, rgba(11, 18, 32, 0.18) 42%, rgba(11, 18, 32, 0.78) 100%),
+    radial-gradient(120% 80% at 50% 100%, rgba(11, 18, 32, 0.55) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.pf-home-fallback {
+  display: none;
+  position: absolute;
+  inset: 0;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at 30% 20%, #1e293b 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, #0f766e 0%, transparent 45%),
+    #0b1220;
+}
+
+.pf-home-fallback img {
+  width: 112px;
+  height: 112px;
+  border-radius: 28px;
+  opacity: 0.92;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+body.pf-home-reduced-motion .pf-home-video,
+body.pf-home-video-failed .pf-home-video {
+  display: none;
+}
+
+body.pf-home-reduced-motion .pf-home-fallback,
+body.pf-home-video-failed .pf-home-fallback {
+  display: grid;
+}
+
+.pf-home-hero-inner {
+  position: relative;
+  z-index: 1;
+  width: min(720px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 0 0 calc(36px + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  gap: 16px;
+}
+
+.pf-home-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pf-home-mark {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  object-fit: cover;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+.pf-home-name {
+  margin: 0;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: clamp(1.65rem, 4.5vw, 2.35rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  color: #fff;
+}
+
+.pf-home-headline {
+  margin: 0;
+  max-width: 18ch;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: clamp(1.55rem, 5.2vw, 2.55rem);
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  color: #f8fafc;
+  text-wrap: balance;
+}
+
+.pf-home-lead {
+  margin: 0;
+  max-width: 36ch;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: clamp(0.98rem, 2.4vw, 1.12rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: rgba(248, 250, 252, 0.86);
+}
+
+.pf-home-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.pf-home-cta {
+  min-height: 48px;
+  padding: 0 20px !important;
+  border-radius: 12px !important;
+  font-size: 0.98rem !important;
+  font-weight: 700 !important;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pf-home-cta--primary {
+  background: #fff !important;
+  color: #0b1220 !important;
+  border-color: #fff !important;
+}
+
+.pf-home-cta--primary:hover {
+  background: #f1f5f9 !important;
+}
+
+.pf-home-cta--secondary {
+  background: rgba(15, 23, 42, 0.35) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  backdrop-filter: blur(8px);
+}
+
+.pf-home-cta--secondary:hover {
+  background: rgba(15, 23, 42, 0.55) !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.pf-home-how {
+  width: min(760px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 56px 0 28px;
+}
+
+.pf-home-how-title {
+  margin: 0 0 22px;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.pf-home-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+
+.pf-home-steps li {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.pf-home-step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+.pf-home-steps strong {
+  display: block;
+  margin: 0 0 4px;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+}
+
+.pf-home-steps p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+.pf-home-foot {
+  width: min(760px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 28px 0 calc(40px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid #1e293b;
+}
+
+.pf-home-foot p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.pf-home-foot a {
+  color: #cbd5e1;
+  text-decoration: none;
+}
+
+.pf-home-foot a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+@media (min-width: 900px) {
+  .pf-home-hero {
+    justify-content: center;
+  }
+
+  .pf-home-hero-inner {
+    width: min(780px, calc(100% - 80px));
+    margin-left: max(48px, calc((100% - 1100px) / 2 + 48px));
+    margin-right: auto;
+    padding-bottom: 0;
+  }
+
+  .pf-home-scrim {
+    background:
+      linear-gradient(90deg, rgba(11, 18, 32, 0.78) 0%, rgba(11, 18, 32, 0.45) 42%, rgba(11, 18, 32, 0.18) 100%),
+      linear-gradient(180deg, rgba(11, 18, 32, 0.2) 0%, transparent 40%, rgba(11, 18, 32, 0.55) 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-home-video {
+    display: none;
+  }
+
+  .pf-home-fallback {
+    display: grid;
+  }
 }
