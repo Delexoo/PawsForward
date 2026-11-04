@@ -12,68 +12,37 @@
   }
 
   const CIRC = 2 * Math.PI * 40;
-  const MIN_MS = 2200;
+  const ANIM_MS = 3400;
   const EXIT_MS = 1100;
-  const startedAt = performance.now();
-  let shown = 0;
-  let target = 0;
-  let ready = false;
+  let videoReady = false;
   let dismissed = false;
-  let raf = 0;
-  let lastTs = 0;
+  let lastPainted = -1;
 
   if (ring) {
     ring.style.strokeDasharray = String(CIRC);
     ring.style.strokeDashoffset = String(CIRC);
   }
 
-  function setProgress(n) {
-    target = Math.max(target, Math.min(100, n));
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
 
-  function paint(ts) {
-    if (!lastTs) lastTs = ts;
-    const dt = Math.min(48, ts - lastTs);
-    lastTs = ts;
-
-    // Frame-rate independent ease — slower chase toward target
-    const ease = 1 - Math.pow(0.965, dt);
-    shown += (target - shown) * ease;
-
-    // Soft ceiling until truly ready so % never snaps
-    if (!ready && shown > 90) {
-      shown = 90 + (shown - 90) * 0.35;
-      if (target > 92) target = 92;
+  function paintProgress(pct) {
+    const value = Math.round(pct);
+    if (value !== lastPainted) {
+      lastPainted = value;
+      if (pctEl) pctEl.textContent = value + "%";
     }
-
-    if (ready && target >= 100 && shown > 99.2) shown = 100;
-
-    const value = Math.round(shown);
-    if (pctEl) pctEl.textContent = value + "%";
     if (ring) {
-      ring.style.strokeDashoffset = String(CIRC * (1 - shown / 100));
-    }
-
-    if (shown < 100) {
-      raf = requestAnimationFrame(paint);
-      return;
-    }
-    raf = 0;
-    finish();
-  }
-
-  function bump() {
-    if (!raf) {
-      lastTs = 0;
-      raf = requestAnimationFrame(paint);
+      ring.style.strokeDashoffset = String(CIRC * (1 - pct / 100));
     }
   }
 
   function finish() {
     if (dismissed) return;
     dismissed = true;
+    paintProgress(100);
     if (loader) {
-      // One frame so the 100% paint settles, then ease the sheet up
       requestAnimationFrame(() => {
         loader.classList.add("is-done");
         loader.setAttribute("aria-busy", "false");
@@ -93,26 +62,45 @@
     if (p && typeof p.catch === "function") p.catch(() => {});
   }
 
-  function bufferedPct() {
-    if (!video || !video.duration || !Number.isFinite(video.duration)) return 0;
-    try {
-      if (!video.buffered.length) return 0;
-      const end = video.buffered.end(video.buffered.length - 1);
-      return Math.min(100, (end / video.duration) * 100);
-    } catch {
-      return 0;
-    }
+  function markVideoReady() {
+    if (videoReady) return;
+    videoReady = true;
+    tryPlay();
   }
 
-  function markReady() {
-    if (ready) return;
-    ready = true;
-    tryPlay();
-    const wait = Math.max(0, MIN_MS - (performance.now() - startedAt));
-    window.setTimeout(() => {
-      setProgress(100);
-      bump();
-    }, wait);
+  function runSmoothLoad() {
+    const start = performance.now();
+    paintProgress(0);
+
+    function frame(now) {
+      const t = Math.min(1, (now - start) / ANIM_MS);
+      const pct = easeInOutCubic(t) * 100;
+      paintProgress(pct);
+
+      if (t < 1) {
+        requestAnimationFrame(frame);
+        return;
+      }
+
+      paintProgress(100);
+      // Brief hold on 100% so it reads, then wait for video if needed
+      const after = () => finish();
+      if (videoReady || !video) {
+        window.setTimeout(after, 220);
+      } else {
+        const waitStart = performance.now();
+        const poll = () => {
+          if (videoReady || performance.now() - waitStart > 4000) {
+            after();
+            return;
+          }
+          requestAnimationFrame(poll);
+        };
+        requestAnimationFrame(poll);
+      }
+    }
+
+    requestAnimationFrame(frame);
   }
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -125,69 +113,33 @@
       while (video.firstChild) video.removeChild(video.firstChild);
       video.load();
     }
-    setProgress(100);
-    bump();
+    paintProgress(100);
+    finish();
     return;
   }
 
-  if (!video) {
-    setProgress(100);
-    bump();
-    return;
-  }
-
-  setProgress(6);
-  bump();
-
-  video.addEventListener("loadstart", () => {
-    setProgress(14);
-    bump();
-  });
-  video.addEventListener("loadedmetadata", () => {
-    setProgress(26);
-    bump();
-  });
-  video.addEventListener("loadeddata", () => {
-    setProgress(48);
-    bump();
-    tryPlay();
-  });
-  video.addEventListener("canplay", () => {
-    setProgress(Math.max(64, Math.min(82, 40 + bufferedPct() * 0.4)));
-    bump();
-    tryPlay();
-  });
-  video.addEventListener("canplaythrough", markReady);
-  video.addEventListener("playing", () => {
-    setProgress(Math.max(78, Math.min(88, 50 + bufferedPct() * 0.35)));
-    bump();
-    window.setTimeout(markReady, 420);
-  });
-  video.addEventListener("progress", () => {
-    if (ready) return;
-    const b = bufferedPct();
-    if (b > 0) {
-      setProgress(Math.min(86, 24 + b * 0.55));
-      bump();
+  if (video) {
+    video.addEventListener("loadeddata", () => {
+      markVideoReady();
+      tryPlay();
+    });
+    video.addEventListener("canplay", markVideoReady);
+    video.addEventListener("canplaythrough", markVideoReady);
+    video.addEventListener("playing", markVideoReady);
+    video.addEventListener("error", () => {
+      document.body.classList.add("pf-home-video-failed");
+      markVideoReady();
+    });
+    window.setTimeout(markVideoReady, 10000);
+    if (video.readyState >= 2) {
+      markVideoReady();
+      tryPlay();
     }
-  });
-  video.addEventListener("error", () => {
-    document.body.classList.add("pf-home-video-failed");
-    markReady();
-  });
-
-  window.setTimeout(markReady, 10000);
-
-  if (video.readyState >= 3) {
-    setProgress(72);
-    bump();
-    tryPlay();
-    window.setTimeout(markReady, 500);
-  } else if (video.readyState >= 2) {
-    setProgress(58);
-    bump();
-    tryPlay();
+  } else {
+    markVideoReady();
   }
+
+  runSmoothLoad();
 })();
 
 /* Site menu */
