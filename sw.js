@@ -1,12 +1,23 @@
-/* PawsForward — minimal service worker for installability */
-const CACHE = "pawsforward-shell-v2";
-const PRECACHE = [
-  "./admin.html",
-  "./login.html",
-  "./manifest.webmanifest",
-  "./doc/brand-mark.png",
-  "./icons/favicon.png",
-];
+/* PawsForward — installability only; never pin HTML/CSS/JS behind a stale cache */
+const CACHE = "pawsforward-shell-v3";
+const PRECACHE = ["./manifest.webmanifest", "./doc/brand-mark.png", "./icons/favicon.png"];
+
+function isShellAsset(url) {
+  try {
+    const u = new URL(url);
+    if (u.origin !== self.location.origin) return false;
+    const path = u.pathname.toLowerCase();
+    return (
+      path.endsWith(".html") ||
+      path.endsWith(".js") ||
+      path.endsWith(".css") ||
+      path.endsWith(".webmanifest") ||
+      path.endsWith("/")
+    );
+  } catch {
+    return false;
+  }
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -22,13 +33,20 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.map((k) => (k === CACHE ? null : caches.delete(k)))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  // Always hit the network for pages and scripts so deploys show up.
+  if (isShellAsset(event.request.url)) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request).then((c) => c || Response.error()))
+    );
+    return;
+  }
   event.respondWith(
     fetch(event.request)
       .then((response) => {
@@ -38,6 +56,6 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./admin.html")))
+      .catch(() => caches.match(event.request))
   );
 });
