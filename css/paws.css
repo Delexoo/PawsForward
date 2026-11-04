@@ -2398,24 +2398,73 @@ button.pf-stat-chip--link:focus-visible {
     gap: 10px;
   }
 
+  /* Mobile: bottom sheet attached to the screen edge (scroll for more) */
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
-    width: min(380px, calc(100vw - 24px)) !important;
-    max-width: min(380px, calc(100vw - 24px)) !important;
-    max-height: min(90dvh, 760px) !important;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: min(92dvh, 100%) !important;
+    margin: 0 !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
-  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
-    width: min(400px, calc(100vw - 24px)) !important;
-    max-width: min(400px, calc(100vw - 24px)) !important;
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog::backdrop,
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide::backdrop {
+    background: rgba(15, 23, 42, 0.42);
   }
 
   body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel {
-    padding: 16px !important;
-    max-height: none;
-    overflow: visible;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 8px 18px calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: min(92dvh, 100%);
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    border-radius: 22px 22px 0 0 !important;
+    border: 1px solid var(--border, #e2e8f0);
+    border-bottom: 0;
+    box-shadow: 0 -16px 48px rgba(15, 23, 42, 0.18);
+  }
+
+  body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: 4px auto 14px;
+    border-radius: 999px;
+    background: #cbd5e1;
+  }
+
+  .pf-dialog .site-leave-dialog-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: 10px;
+    padding: 12px 0 calc(4px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface, #fff) 0%, transparent) 0%,
+      var(--surface, #fff) 28%
+    );
+    justify-content: stretch;
+  }
+
+  .pf-dialog .site-leave-dialog-actions .btn {
+    flex: 1 1 auto;
   }
 
   .pf-dialog .pf-avatar-editor {
@@ -2430,7 +2479,7 @@ button.pf-stat-chip--link:focus-visible {
   }
 
   .pf-dialog .ui-select-menu {
-    max-height: min(220px, 38dvh);
+    max-height: min(200px, 34dvh);
   }
 
   .pf-dock {
