@@ -3775,7 +3775,7 @@ body[data-page="home"] #page-body {
   place-items: center;
   background: var(--pf-cream, #fff9f3);
   transform: translate3d(0, 0, 0);
-  transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: transform 1.3s cubic-bezier(0.76, 0, 0.24, 1);
   will-change: transform;
 }
 

@@ -12,8 +12,8 @@
   }
 
   const CIRC = 2 * Math.PI * 40;
-  const ANIM_MS = 1500;
-  const EXIT_MS = 900;
+  const ANIM_MS = 900;
+  const EXIT_MS = 1300;
   let videoReady = false;
   let dismissed = false;
   let lastPainted = -1;
