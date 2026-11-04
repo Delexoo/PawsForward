@@ -166,7 +166,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    const rate = Number(window.SITE_CONFIG?.commissionRate ?? 0.25);
+    const rate = Number(window.SITE_CONFIG?.commissionRate ?? 0.5);
     if (els.commission && Number.isFinite(rate)) {
       els.commission.textContent = `${Math.round(rate * 100)}%`;
     }

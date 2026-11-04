@@ -1,5 +1,5 @@
 (function () {
-  const COMMISSION = () => Number(window.SITE_CONFIG?.commissionRate ?? 0.25);
+  const COMMISSION = () => Number(window.SITE_CONFIG?.commissionRate ?? 0.5);
   const CACHE_KEY = "pf_admin_cache_v2";
 
   const els = {

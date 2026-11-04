@@ -1,9 +1,9 @@
 /**
- * Behavior that matters: attributed donations owe 25%, minus recorded payouts.
+ * Behavior that matters: attributed donations owe 50%, minus recorded payouts.
  * Run: node tests/commission.test.mjs
  */
 
-const COMMISSION_RATE = 0.25;
+const COMMISSION_RATE = 0.5;
 
 function amountOwed(donations, payouts, employeeId) {
   const raised = donations
@@ -34,10 +34,10 @@ const payouts = [
   { employee_id: mia, amount: 25 },
 ];
 
-assertEqual(amountOwed(donations, [], steve), 16.25, "Steve owed 25% of 65");
-assertEqual(amountOwed(donations, [], mia), 25, "Mia owed 25% of 100");
+assertEqual(amountOwed(donations, [], steve), 32.5, "Steve owed 50% of 65");
+assertEqual(amountOwed(donations, [], mia), 50, "Mia owed 50% of 100");
 assertEqual(amountOwed(donations, [], "nobody"), 0, "Unknown employee owed 0");
-assertEqual(amountOwed(donations, payouts, steve), 6.25, "Steve owed drops after $10 payout");
-assertEqual(amountOwed(donations, payouts, mia), 0, "Mia fully paid");
+assertEqual(amountOwed(donations, payouts, steve), 22.5, "Steve owed drops after $10 payout");
+assertEqual(amountOwed(donations, payouts, mia), 25, "Mia owed drops after $25 payout");
 
 console.log("commission.test.mjs: all passed");

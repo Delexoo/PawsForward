@@ -1,6 +1,6 @@
 # PawsForward
 
-Admin dashboard and public donate page for **PawsForward**, a dog-rescue fundraising org. Operators hire employees with unique QR codes; donations through a code attribute to that employee at **25%** owed. The donate page can collect visit/geo analytics after consent.
+Admin dashboard and public donate page for **PawsForward**, a dog-rescue fundraising org. Operators hire employees with unique QR codes; donations through a code attribute to that employee at **50%** owed. The donate page can collect visit/geo analytics after consent.
 
 ## Project map
 
