@@ -8,7 +8,9 @@ const cors = {
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
 };
 
-const DONATE_PRICE_META = "pawsforward_donate_custom";
+/** v2 = open amount field (no $25 preset). Older prices kept the preset baked in. */
+const DONATE_PRICE_META = "pawsforward_donate_custom_v2";
+const DONATE_PRICE_META_LEGACY = "pawsforward_donate_custom";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -38,17 +40,36 @@ async function ensureCustomDonatePrice(stripe: Stripe) {
   const existing = listed.data.find((p) => p.metadata?.[DONATE_PRICE_META] === "1");
   if (existing?.id) return existing.id;
 
-  const product = await stripe.products.create({
-    name: "PawsForward donation",
-    metadata: { pawsforward: "donate" },
-  });
+  const legacy = listed.data.filter((p) => p.metadata?.[DONATE_PRICE_META_LEGACY] === "1");
+  let productId: string | null = null;
+  for (const old of legacy) {
+    if (typeof old.product === "string" && !productId) productId = old.product;
+    try {
+      await stripe.prices.update(old.id, { active: false });
+    } catch (err) {
+      console.warn("Could not archive legacy donate price", old.id, err);
+    }
+  }
+
+  if (!productId) {
+    const products = await stripe.products.list({ active: true, limit: 50 });
+    productId =
+      products.data.find((p) => p.metadata?.pawsforward === "donate")?.id ||
+      (
+        await stripe.products.create({
+          name: "PawsForward donation",
+          metadata: { pawsforward: "donate" },
+        })
+      ).id;
+  }
+
   const price = await stripe.prices.create({
     currency: "usd",
-    product: product.id,
+    product: productId,
     custom_unit_amount: {
       enabled: true,
       minimum: 100,
-      preset: 2500,
+      // No preset — donor types any amount ($1+).
     },
     metadata: { [DONATE_PRICE_META]: "1" },
   });
@@ -67,17 +88,19 @@ async function buildCheckout(input: {
   if (!stripeKey) throw new Error("Stripe is not configured.");
 
   const referralCode = String(input.referralCode || "").trim();
-  if (!referralCode) throw new Error("Missing employee referral code.");
+  let emp: { id?: string; first_name?: string; last_name?: string } | null = null;
 
-  const { data: empRows, error: empErr } = await supabase.rpc("resolve_employee_by_code", {
-    p_code: referralCode,
-  });
-  if (empErr) throw empErr;
-  const emp = Array.isArray(empRows) ? empRows[0] : empRows;
-  if (!emp?.id) {
-    const err = new Error("This QR code is not linked to an employee.");
-    (err as Error & { status?: number }).status = 404;
-    throw err;
+  if (referralCode) {
+    const { data: empRows, error: empErr } = await supabase.rpc("resolve_employee_by_code", {
+      p_code: referralCode,
+    });
+    if (empErr) throw empErr;
+    emp = Array.isArray(empRows) ? empRows[0] : empRows;
+    if (!emp?.id) {
+      const err = new Error("This QR code is not linked to an employee.");
+      (err as Error & { status?: number }).status = 404;
+      throw err;
+    }
   }
 
   const useCustom = input.customAmount !== false && !(Number(input.amount) > 0);
@@ -87,9 +110,12 @@ async function buildCheckout(input: {
   }
 
   const stripe = new Stripe(stripeKey, { apiVersion: "2024-06-20" });
-  const employeeName = `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "PawsForward";
+  const employeeName = emp
+    ? `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "PawsForward"
+    : "PawsForward";
   const donorLabel = String(input.donorLabel || "").trim();
   const siteOrigin = input.siteOrigin.replace(/\/$/, "");
+  const source = referralCode ? "employee_qr" : "direct";
 
   const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = { quantity: 1 };
   if (useCustom) {
@@ -100,33 +126,44 @@ async function buildCheckout(input: {
       unit_amount: Math.round(amount * 100),
       product_data: {
         name: "PawsForward donation",
-        description: `Donation attributed to ${employeeName}`,
+        description: referralCode
+          ? `Donation attributed to ${employeeName}`
+          : "Direct donation to PawsForward",
       },
     };
   }
 
+  const successUrl = referralCode
+    ? `${siteOrigin}/donate.html?ref=${encodeURIComponent(referralCode)}&success=1&session_id={CHECKOUT_SESSION_ID}`
+    : `${siteOrigin}/donate.html?success=1&session_id={CHECKOUT_SESSION_ID}`;
+  const cancelUrl = referralCode
+    ? `${siteOrigin}/donate.html?ref=${encodeURIComponent(referralCode)}&cancelled=1`
+    : `${siteOrigin}/donate.html?cancelled=1`;
+
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     submit_type: "donate",
-    client_reference_id: referralCode.slice(0, 200),
+    client_reference_id: (referralCode || "direct").slice(0, 200),
     line_items: [lineItem],
     metadata: {
       referral_code: referralCode,
-      employee_id: String(emp.id),
+      employee_id: emp?.id ? String(emp.id) : "",
       donor_label: donorLabel || "",
-      source: "employee_qr",
+      source,
     },
     payment_intent_data: {
-      description: `PawsForward donation · ${employeeName}`,
+      description: referralCode
+        ? `PawsForward donation · ${employeeName}`
+        : "PawsForward direct donation",
       metadata: {
         referral_code: referralCode,
-        employee_id: String(emp.id),
+        employee_id: emp?.id ? String(emp.id) : "",
         donor_label: donorLabel || "",
-        source: "employee_qr",
+        source,
       },
     },
-    success_url: `${siteOrigin}/donate.html?ref=${encodeURIComponent(referralCode)}&success=1&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${siteOrigin}/donate.html?ref=${encodeURIComponent(referralCode)}&cancelled=1`,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
   });
 
   return { url: session.url, session_id: session.id, employee: emp };
@@ -159,7 +196,14 @@ Deno.serve(async (req) => {
       const url = new URL(req.url);
       const referralCode = String(url.searchParams.get("ref") || "").trim();
       if (!referralCode) {
-        return Response.redirect(`${siteDefault.replace(/\/$/, "")}/donate.html`, 303);
+        // Direct donate from landing — open Stripe without an employee attribution.
+        const result = await buildCheckout({
+          customAmount: true,
+          referralCode: "",
+          siteOrigin: siteDefault,
+        });
+        if (!result.url) return json({ error: "No checkout URL." }, 500);
+        return Response.redirect(result.url, 303);
       }
       const result = await buildCheckout({
         customAmount: true,
