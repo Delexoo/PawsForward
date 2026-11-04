@@ -3433,22 +3433,88 @@ body[data-page="home"] #page-body {
   pointer-events: auto !important;
 }
 
+/* Boot loader — circle + % , slides up when ready */
+.pf-home-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: center;
+  background: #0b1220;
+  transition: transform 0.55s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+
+.pf-home-loader.is-done {
+  transform: translateY(-110%);
+  pointer-events: none;
+}
+
+.pf-home-loader-ring {
+  position: relative;
+  width: 96px;
+  height: 96px;
+}
+
+.pf-home-loader-svg {
+  width: 96px;
+  height: 96px;
+  display: block;
+  transform: rotate(-90deg);
+}
+
+.pf-home-loader-track,
+.pf-home-loader-progress {
+  fill: none;
+  stroke-width: 4;
+}
+
+.pf-home-loader-track {
+  stroke: rgba(248, 250, 252, 0.12);
+}
+
+.pf-home-loader-progress {
+  stroke: #f8fafc;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.08s linear;
+}
+
+.pf-home-loader-pct {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+}
+
+body.pf-home-loading {
+  overflow: hidden;
+}
+
 .pf-home-hero {
   position: relative;
   min-height: 100dvh;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
   isolation: isolate;
   overflow: hidden;
+  text-align: center;
 }
 
 .pf-home-media {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: #0b1220;
+  background: #0b1220 center / cover no-repeat;
+  background-image: url("../media/hero-poster.jpg");
 }
 
 .pf-home-video {
@@ -3463,8 +3529,8 @@ body[data-page="home"] #page-body {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(11, 18, 32, 0.28) 0%, rgba(11, 18, 32, 0.18) 42%, rgba(11, 18, 32, 0.78) 100%),
-    radial-gradient(120% 80% at 50% 100%, rgba(11, 18, 32, 0.55) 0%, transparent 55%);
+    linear-gradient(180deg, rgba(11, 18, 32, 0.35) 0%, rgba(11, 18, 32, 0.42) 45%, rgba(11, 18, 32, 0.72) 100%),
+    radial-gradient(90% 70% at 50% 50%, rgba(11, 18, 32, 0.15) 0%, rgba(11, 18, 32, 0.55) 100%);
   pointer-events: none;
 }
 
@@ -3500,16 +3566,19 @@ body.pf-home-video-failed .pf-home-fallback {
 .pf-home-hero-inner {
   position: relative;
   z-index: 1;
-  width: min(720px, calc(100% - 40px));
+  width: min(640px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 0 0 calc(36px + env(safe-area-inset-bottom, 0px));
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 0 calc(36px + env(safe-area-inset-bottom, 0px));
   display: grid;
   gap: 16px;
+  justify-items: center;
+  text-align: center;
 }
 
 .pf-home-brand {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
 }
 
@@ -3541,6 +3610,7 @@ body.pf-home-video-failed .pf-home-fallback {
   line-height: 1.08;
   color: #f8fafc;
   text-wrap: balance;
+  text-align: center;
 }
 
 .pf-home-lead {
@@ -3551,11 +3621,13 @@ body.pf-home-video-failed .pf-home-fallback {
   font-weight: 500;
   line-height: 1.45;
   color: rgba(248, 250, 252, 0.86);
+  text-align: center;
 }
 
 .pf-home-ctas {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   margin-top: 4px;
 }
@@ -3681,21 +3753,9 @@ body.pf-home-video-failed .pf-home-fallback {
 }
 
 @media (min-width: 900px) {
-  .pf-home-hero {
-    justify-content: center;
-  }
-
   .pf-home-hero-inner {
-    width: min(780px, calc(100% - 80px));
-    margin-left: max(48px, calc((100% - 1100px) / 2 + 48px));
-    margin-right: auto;
+    width: min(700px, calc(100% - 80px));
     padding-bottom: 0;
-  }
-
-  .pf-home-scrim {
-    background:
-      linear-gradient(90deg, rgba(11, 18, 32, 0.78) 0%, rgba(11, 18, 32, 0.45) 42%, rgba(11, 18, 32, 0.18) 100%),
-      linear-gradient(180deg, rgba(11, 18, 32, 0.2) 0%, transparent 40%, rgba(11, 18, 32, 0.55) 100%);
   }
 }
 

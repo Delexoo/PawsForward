@@ -14,20 +14,49 @@
   <title>Paws Forward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261105a">
-  <link rel="stylesheet" href="css/fonts.css?v=20261105a">
-  <script src="js/theme.js?v=20261105a"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261105a">
-  <link rel="stylesheet" href="css/paws.css?v=20261105a">
-  <script src="js/config.js?v=20261105a"></script>
-  <script src="js/canonical.js?v=20261105a"></script>
+  <link rel="preload" href="media/hero-poster.jpg" as="image">
+  <link rel="preload" href="media/hero-fast.mp4" as="video" type="video/mp4">
+  <link rel="manifest" href="manifest.webmanifest?v=20261105d">
+  <link rel="stylesheet" href="css/fonts.css?v=20261105d">
+  <script src="js/theme.js?v=20261105d"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261105d">
+  <link rel="stylesheet" href="css/paws.css?v=20261105d">
+  <script src="js/config.js?v=20261105d"></script>
+  <script src="js/canonical.js?v=20261105d"></script>
+  <style>
+    /* Critical loader — visible before paws.css */
+    #home-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      display: grid;
+      place-items: center;
+      background: #0b1220;
+      transition: transform 0.55s cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: transform;
+    }
+    #home-loader.is-done {
+      transform: translateY(-110%);
+      pointer-events: none;
+    }
+  </style>
 </head>
-<body data-page="home" data-public="1">
+<body data-page="home" data-public="1" class="pf-home-loading">
   <script>
     document.body.setAttribute("data-public", "1");
     document.body.classList.add("site-unlocked");
   </script>
   <a class="skip-link" href="#page-body">Skip to content</a>
+
+  <div id="home-loader" class="pf-home-loader" role="status" aria-live="polite" aria-busy="true" aria-label="Loading">
+    <div class="pf-home-loader-ring" aria-hidden="true">
+      <svg class="pf-home-loader-svg" viewBox="0 0 96 96">
+        <circle class="pf-home-loader-track" cx="48" cy="48" r="40"></circle>
+        <circle class="pf-home-loader-progress" id="home-loader-progress" cx="48" cy="48" r="40"></circle>
+      </svg>
+      <span class="pf-home-loader-pct" id="home-loader-pct">0%</span>
+    </div>
+  </div>
 
   <div id="page-body" class="pf-home">
     <section class="pf-home-hero" aria-label="Paws Forward">
@@ -35,13 +64,15 @@
         <video
           class="pf-home-video"
           id="home-hero-video"
-          src="media/hero.mp4"
+          poster="media/hero-poster.jpg"
           muted
           playsinline
           loop
           autoplay
-          preload="metadata"
-        ></video>
+          preload="auto"
+        >
+          <source src="media/hero-fast.mp4" type="video/mp4">
+        </video>
         <div class="pf-home-scrim"></div>
         <div class="pf-home-fallback">
           <img src="doc/brand-mark.png" width="120" height="120" alt="">
@@ -100,6 +131,6 @@
     </footer>
   </div>
 
-  <script src="js/home.js?v=20261105a"></script>
+  <script src="js/home.js?v=20261105d"></script>
 </body>
 </html>
