@@ -4,17 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>Donate · PawsForward</title>
+  <title>Donate · Paws Forward</title>
   <script>
     (function () {
+      // Legacy entry: r.html?c=CODE or ?ref=CODE → donate with referral preserved.
+      // New QRs encode donate.html?ref=CODE directly (no hop).
       var params = new URLSearchParams(location.search);
       var code = String(params.get("c") || params.get("ref") || "").trim();
       if (!code && location.hash) code = String(location.hash.replace(/^#/, "")).trim();
-      if (!code) {
-        location.replace("donate.html");
-        return;
-      }
-      location.replace("donate.html?ref=" + encodeURIComponent(code));
+      var target = "donate.html" + (code ? "?ref=" + encodeURIComponent(code) : "");
+      location.replace(target);
     })();
   </script>
 </head>

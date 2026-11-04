@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script>
     (function () {
-      // Short QR links: /PawsForward/r/<referral_code> → donate checkout
+      // Legacy short links /r/<code> still work; new QRs use donate.html?ref= directly.
       var match = location.pathname.match(/\/r\/([^\/?#]+)\/?$/);
       if (!match) return;
       var code = decodeURIComponent(match[1] || "").trim();

@@ -325,9 +325,9 @@
   function employeeShareUrl(code) {
     const ref = String(code || "").trim();
     const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
-    // Short branded QR path: /r/<code> → donate.html → Stripe Checkout
-    if (origin && ref) return `${origin}/r/${encodeURIComponent(ref)}`;
-    if (ref) return new URL(`r/${encodeURIComponent(ref)}`, window.location.href).href;
+    // Direct donate URL with ref — no intermediate /r/ redirect (looks cleaner when scanned).
+    if (origin && ref) return `${origin}/donate.html?ref=${encodeURIComponent(ref)}`;
+    if (ref) return new URL(`donate.html?ref=${encodeURIComponent(ref)}`, window.location.href).href;
     return origin ? `${origin}/donate.html` : new URL("donate.html", window.location.href).href;
   }
 
@@ -856,7 +856,7 @@
       url,
       name: `${employee.first_name}-${employee.last_name}`.replace(/\s+/g, "-"),
     };
-    els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Short link opens Stripe Checkout (any amount) and attributes the gift to code ${employee.referral_code}.`;
+    els.qrLead.textContent = `QR for ${employee.first_name} ${employee.last_name}. Opens the donate page (any amount on Stripe) and attributes the gift to code ${employee.referral_code}.`;
     els.qrLinkText.textContent = url;
     els.qrHost.innerHTML = "";
     openAdminDialog(els.qrDialog);

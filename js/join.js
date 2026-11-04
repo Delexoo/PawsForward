@@ -61,9 +61,10 @@
   function shareUrlFor(code) {
     const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
     const ref = String(code || "").trim();
-    if (origin && ref) return `${origin}/r/${encodeURIComponent(ref)}`;
-    if (ref) return new URL(`r/${encodeURIComponent(ref)}`, location.href).href;
-    return origin || location.origin;
+    // Point QR straight at donate (no /r/ hop) so scanners don't see a redirect.
+    if (origin && ref) return `${origin}/donate.html?ref=${encodeURIComponent(ref)}`;
+    if (ref) return new URL(`donate.html?ref=${encodeURIComponent(ref)}`, location.href).href;
+    return origin ? `${origin}/donate.html` : new URL("donate.html", location.href).href;
   }
 
   function readForm() {
