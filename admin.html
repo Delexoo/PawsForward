@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261104n">
-  <link rel="stylesheet" href="css/fonts.css?v=20261104n">
-  <script src="js/theme.js?v=20261104n"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261104n">
-  <link rel="stylesheet" href="css/paws.css?v=20261104n">
+  <link rel="manifest" href="manifest.webmanifest?v=20261104m">
+  <link rel="stylesheet" href="css/fonts.css?v=20261104m">
+  <script src="js/theme.js?v=20261104m"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261104m">
+  <link rel="stylesheet" href="css/paws.css?v=20261104m">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261104n"></script>
-  <script src="js/canonical.js?v=20261104n"></script>
+  <script src="js/config.js?v=20261104m"></script>
+  <script src="js/canonical.js?v=20261104m"></script>
   <script>
     (function () {
       try {
@@ -33,7 +33,7 @@
       } catch (e) {}
     })();
   </script>
-  <script src="js/pin-lock.js?v=20261104n"></script>
+  <script src="js/pin-lock.js?v=20261104m"></script>
   <script>
     (function () {
       try {
@@ -261,7 +261,14 @@
   <dialog class="site-leave-dialog pf-dialog site-leave-dialog--wide" id="employee-detail-dialog" aria-labelledby="employee-detail-title">
     <div class="site-leave-dialog-panel pf-emp-detail">
       <div class="pf-emp-detail-head">
-        <img id="detail-avatar" class="pf-avatar pf-avatar--lg" src="doc/default-avatar.jpg" alt="" width="64" height="64">
+        <div class="pf-detail-avatar-wrap">
+          <button type="button" class="pf-detail-avatar-btn" id="detail-avatar-pick" title="Change photo" aria-label="Change employee photo">
+            <img id="detail-avatar" class="pf-avatar pf-avatar--lg" src="doc/default-avatar.jpg" alt="" width="64" height="64">
+          </button>
+          <button type="button" class="pf-detail-avatar-reset" id="detail-avatar-reset" title="Reset to default photo" aria-label="Reset to default photo">
+            <span aria-hidden="true">↻</span>
+          </button>
+        </div>
         <div class="pf-emp-detail-copy">
           <h2 class="site-leave-dialog-title" id="employee-detail-title">Employee</h2>
           <p class="pf-emp-detail-phone" id="employee-detail-phone">—</p>
@@ -290,13 +297,14 @@
       <p class="pf-emp-detail-code" id="detail-payout-method" hidden></p>
 
       <div class="pf-emp-detail-actions" role="group" aria-label="Employee actions">
-        <button type="button" class="pf-chip-btn" data-detail="pay">Pay</button>
+        <div class="pf-seg" role="group" aria-label="Payout">
+          <button type="button" class="pf-seg-btn" data-detail="pay">Pay</button>
+          <button type="button" class="pf-seg-btn" data-detail="paid">Paid</button>
+        </div>
         <button type="button" class="pf-chip-btn" data-detail="qr">QR</button>
         <button type="button" class="pf-chip-btn" data-detail="edit">Edit</button>
-        <button type="button" class="pf-chip-btn" data-detail="copy">Copy code</button>
-        <button type="button" class="pf-chip-btn" data-detail="dupe">Duplicate</button>
-        <button type="button" class="pf-chip-btn" data-detail="photo">Photo</button>
-        <button type="button" class="pf-chip-btn" data-detail="visits">Locations</button>
+        <button type="button" class="pf-chip-btn pf-chip-btn--icon" data-detail="dupe" data-icon="copy" title="Duplicate" aria-label="Duplicate employee"></button>
+        <button type="button" class="pf-chip-btn pf-chip-btn--icon" data-detail="visits" data-icon="map-pin" title="Locations" aria-label="View locations"></button>
         <button type="button" class="pf-chip-btn pf-chip-btn--danger" data-detail="delete">Delete</button>
       </div>
       <input id="detail-avatar-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
@@ -373,12 +381,12 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261104n"></script>
-  <script src="js/shell.js?v=20261104n"></script>
-  <script src="js/vendor/supabase.js?v=20261104n"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261104n"></script>
-  <script src="js/supabase-client.js?v=20261104n"></script>
-  <script src="js/qr.js?v=20261104n"></script>
-  <script src="js/admin.js?v=20261104n"></script>
+  <script src="js/icons.js?v=20261104m"></script>
+  <script src="js/shell.js?v=20261104m"></script>
+  <script src="js/vendor/supabase.js?v=20261104m"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261104m"></script>
+  <script src="js/supabase-client.js?v=20261104m"></script>
+  <script src="js/qr.js?v=20261104m"></script>
+  <script src="js/admin.js?v=20261104m"></script>
 </body>
 </html>

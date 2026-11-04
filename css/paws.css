@@ -657,10 +657,10 @@ body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
 body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
   position: fixed !important;
   inset: 0 !important;
-  width: min(380px, calc(100vw - 28px)) !important;
-  max-width: min(380px, calc(100vw - 28px)) !important;
+  width: min(440px, calc(100vw - 48px)) !important;
+  max-width: min(440px, calc(100vw - 48px)) !important;
   height: fit-content !important;
-  max-height: min(86dvh, 720px) !important;
+  max-height: none !important;
   margin: auto !important;
   top: 0 !important;
   right: 0 !important;
@@ -670,15 +670,62 @@ body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
   border: none;
   padding: 0;
   background: transparent;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible !important;
   box-shadow: none;
 }
 
 body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
-  width: min(420px, calc(100vw - 28px)) !important;
-  max-width: min(420px, calc(100vw - 28px)) !important;
+  width: min(480px, calc(100vw - 48px)) !important;
+  max-width: min(480px, calc(100vw - 48px)) !important;
+}
+
+/* Desktop: keep the whole dialog on screen without internal scrolling */
+@media (min-width: 901px) {
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+    width: min(460px, calc(100vw - 64px)) !important;
+    max-width: min(460px, calc(100vw - 64px)) !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+    width: min(520px, calc(100vw - 64px)) !important;
+    max-width: min(520px, calc(100vw - 64px)) !important;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  body[data-page="admin"] #employee-dialog .site-leave-dialog-panel {
+    padding: 20px 22px 18px !important;
+  }
+
+  body[data-page="admin"] #employee-dialog .site-leave-dialog-text {
+    margin-bottom: 12px !important;
+  }
+
+  body[data-page="admin"] #employee-dialog .pf-emp-identity-block {
+    margin-bottom: 10px;
+  }
+
+  body[data-page="admin"] #employee-dialog .pf-avatar-preview {
+    width: 64px;
+    height: 64px;
+  }
+
+  body[data-page="admin"] #employee-dialog .field {
+    margin-bottom: 10px;
+  }
+
+  body[data-page="admin"] #employee-dialog .site-leave-dialog-actions {
+    margin-top: 8px;
+    position: static;
+    padding: 0;
+    background: none;
+  }
 }
 
 .pf-dialog .site-leave-dialog-panel {
