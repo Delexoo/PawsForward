@@ -11,4 +11,4 @@
 3. **Assess.** List tables touched (employees, donations, visits, deletion requests, auth.users).
 4. **Notify.** Email affected people using stored contacts (donor labels/emails on deletion requests, employee phones via operator outreach, admin emails) within 72 hours when personal data is involved.
 5. **Record.** Note timeline, systems affected, and fixes in an internal incident log.
-6. **Follow up.** Offer deletion via privacy@pawsforward.org and the privacy form.
+6. **Follow up.** Offer deletion via joinpawsforward@outlook.com and the privacy form.

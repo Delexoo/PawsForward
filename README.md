@@ -68,5 +68,5 @@ node tests/commission.test.mjs
 
 ## Contact
 
-- General: hello@pawsforward.org  
-- Privacy / deletion: privacy@pawsforward.org  
+- General: joinpawsforward@outlook.com  
+- Privacy / deletion: joinpawsforward@outlook.com  

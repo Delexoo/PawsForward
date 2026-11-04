@@ -6,8 +6,8 @@ window.SITE_CONFIG = {
   appName: "PawsForward",
   /** Bump when shipping UI so browsers skip stale JS/CSS. */
   assetVersion: "20261108u",
-  contactEmail: "hello@pawsforward.org",
-  privacyEmail: "privacy@pawsforward.org",
+  contactEmail: "joinpawsforward@outlook.com",
+  privacyEmail: "joinpawsforward@outlook.com",
   siteOrigin: "https://joinpawsforward.com",
 };
 

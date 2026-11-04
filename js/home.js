@@ -4,7 +4,7 @@
   const pctEl = document.getElementById("home-loader-pct");
   const ring = document.getElementById("home-loader-progress");
   const contact = document.getElementById("home-contact");
-  const email = String(window.SITE_CONFIG?.contactEmail || "hello@pawsforward.org").trim();
+  const email = String(window.SITE_CONFIG?.contactEmail || "joinpawsforward@outlook.com").trim();
 
   if (contact && email) {
     contact.href = `mailto:${email}`;
