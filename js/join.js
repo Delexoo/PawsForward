@@ -89,7 +89,14 @@
     }
   }
 
+  function isLocalHost() {
+    const host = String(location.hostname || "").toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "::1";
+  }
+
   function siteOrigin() {
+    // Local preview should keep QR/donate links on this machine.
+    if (isLocalHost()) return location.origin.replace(/\/$/, "");
     return String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
   }
 
@@ -275,12 +282,10 @@
     if (els.submit) els.submit.disabled = true;
     setBanner("Creating your QR…");
 
-    // Live DB may still require phone/last_name; blank phone uses a sentinel until migration lands.
-    const phoneForRpc = payload.phone || "0000000000";
     const argsWithEmail = {
       p_first_name: payload.name,
       p_last_name: "-",
-      p_phone: phoneForRpc,
+      p_phone: payload.phone || null,
       p_payment_type: payload.payment_type,
       p_payment_handle: payload.payment_handle,
       p_email: payload.email,
@@ -288,7 +293,7 @@
     const argsWithoutEmail = {
       p_first_name: payload.name,
       p_last_name: "-",
-      p_phone: phoneForRpc,
+      p_phone: payload.phone || null,
       p_payment_type: payload.payment_type,
       p_payment_handle: payload.payment_handle,
     };

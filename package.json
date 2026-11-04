@@ -1,0 +1,9 @@
+{
+  "name": "pawsforward",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "start": "node scripts/dev-server.mjs"
+  }
+}
