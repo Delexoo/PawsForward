@@ -61,6 +61,32 @@
     return String(raw || "").trim().replace(/\s+/g, " ");
   }
 
+  /** Format US numbers as (555) 123-4567 while typing. */
+  function formatPhoneDisplay(value) {
+    let digits = String(value || "").replace(/\D/g, "");
+    if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+    digits = digits.slice(0, 10);
+    if (!digits) return "";
+    if (digits.length < 4) return `(${digits}`;
+    if (digits.length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+
+  function applyPhoneInputFormat(input) {
+    if (!input) return;
+    const formatted = formatPhoneDisplay(input.value);
+    if (input.value === formatted) return;
+    const wasEnd = input.selectionStart === input.value.length;
+    input.value = formatted;
+    if (wasEnd) {
+      try {
+        input.setSelectionRange(formatted.length, formatted.length);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
   function shareUrlFor(code) {
     const origin = String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "");
     const ref = String(code || "").trim();
@@ -74,7 +100,7 @@
     return {
       first_name: String(els.first?.value || "").trim(),
       last_name: String(els.last?.value || "").trim(),
-      phone: String(els.phone?.value || "").trim(),
+      phone: formatPhoneDisplay(els.phone?.value || "").trim(),
       payment_type: String(els.payment?.value || "").trim(),
       payment_handle: normalizeHandle(els.handle?.value),
     };
@@ -87,8 +113,8 @@
       setFieldError(els.errFirst, "Enter a first name.");
       bad = true;
     }
-    if (!payload.last_name) {
-      setFieldError(els.errLast, "Enter a last name.");
+    if (payload.last_name && payload.last_name.length > 80) {
+      setFieldError(els.errLast, "Last name is too long.");
       bad = true;
     }
     if (!payload.phone || payload.phone.length < 7) {
@@ -180,6 +206,8 @@
     }
 
     els.form?.addEventListener("submit", onSubmit);
+    els.phone?.addEventListener("input", () => applyPhoneInputFormat(els.phone));
+    if (els.phone?.value) applyPhoneInputFormat(els.phone);
     els.copy?.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(current.url);

@@ -539,12 +539,13 @@
     }
     if (els.payoutSubmit) els.payoutSubmit.disabled = true;
     try {
-      const { error } = await sb.from("payouts").insert({
-        employee_id: emp.id,
-        amount,
-        note: note || null,
+      const { data, error } = await sb.rpc("record_employee_payout", {
+        p_employee_id: emp.id,
+        p_amount: amount,
+        p_note: note || null,
       });
       if (error) throw error;
+      if (!data) throw new Error("Payout was not recorded.");
       await closeAdminDialog(els.payoutDialog);
       setBanner(`Recorded ${money(amount)} paid to ${emp.first_name}.`, "ok");
       await loadDashboard({ skipCachePaint: true });
@@ -1618,8 +1619,8 @@
       setFieldError(els.errFirst, "Enter a first name.");
       bad = true;
     }
-    if (!payload.last_name) {
-      setFieldError(els.errLast, "Enter a last name.");
+    if (payload.last_name && payload.last_name.length > 80) {
+      setFieldError(els.errLast, "Last name is too long.");
       bad = true;
     }
     const phoneDigits = digitsOnly(payload.phone);
