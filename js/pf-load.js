@@ -264,29 +264,9 @@
     });
   }
 
-  function setupNotice() {
-    const note = document.querySelector("#site-notice");
-    if (!note || note.nextElementSibling?.classList.contains("notice-more")) return;
-    note.classList.add("is-clamped");
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "notice-more";
-    button.textContent = "See more...";
-    button.setAttribute("aria-expanded", "false");
-    button.setAttribute("aria-controls", "site-notice");
-    button.addEventListener("click", () => {
-      const open = button.getAttribute("aria-expanded") !== "true";
-      button.setAttribute("aria-expanded", open ? "true" : "false");
-      note.classList.toggle("is-clamped", !open);
-      button.textContent = open ? "See less" : "See more...";
-    });
-    note.after(button);
-  }
-
   function setupPage() {
     setupMenu();
     setupFaq();
-    setupNotice();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupPage);
