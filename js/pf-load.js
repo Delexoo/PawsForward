@@ -6,7 +6,7 @@
 
   function mountRing() {
     const svg = loader?.querySelector(".loader-ring");
-    if (!svg) return () => {};
+    if (!svg || svg.tagName.toLowerCase() === "canvas") return () => {};
     const canvas = document.createElement("canvas");
     canvas.className = "loader-ring";
     canvas.setAttribute("aria-hidden", "true");
@@ -45,11 +45,6 @@
     };
   }
 
-  const drawRing = mountRing();
-  let busy = false;
-  let leaving = false;
-  let pendingHref = "";
-
   function readNav() {
     try {
       return sessionStorage.getItem(navKey) === "1";
@@ -74,9 +69,14 @@
     }
   }
 
-  const skipIntro = readNav();
+  const arriving = readNav() || document.documentElement.classList.contains("pf-nav-in");
   clearNav();
-  if (skipIntro) hideLoader();
+  document.documentElement.classList.remove("pf-nav-in");
+
+  const drawRing = mountRing();
+  let busy = false;
+  let leaving = false;
+  let pendingHref = "";
 
   function ease(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
@@ -90,15 +90,15 @@
 
   let countRun = 0;
 
-  function animateCount(ms) {
+  function animateCount(ms, from = 0, to = 100) {
     const run = ++countRun;
-    setProgress(0);
+    setProgress(from);
     return new Promise((resolve) => {
       const start = performance.now();
       function frame(now) {
         if (run !== countRun) return;
         const t = Math.min(1, (now - start) / ms);
-        setProgress(ease(t) * 100);
+        setProgress(from + (to - from) * ease(t));
         if (t < 1) requestAnimationFrame(frame);
         else resolve();
       }
@@ -149,14 +149,14 @@
     location.assign(href);
   }
 
-  function finishIntro() {
+  function finishCover() {
     if (pendingHref) {
       go(pendingHref);
       return;
     }
     busy = true;
     slideAway().then(() => {
-      document.documentElement.style.overflow = "";
+      hideLoader();
       busy = false;
       if (pendingHref) go(pendingHref);
     });
@@ -181,8 +181,26 @@
   }
 
   function openPage() {
-    if (!loader || reduced || skipIntro) return;
-    playOnce(finishIntro);
+    if (!loader || reduced) {
+      hideLoader();
+      return;
+    }
+
+    if (arriving) {
+      // Continue from the previous page's cover — no 0% flash.
+      showLoader();
+      setProgress(100);
+      busy = true;
+      requestAnimationFrame(() => {
+        slideAway().then(() => {
+          hideLoader();
+          busy = false;
+        });
+      });
+      return;
+    }
+
+    playOnce(finishCover);
   }
 
   function internalPage(anchor, event) {
@@ -191,7 +209,7 @@
     if (anchor.target && anchor.target !== "_self") return false;
     if (anchor.hasAttribute("download")) return false;
     const href = anchor.getAttribute("href") || "";
-    if (!href || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("sms:")) return false;
+    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("sms:")) return false;
     let url;
     try {
       url = new URL(anchor.href, location.href);
@@ -199,7 +217,10 @@
       return false;
     }
     if (url.origin !== location.origin) return false;
-    if (url.pathname === location.pathname && url.search === location.search) return false;
+    if (url.pathname === location.pathname && url.search === location.search) {
+      if (url.hash) return false;
+      return false;
+    }
     return true;
   }
 
@@ -209,7 +230,9 @@
     if (reduced || !internalPage(anchor, event)) return;
     event.preventDefault();
     pendingHref = anchor.href;
-    if (leaving || busy) return;
+    if (leaving) return;
+    if (busy) return;
+    // Cover, hit 100%, then navigate so the next page can slide away cleanly.
     playOnce(() => {
       if (pendingHref) go(pendingHref);
     });

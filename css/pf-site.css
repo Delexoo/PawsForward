@@ -463,6 +463,12 @@ main { flex: 1; }
 
 .loader.is-done { display: none; }
 
+/* Internal nav: avoid a 0% flash before pf-load continues the cover */
+html.pf-nav-in .loader-bar {
+  stroke-dasharray: 289;
+  stroke-dashoffset: 0;
+}
+
 .scroll-line {
   position: fixed;
   top: 0;
