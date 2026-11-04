@@ -3898,7 +3898,7 @@ body.pf-home-loading {
   overflow: hidden;
 }
 
-/* Top bar + menu (landing) */
+/* Top bar + menu (landing) — logo, name, menu only */
 .pf-site-bar {
   position: fixed;
   top: 0;
@@ -3910,14 +3910,18 @@ body.pf-home-loading {
   justify-content: space-between;
   gap: 16px;
   padding:
-    max(12px, env(safe-area-inset-top, 0px))
+    max(14px, env(safe-area-inset-top, 0px))
     max(16px, env(safe-area-inset-right, 0px))
-    12px
+    0
     max(16px, env(safe-area-inset-left, 0px));
-  background: color-mix(in srgb, var(--pf-cream, #fff9f3) 88%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid color-mix(in srgb, var(--pf-rule, #e5e0d8) 70%, transparent);
+  background: transparent;
+  border: 0;
+  pointer-events: none;
+}
+
+.pf-site-bar-brand,
+.pf-site-menu-btn {
+  pointer-events: auto;
 }
 
 .pf-site-bar-brand {
@@ -3925,11 +3929,12 @@ body.pf-home-loading {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: var(--pf-ink, #2d312b);
+  color: #fff;
   font-family: "DM Sans", system-ui, sans-serif;
   font-weight: 800;
   font-size: 1.05rem;
   letter-spacing: -0.03em;
+  text-shadow: 0 1px 12px rgba(45, 49, 43, 0.35);
 }
 
 .pf-site-bar-brand img {
@@ -3937,28 +3942,29 @@ body.pf-home-loading {
   height: 40px;
   border-radius: 12px;
   object-fit: cover;
-  box-shadow: 0 6px 16px rgba(45, 49, 43, 0.12);
+  box-shadow: 0 6px 16px rgba(45, 49, 43, 0.28);
 }
 
 .pf-site-menu-btn {
   appearance: none;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--pf-rule, #e5e0d8);
+  border: 0;
   border-radius: 12px;
-  background: #fff;
-  color: var(--pf-ink, #2d312b);
+  background: transparent;
+  color: #fff;
   cursor: pointer;
   display: inline-grid;
   place-items: center;
   padding: 0;
-  transition: background 0.16s ease, border-color 0.16s ease;
+  filter: drop-shadow(0 1px 10px rgba(45, 49, 43, 0.35));
+  transition: opacity 0.16s ease, transform 0.16s ease;
 }
 
 .pf-site-menu-btn:hover,
 .pf-site-menu-btn[aria-expanded="true"] {
-  background: var(--pf-peach, #f5ded2);
-  border-color: color-mix(in srgb, var(--pf-salmon, #e98b6d) 35%, var(--pf-rule, #e5e0d8));
+  opacity: 0.85;
+  background: transparent;
 }
 
 .pf-site-menu-btn-bars,
