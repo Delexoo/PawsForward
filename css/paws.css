@@ -4540,7 +4540,7 @@ body.pf-home-video-failed .pf-home-fallback {
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.05;
-  color: #fff;
+  color: #ffffff !important;
   text-wrap: balance;
   text-align: center;
   text-shadow: none;
