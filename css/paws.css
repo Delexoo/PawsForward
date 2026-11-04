@@ -4081,7 +4081,7 @@ body.pf-site-menu-open {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--pf-peach) center / cover no-repeat;
+  background: #1a1d19 center / cover no-repeat;
   background-image: url("../media/hero-poster.jpg");
 }
 
@@ -4101,8 +4101,8 @@ body.pf-site-menu-open {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(45, 49, 43, 0.28) 0%, rgba(45, 49, 43, 0.38) 48%, rgba(45, 49, 43, 0.62) 100%),
-    radial-gradient(90% 70% at 50% 50%, rgba(233, 139, 109, 0.12) 0%, rgba(45, 49, 43, 0.45) 100%);
+    linear-gradient(180deg, rgba(18, 20, 17, 0.55) 0%, rgba(18, 20, 17, 0.62) 45%, rgba(12, 14, 11, 0.78) 100%),
+    radial-gradient(85% 70% at 50% 45%, rgba(45, 49, 43, 0.25) 0%, rgba(10, 12, 9, 0.7) 100%);
   pointer-events: none;
 }
 
@@ -4112,9 +4112,8 @@ body.pf-site-menu-open {
   inset: 0;
   place-items: center;
   background:
-    radial-gradient(ellipse at 30% 20%, var(--pf-peach) 0%, transparent 55%),
-    radial-gradient(ellipse at 80% 70%, color-mix(in srgb, var(--pf-salmon) 35%, var(--pf-cream)) 0%, transparent 50%),
-    var(--pf-cream);
+    radial-gradient(ellipse at 40% 30%, #2a2e28 0%, transparent 55%),
+    #141612;
 }
 
 .pf-home-fallback img {
