@@ -224,13 +224,46 @@ body.join-page {
   padding: 0 1.05rem;
 }
 
-@media (max-width: 720px) {
+/* Mobile: hero fills first screen, centered X+Y; form stacks underneath */
+@media (max-width: 899px) {
   .join-main {
-    padding-left: 0.875rem;
-    padding-right: 0.875rem;
-    align-items: start;
+    display: block;
+    min-height: 0;
+    padding: 0 0.875rem 2.75rem;
   }
-  .join-hero h1 { white-space: normal; }
+
+  .join-shell {
+    width: min(720px, 100%);
+    margin: 0 auto;
+    display: block;
+  }
+
+  .join-hero {
+    min-height: 100svh;
+    min-height: 100dvh;
+    display: grid;
+    place-content: center;
+    place-items: center;
+    text-align: center;
+    padding: 5.5rem 0.35rem 2rem;
+    box-sizing: border-box;
+  }
+
+  .join-hero h1 {
+    white-space: normal;
+    text-align: center;
+  }
+
+  .join-points {
+    margin: 1.25rem auto 0;
+    display: inline-grid;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .join-panel {
+    margin-top: 0.25rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
