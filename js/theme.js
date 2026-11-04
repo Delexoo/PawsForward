@@ -150,52 +150,6 @@
   };
 })(window);
 
-/* Site-wide scroll progress bar · replaces the hidden main scrollbar. */
-(function () {
-  function ready(fn) {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", fn, { once: true });
-    } else {
-      fn();
-    }
-  }
-
-  ready(function () {
-    if (!document.body || document.getElementById("scroll-progress")) return;
-
-    const bar = document.createElement("div");
-    bar.id = "scroll-progress";
-    bar.setAttribute("aria-hidden", "true");
-    const fill = document.createElement("div");
-    fill.id = "scroll-progress-fill";
-    bar.appendChild(fill);
-    document.body.appendChild(bar);
-
-    let ticking = false;
-
-    function compute() {
-      ticking = false;
-      const doc = document.documentElement;
-      const scrollTop = window.scrollY || doc.scrollTop || 0;
-      const max = (doc.scrollHeight || 0) - (doc.clientHeight || 0);
-      const pct = max > 1 ? Math.min(1, Math.max(0, scrollTop / max)) : 0;
-      fill.style.transform = "scaleX(" + pct + ")";
-    }
-
-    function onScroll() {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(compute);
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    window.addEventListener("load", compute);
-    window.addEventListener("site-unlocked", compute);
-    compute();
-  });
-})();
-
 /* ==========================================================================
  * Modern select · site-wide
  * Upgrades native <select> menus into a consistent, modern dropdown so every

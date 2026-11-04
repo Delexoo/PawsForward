@@ -7,6 +7,7 @@
     success: document.getElementById("donate-success"),
     successText: document.getElementById("donate-success-text"),
     retry: document.getElementById("donate-retry"),
+    note: document.getElementById("donate-note"),
   };
 
   const params = new URLSearchParams(location.search);
@@ -42,9 +43,16 @@
 
   async function resolveEmployee() {
     if (!referralCode) {
-      if (els.lead) els.lead.textContent = "This link is missing an employee code.";
-      setBanner("Open a valid employee QR to donate.", "err");
-      return false;
+      if (els.lead) els.lead.textContent = "Taking you to Stripe Checkout…";
+      if (els.note) {
+        els.note.textContent =
+          "Choose any amount on the secure Stripe page. Your gift goes directly to PawsForward.";
+      }
+      if (els.attr) {
+        els.attr.hidden = false;
+        els.attr.textContent = "Direct donation · not attributed to a QR";
+      }
+      return true;
     }
     const sb = window.SiteSupabase?.getClient?.();
     if (!sb) {
@@ -123,10 +131,6 @@
   }
 
   async function startCheckout() {
-    if (!referralCode) {
-      setBanner("Missing employee referral code.", "err");
-      return;
-    }
     const base = functionsBase();
     if (!base) {
       setBanner("Checkout is not configured.", "err");
@@ -136,6 +140,12 @@
     if (els.lead) els.lead.textContent = "Taking you to Stripe Checkout…";
     setBanner("Opening secure Stripe checkout…");
     try {
+      const payload = {
+        custom_amount: true,
+        site_origin: siteOrigin(),
+      };
+      if (referralCode) payload.referral_code = referralCode;
+
       const res = await fetch(`${base}/create-checkout`, {
         method: "POST",
         headers: {
@@ -143,11 +153,7 @@
           apikey: anonKey(),
           Authorization: "Bearer " + anonKey(),
         },
-        body: JSON.stringify({
-          custom_amount: true,
-          referral_code: referralCode,
-          site_origin: siteOrigin(),
-        }),
+        body: JSON.stringify(payload),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok || !body.url) throw new Error(body.error || "Could not start checkout.");

@@ -2,21 +2,104 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex,nofollow">
-  <meta name="description" content="PawsForward admin dashboard.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="Paws Forward is a dog-rescue fundraising organization. Donate directly, or get your own QR — every gift helps dogs get food, water, and shelter.">
+  <meta property="og:title" content="Paws Forward">
+  <meta property="og:description" content="Donate to help dogs — or get your QR and earn 50% of every gift shared through it.">
+  <meta property="og:image" content="https://delexoo.github.io/PawsForward/doc/brand-mark.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://delexoo.github.io/PawsForward/">
-  <title>PawsForward</title>
+  <title>Paws Forward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <script src="js/config.js?v=20261104b"></script>
-  <script src="js/canonical.js?v=20261104b"></script>
-  <meta http-equiv="refresh" content="0;url=admin.html?v=20261104b">
-  <script>
-    location.replace("admin.html?v=20261104b");
-  </script>
+  <link rel="manifest" href="manifest.webmanifest?v=20261105a">
+  <link rel="stylesheet" href="css/fonts.css?v=20261105a">
+  <script src="js/theme.js?v=20261105a"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261105a">
+  <link rel="stylesheet" href="css/paws.css?v=20261105a">
+  <script src="js/config.js?v=20261105a"></script>
+  <script src="js/canonical.js?v=20261105a"></script>
 </head>
-<body>
-  <p><a href="admin.html?v=20261104b">Open dashboard</a></p>
+<body data-page="home" data-public="1">
+  <script>
+    document.body.setAttribute("data-public", "1");
+    document.body.classList.add("site-unlocked");
+  </script>
+  <a class="skip-link" href="#page-body">Skip to content</a>
+
+  <div id="page-body" class="pf-home">
+    <section class="pf-home-hero" aria-label="Paws Forward">
+      <div class="pf-home-media" aria-hidden="true">
+        <video
+          class="pf-home-video"
+          id="home-hero-video"
+          src="media/hero.mp4"
+          muted
+          playsinline
+          loop
+          autoplay
+          preload="metadata"
+        ></video>
+        <div class="pf-home-scrim"></div>
+        <div class="pf-home-fallback">
+          <img src="doc/brand-mark.png" width="120" height="120" alt="">
+        </div>
+      </div>
+
+      <div class="pf-home-hero-inner">
+        <div class="pf-home-brand">
+          <img class="pf-home-mark" src="doc/brand-mark.png" width="56" height="56" alt="">
+          <p class="pf-home-name">Paws Forward</p>
+        </div>
+        <h1 class="pf-home-headline">Get paid for sharing a QR that helps dogs</h1>
+        <p class="pf-home-lead">
+          Every gift puts food, water, and shelter in reach — and when someone donates through your QR, you earn 50%.
+        </p>
+        <div class="pf-home-ctas">
+          <a class="btn pf-home-cta pf-home-cta--primary" href="donate.html">Donate</a>
+          <a class="btn secondary pf-home-cta pf-home-cta--secondary" href="join.html">Get your QR</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="pf-home-how" aria-labelledby="how-heading">
+      <h2 class="pf-home-how-title" id="how-heading">How it works</h2>
+      <ol class="pf-home-steps">
+        <li>
+          <span class="pf-home-step-num">1</span>
+          <div>
+            <strong>Create your QR</strong>
+            <p>Make a personal donation link in about a minute.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pf-home-step-num">2</span>
+          <div>
+            <strong>Share it</strong>
+            <p>Friends scan, give any amount on Stripe, and the gift is tracked to you.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pf-home-step-num">3</span>
+          <div>
+            <strong>Dogs get help — you earn 50%</strong>
+            <p>Half of every attributed gift supports the rescue; half is owed to you.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <footer class="pf-home-foot">
+      <p>
+        <a id="home-contact" href="mailto:hello@pawsforward.org">hello@pawsforward.org</a>
+        ·
+        <a href="login.html">Operators</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="js/home.js?v=20261105a"></script>
 </body>
 </html>

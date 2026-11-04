@@ -50,9 +50,11 @@ Deno.serve(async (req) => {
     }
 
     const amountTotal = Number(session.amount_total || 0) / 100;
-    const referralCode =
+    const rawRef =
       session.metadata?.referral_code || session.client_reference_id || "";
-    const employeeId = session.metadata?.employee_id || null;
+    const referralCode = rawRef && rawRef !== "direct" ? String(rawRef) : "";
+    const rawEmp = String(session.metadata?.employee_id || "").trim();
+    const employeeId = rawEmp || null;
     const donorLabel =
       session.metadata?.donor_label ||
       session.customer_details?.name ||
