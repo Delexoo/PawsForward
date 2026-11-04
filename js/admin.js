@@ -1147,14 +1147,20 @@
       const visits = visitStats[emp.id] || { count: 0, places: {} };
       const owed = netOwedFor(emp.id, stats.raised);
       const paid = paidFor(emp.id);
+      const createdAbs = absoluteTime(emp.created_at);
+      const createdRel = relativeTime(emp.created_at);
+      const createdLabel = createdAbs || createdRel;
       const li = document.createElement("li");
       li.className = "pf-employee-row";
       li.dataset.employeeId = emp.id;
       li.innerHTML = `
         <div class="pf-employee-identity">
-          <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="64" height="64" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
+          <img class="pf-avatar" src="${escapeHtml(avatarUrl(emp))}" alt="" width="32" height="32" loading="lazy" onerror="this.src='doc/default-avatar.jpg'">
           <div class="pf-employee-main">
-            <strong>${escapeHtml(personLabel(emp))}</strong>
+            <div class="pf-employee-name-row">
+              <strong>${escapeHtml(personLabel(emp))}</strong>
+              ${createdLabel ? `<span class="pf-employee-joined" title="Created ${escapeHtml(createdAbs || createdRel)}${createdRel && createdAbs ? ` · ${escapeHtml(createdRel)}` : ""}">${escapeHtml(createdLabel)}</span>` : ""}
+            </div>
             <div class="pf-employee-stats" aria-label="Volunteer snapshot">
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Visits</span><span class="pf-stat-chip-value">${visits.count}</span></span>
               <span class="pf-stat-chip"><span class="pf-stat-chip-label">Raised</span><span class="pf-stat-chip-value">${money(stats.raised)}</span></span>
