@@ -72,16 +72,16 @@
           <label for="join-payment">Preferred payout type <span class="pf-required" aria-hidden="true">*</span></label>
           <select id="join-payment" name="payment_type" required>
             <option value="" disabled selected>Select payment type</option>
-            <option value="cashapp">Cash App</option>
-            <option value="venmo">Venmo</option>
-            <option value="paypal">PayPal</option>
-            <option value="zelle">Zelle</option>
-            <option value="apple_cash">Apple Cash</option>
-            <option value="apple_pay">Apple Pay</option>
-            <option value="google_pay">Google Pay</option>
-            <option value="chime">Chime</option>
-            <option value="cash">Cash</option>
-            <option value="other">Other</option>
+            <option value="cashapp" data-brand="cashapp" data-icon="icons/payments/cashapp.svg">Cash App</option>
+            <option value="venmo" data-brand="venmo" data-icon="icons/payments/venmo.svg">Venmo</option>
+            <option value="paypal" data-brand="paypal" data-icon="icons/payments/paypal.svg">PayPal</option>
+            <option value="zelle" data-brand="zelle" data-icon="icons/payments/zelle.svg">Zelle</option>
+            <option value="apple_cash" data-brand="applecash" data-icon="icons/payments/applecash.svg">Apple Cash</option>
+            <option value="apple_pay" data-brand="applepay" data-icon="icons/payments/applepay.svg">Apple Pay</option>
+            <option value="google_pay" data-brand="googlepay" data-icon="icons/payments/googlepay.svg">Google Pay</option>
+            <option value="chime" data-brand="chime" data-icon="icons/payments/chime.svg">Chime</option>
+            <option value="cash" data-brand="cash" data-icon="icons/payments/cash.svg">Cash</option>
+            <option value="other" data-brand="other" data-icon="icons/payments/other.svg">Other</option>
           </select>
           <p class="field-error" id="err-join-payment" hidden></p>
         </div>

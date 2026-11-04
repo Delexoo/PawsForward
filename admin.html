@@ -10,18 +10,18 @@
   <title>Admin · PawsForward</title>
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
-  <link rel="manifest" href="manifest.webmanifest?v=20261104k">
-  <link rel="stylesheet" href="css/fonts.css?v=20261104k">
-  <script src="js/theme.js?v=20261104k"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261104k">
-  <link rel="stylesheet" href="css/paws.css?v=20261104k">
+  <link rel="manifest" href="manifest.webmanifest?v=20261104l">
+  <link rel="stylesheet" href="css/fonts.css?v=20261104l">
+  <script src="js/theme.js?v=20261104l"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261104l">
+  <link rel="stylesheet" href="css/paws.css?v=20261104l">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
   </style>
-  <script src="js/config.js?v=20261104k"></script>
-  <script src="js/canonical.js?v=20261104k"></script>
+  <script src="js/config.js?v=20261104l"></script>
+  <script src="js/canonical.js?v=20261104l"></script>
   <script>
     (function () {
       try {
@@ -33,7 +33,7 @@
       } catch (e) {}
     })();
   </script>
-  <script src="js/pin-lock.js?v=20261104k"></script>
+  <script src="js/pin-lock.js?v=20261104l"></script>
   <script>
     (function () {
       try {
@@ -178,28 +178,28 @@
         <label for="emp-payment">Preferred payment type <span class="pf-required" aria-hidden="true">*</span></label>
         <select id="emp-payment" name="payment_type" required aria-label="Preferred payment type">
           <option value="" disabled selected>Select payment type</option>
-          <option value="cashapp">Cash App</option>
-          <option value="venmo">Venmo</option>
-          <option value="paypal">PayPal</option>
-          <option value="zelle">Zelle</option>
-          <option value="apple_cash">Apple Cash</option>
-          <option value="apple_pay">Apple Pay</option>
-          <option value="google_pay">Google Pay</option>
-          <option value="chime">Chime</option>
-          <option value="cash">Cash</option>
-          <option value="check">Check</option>
-          <option value="bank_transfer">Bank transfer</option>
-          <option value="wire">Wire</option>
-          <option value="wise">Wise</option>
-          <option value="revolut">Revolut</option>
-          <option value="stripe">Stripe</option>
-          <option value="square">Square</option>
-          <option value="bitcoin">Bitcoin</option>
-          <option value="ethereum">Ethereum</option>
-          <option value="usdc">USDC</option>
-          <option value="paypal_friends">PayPal Friends</option>
-          <option value="cashapp_business">Cash App Business</option>
-          <option value="other">Other</option>
+          <option value="cashapp" data-brand="cashapp" data-icon="icons/payments/cashapp.svg">Cash App</option>
+          <option value="venmo" data-brand="venmo" data-icon="icons/payments/venmo.svg">Venmo</option>
+          <option value="paypal" data-brand="paypal" data-icon="icons/payments/paypal.svg">PayPal</option>
+          <option value="zelle" data-brand="zelle" data-icon="icons/payments/zelle.svg">Zelle</option>
+          <option value="apple_cash" data-brand="applecash" data-icon="icons/payments/applecash.svg">Apple Cash</option>
+          <option value="apple_pay" data-brand="applepay" data-icon="icons/payments/applepay.svg">Apple Pay</option>
+          <option value="google_pay" data-brand="googlepay" data-icon="icons/payments/googlepay.svg">Google Pay</option>
+          <option value="chime" data-brand="chime" data-icon="icons/payments/chime.svg">Chime</option>
+          <option value="cash" data-brand="cash" data-icon="icons/payments/cash.svg">Cash</option>
+          <option value="check" data-brand="check" data-icon="icons/payments/check.svg">Check</option>
+          <option value="bank_transfer" data-brand="bank" data-icon="icons/payments/bank.svg">Bank transfer</option>
+          <option value="wire" data-brand="bank" data-icon="icons/payments/bank.svg">Wire</option>
+          <option value="wise" data-brand="wise" data-icon="icons/payments/wise.svg">Wise</option>
+          <option value="revolut" data-brand="revolut" data-icon="icons/payments/revolut.svg">Revolut</option>
+          <option value="stripe" data-brand="stripe" data-icon="icons/payments/stripe.svg">Stripe</option>
+          <option value="square" data-brand="square" data-icon="icons/payments/square.svg">Square</option>
+          <option value="bitcoin" data-brand="bitcoin" data-icon="icons/payments/bitcoin.svg">Bitcoin</option>
+          <option value="ethereum" data-brand="ethereum" data-icon="icons/payments/ethereum.svg">Ethereum</option>
+          <option value="usdc" data-brand="usdc" data-icon="icons/payments/usdc.svg">USDC</option>
+          <option value="paypal_friends" data-brand="paypal" data-icon="icons/payments/paypal.svg">PayPal Friends</option>
+          <option value="cashapp_business" data-brand="cashapp" data-icon="icons/payments/cashapp.svg">Cash App Business</option>
+          <option value="other" data-brand="other" data-icon="icons/payments/other.svg">Other</option>
         </select>
         <p class="field-error" id="err-emp-payment" hidden></p>
       </div>
@@ -373,12 +373,12 @@
     </form>
   </dialog>
 
-  <script src="js/icons.js?v=20261104k"></script>
-  <script src="js/shell.js?v=20261104k"></script>
-  <script src="js/vendor/supabase.js?v=20261104k"></script>
-  <script src="js/vendor/qrcode.min.js?v=20261104k"></script>
-  <script src="js/supabase-client.js?v=20261104k"></script>
-  <script src="js/qr.js?v=20261104k"></script>
-  <script src="js/admin.js?v=20261104k"></script>
+  <script src="js/icons.js?v=20261104l"></script>
+  <script src="js/shell.js?v=20261104l"></script>
+  <script src="js/vendor/supabase.js?v=20261104l"></script>
+  <script src="js/vendor/qrcode.min.js?v=20261104l"></script>
+  <script src="js/supabase-client.js?v=20261104l"></script>
+  <script src="js/qr.js?v=20261104l"></script>
+  <script src="js/admin.js?v=20261104l"></script>
 </body>
 </html>

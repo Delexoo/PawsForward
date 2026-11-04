@@ -228,6 +228,31 @@
     return false;
   }
 
+  function escapeHtml(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function optionLabelHtml(opt) {
+    var text = escapeHtml(opt.textContent || "");
+    var icon = String(opt.getAttribute("data-icon") || "").trim();
+    var brand = String(opt.getAttribute("data-brand") || "").trim();
+    if (!icon) return text;
+    var brandClass = brand ? " ui-select-option-icon--" + brand.replace(/[^a-z0-9_-]/gi, "") : "";
+    return (
+      '<span class="ui-select-option-icon' +
+      brandClass +
+      '" aria-hidden="true"><img src="' +
+      escapeHtml(icon) +
+      '" alt="" width="16" height="16" loading="lazy"></span><span class="ui-select-option-text">' +
+      text +
+      "</span>"
+    );
+  }
+
   function buildMenu(menu, select) {
     menu.innerHTML = "";
     Array.prototype.forEach.call(select.options, function (opt) {
@@ -236,7 +261,8 @@
       item.className = "ui-select-option";
       item.setAttribute("role", "option");
       item.dataset.value = opt.value;
-      item.textContent = opt.textContent;
+      if (opt.getAttribute("data-icon")) item.classList.add("ui-select-option--icon");
+      item.innerHTML = optionLabelHtml(opt);
       if (opt.disabled) {
         item.classList.add("is-disabled");
         item.setAttribute("aria-disabled", "true");
@@ -286,11 +312,13 @@
         }
       }
       var isPlaceholder = !val || (selectedOpt && selectedOpt.disabled);
-      labelEl.textContent = selectedOpt
-        ? selectedOpt.textContent
-        : select.options[0]
-          ? select.options[0].textContent
-          : "";
+      var labelOpt = selectedOpt || select.options[0] || null;
+      if (labelOpt) {
+        labelEl.innerHTML = optionLabelHtml(labelOpt);
+      } else {
+        labelEl.textContent = "";
+      }
+      labelEl.classList.toggle("ui-select-label--icon", !!(labelOpt && labelOpt.getAttribute("data-icon")));
       trigger.classList.toggle("is-placeholder", !!isPlaceholder);
       var opts = menu.querySelectorAll(".ui-select-option");
       Array.prototype.forEach.call(opts, function (o) {

@@ -25777,6 +25777,59 @@ html[data-theme="dark"] .ui-select-menu {
   cursor: pointer;
   transition: background 0.12s ease, color 0.12s ease;
 }
+.ui-select-option--icon,
+.ui-select-label--icon {
+  justify-content: flex-start;
+  gap: 10px;
+}
+.ui-select-label--icon {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+.ui-select-option-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #94a3b8;
+  overflow: hidden;
+}
+.ui-select-option-icon img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+.ui-select-option-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ui-select-option-icon--cashapp { background: #00d632; }
+.ui-select-option-icon--venmo { background: #008cff; }
+.ui-select-option-icon--paypal { background: #003087; }
+.ui-select-option-icon--zelle { background: #6d1ed4; }
+.ui-select-option-icon--applepay,
+.ui-select-option-icon--applecash,
+.ui-select-option-icon--square { background: #111827; }
+.ui-select-option-icon--googlepay { background: #4285f4; }
+.ui-select-option-icon--chime { background: #1ec77a; }
+.ui-select-option-icon--stripe { background: #635bff; }
+.ui-select-option-icon--bitcoin { background: #f7931a; }
+.ui-select-option-icon--ethereum { background: #627eea; }
+.ui-select-option-icon--wise { background: #9fe870; }
+.ui-select-option-icon--wise img { filter: none; }
+.ui-select-option-icon--revolut { background: #0666eb; }
+.ui-select-option-icon--usdc { background: #2775ca; }
+.ui-select-option-icon--cash,
+.ui-select-option-icon--check,
+.ui-select-option-icon--bank,
+.ui-select-option-icon--other { background: #64748b; }
 .ui-select-option:hover,
 .ui-select-option:focus-visible {
   outline: none;
