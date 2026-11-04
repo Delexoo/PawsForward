@@ -15,14 +15,12 @@
     download: document.getElementById("join-download"),
     share: document.getElementById("join-share"),
     commission: document.getElementById("join-commission"),
-    first: document.getElementById("join-first"),
-    last: document.getElementById("join-last"),
+    name: document.getElementById("join-name"),
     email: document.getElementById("join-email"),
     phone: document.getElementById("join-phone"),
     payment: document.getElementById("join-payment"),
     handle: document.getElementById("join-handle"),
-    errFirst: document.getElementById("err-join-first"),
-    errLast: document.getElementById("err-join-last"),
+    errName: document.getElementById("err-join-name"),
     errEmail: document.getElementById("err-join-email"),
     errPhone: document.getElementById("err-join-phone"),
     errPayment: document.getElementById("err-join-payment"),
@@ -54,8 +52,7 @@
   }
 
   function clearErrors() {
-    setFieldError(els.errFirst, "");
-    setFieldError(els.errLast, "");
+    setFieldError(els.errName, "");
     setFieldError(els.errEmail, "");
     setFieldError(els.errPhone, "");
     setFieldError(els.errPayment, "");
@@ -175,8 +172,7 @@
 
   function readForm() {
     return {
-      first_name: String(els.first?.value || "").trim(),
-      last_name: String(els.last?.value || "").trim(),
+      name: String(els.name?.value || "").trim(),
       email: String(els.email?.value || "").trim().toLowerCase(),
       phone: formatPhoneDisplay(els.phone?.value || "").trim(),
       payment_type: String(els.payment?.value || "").trim(),
@@ -187,15 +183,11 @@
   function validate(payload) {
     clearErrors();
     let bad = false;
-    if (!payload.first_name) {
-      setFieldError(els.errFirst, "Enter a first name.");
+    if (!payload.name) {
+      setFieldError(els.errName, "Enter your name.");
       bad = true;
-    } else if (payload.first_name.length > 80) {
-      setFieldError(els.errFirst, "First name is too long.");
-      bad = true;
-    }
-    if (payload.last_name && payload.last_name.length > 80) {
-      setFieldError(els.errLast, "Last name is too long.");
+    } else if (payload.name.length > 80) {
+      setFieldError(els.errName, "Name is too long.");
       bad = true;
     }
     if (!isEmail(payload.email)) {
@@ -226,9 +218,7 @@
   }
 
   async function showSuccess(row, email, phone) {
-    const first = cleanName(row.first_name);
-    const last = cleanName(row.last_name);
-    const name = `${first} ${last}`.trim() || "promoter";
+    const name = cleanName(row.first_name) || "promoter";
     const url = shareUrlFor(row.referral_code);
     const code = row.referral_code || "";
     const qrPage = qrPageUrlFor(code);
@@ -244,7 +234,7 @@
     if (els.form) els.form.hidden = true;
     if (els.success) els.success.hidden = false;
     if (els.successTitle) {
-      els.successTitle.textContent = first ? `You’re in, ${first}` : "You’re in";
+      els.successTitle.textContent = name ? `You’re in, ${name}` : "You’re in";
     }
     if (els.shareUrl) els.shareUrl.value = url;
     if (els.code) els.code.textContent = code || "—";
@@ -299,11 +289,9 @@
     if (els.submit) els.submit.disabled = true;
     setBanner("Creating your QR…");
 
-    // Empty last name → NBSP so older signup RPCs that still require last_name succeed;
-    // newer RPCs strip NBSP back to ''.
     const { data, error } = await sb.rpc("public_signup_promoter", {
-      p_first_name: payload.first_name,
-      p_last_name: payload.last_name || "\u00A0",
+      p_first_name: payload.name,
+      p_last_name: "",
       p_phone: payload.phone,
       p_payment_type: payload.payment_type,
       p_payment_handle: payload.payment_handle,
