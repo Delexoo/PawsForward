@@ -189,3 +189,40 @@
     tryPlay();
   }
 })();
+
+/* Site menu */
+(function () {
+  const menu = document.getElementById("site-menu");
+  const btn = document.getElementById("site-menu-btn");
+  const closeBtn = document.getElementById("site-menu-close");
+  const backdrop = document.getElementById("site-menu-backdrop");
+  if (!menu || !btn) return;
+
+  function openMenu() {
+    menu.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    btn.setAttribute("aria-label", "Close menu");
+    document.body.classList.add("pf-site-menu-open");
+    closeBtn?.focus();
+  }
+
+  function closeMenu() {
+    menu.hidden = true;
+    btn.setAttribute("aria-expanded", "false");
+    btn.setAttribute("aria-label", "Open menu");
+    document.body.classList.remove("pf-site-menu-open");
+    btn.focus();
+  }
+
+  function toggle() {
+    if (menu.hidden) openMenu();
+    else closeMenu();
+  }
+
+  btn.addEventListener("click", toggle);
+  closeBtn?.addEventListener("click", closeMenu);
+  backdrop?.addEventListener("click", closeMenu);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !menu.hidden) closeMenu();
+  });
+})();

@@ -16,13 +16,13 @@
   <link rel="apple-touch-icon" href="doc/brand-mark.png">
   <link rel="preload" href="media/hero-poster.jpg" as="image">
   <link rel="preload" href="media/hero-fast.mp4" as="video" type="video/mp4">
-  <link rel="manifest" href="manifest.webmanifest?v=20261105k">
-  <link rel="stylesheet" href="css/fonts.css?v=20261105k">
-  <script src="js/theme.js?v=20261105k"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261105k">
-  <link rel="stylesheet" href="css/paws.css?v=20261105k">
-  <script src="js/config.js?v=20261105k"></script>
-  <script src="js/canonical.js?v=20261105k"></script>
+  <link rel="manifest" href="manifest.webmanifest?v=20261105l">
+  <link rel="stylesheet" href="css/fonts.css?v=20261105l">
+  <script src="js/theme.js?v=20261105l"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261105l">
+  <link rel="stylesheet" href="css/paws.css?v=20261105l">
+  <script src="js/config.js?v=20261105l"></script>
+  <script src="js/canonical.js?v=20261105l"></script>
   <style>
     /* Critical loader — visible before paws.css */
     #home-loader {
@@ -59,6 +59,37 @@
   </div>
 
   <div id="page-body" class="pf-home">
+    <header class="pf-site-bar" id="site-bar">
+      <a class="pf-site-bar-brand" href="index.html">
+        <img src="doc/brand-mark.png" width="40" height="40" alt="">
+        <span>Paws Forward</span>
+      </a>
+      <button
+        type="button"
+        class="pf-site-menu-btn"
+        id="site-menu-btn"
+        aria-expanded="false"
+        aria-controls="site-menu"
+        aria-label="Open menu"
+      >
+        <span class="pf-site-menu-btn-bars" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <div class="pf-site-menu" id="site-menu" hidden>
+      <div class="pf-site-menu-backdrop" id="site-menu-backdrop" tabindex="-1"></div>
+      <nav class="pf-site-menu-panel" aria-label="Site">
+        <p class="pf-site-menu-label">Pages</p>
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="donate.html">Donate</a>
+        <a href="join.html">Get your QR</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="login.html">Employee portal</a>
+        <button type="button" class="pf-site-menu-close" id="site-menu-close">Close</button>
+      </nav>
+    </div>
+
     <section class="pf-home-hero" aria-label="Paws Forward">
       <div class="pf-home-media" aria-hidden="true">
         <video
@@ -80,10 +111,7 @@
       </div>
 
       <div class="pf-home-hero-inner">
-        <div class="pf-home-brand">
-          <img class="pf-home-mark" src="doc/brand-mark.png" width="56" height="56" alt="">
-          <h1 class="pf-home-name">Paws Forward</h1>
-        </div>
+        <h1 class="sr-only">Paws Forward</h1>
         <p class="pf-home-lead">
           Donate any amount — it puts food, water, and shelter in reach for dogs. Share your QR, and when someone gives through it, you earn 50% for helping spread the word.
         </p>
@@ -148,6 +176,6 @@
     </footer>
   </div>
 
-  <script src="js/home.js?v=20261105k"></script>
+  <script src="js/home.js?v=20261105l"></script>
 </body>
 </html>
