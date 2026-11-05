@@ -9,8 +9,27 @@ const DONATE_PRICE_META_LEGACY = "pawsforward_donate_custom";
 
 let _req: Request | null = null;
 
+const CANONICAL_SITE = "https://joinpawsforward.com";
+
+/** Only allow our live origin — never GitHub Pages or arbitrary hosts. */
+function resolveSiteOrigin(raw: unknown): string {
+  const fallback = Deno.env.get("SITE_ORIGIN")?.replace(/\/$/, "") || CANONICAL_SITE;
+  const candidate = String(raw || fallback).trim().replace(/\/$/, "") || fallback;
+  try {
+    const u = new URL(candidate);
+    if (u.protocol !== "https:") return CANONICAL_SITE;
+    const host = u.hostname.toLowerCase();
+    if (host === "joinpawsforward.com" || host === "www.joinpawsforward.com") {
+      return CANONICAL_SITE;
+    }
+  } catch {
+    /* ignore */
+  }
+  return CANONICAL_SITE;
+}
+
 function json(body: unknown, status = 200) {
-  const cors = _req ? corsHeaders(_req) : corsHeaders(new Request("https://delexoo.github.io"));
+  const cors = _req ? corsHeaders(_req) : corsHeaders(new Request(CANONICAL_SITE));
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...cors, "Content-Type": "application/json" },
@@ -244,15 +263,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const siteDefault =
-      Deno.env.get("SITE_ORIGIN") || "https://joinpawsforward.com";
-
     if (req.method === "GET") {
       const url = new URL(req.url);
       const referralCode = String(url.searchParams.get("ref") || "").trim();
-      const siteOrigin = String(url.searchParams.get("site_origin") || siteDefault)
-        .trim()
-        .replace(/\/$/, "") || siteDefault;
+      const siteOrigin = resolveSiteOrigin(url.searchParams.get("site_origin"));
       // Full-page redirect from donate.html — no CORS, donor lands on Stripe.
       if (!referralCode) {
         const result = await buildCheckout({
@@ -283,7 +297,7 @@ Deno.serve(async (req) => {
       customAmount: payload?.custom_amount !== false,
       referralCode: String(payload?.referral_code || ""),
       donorLabel: String(payload?.donor_label || ""),
-      siteOrigin: String(payload?.site_origin || siteDefault),
+      siteOrigin: resolveSiteOrigin(payload?.site_origin),
       idempotencyKey: headerIdem || bodyIdem || null,
     });
     return json(result);

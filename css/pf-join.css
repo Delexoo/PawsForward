@@ -230,18 +230,20 @@ body.join-page {
   padding: 0 1.05rem;
 }
 
-/* Mobile: compact hero, form card close underneath */
+/* Mobile: headline block and the form are separate sections, with space between them */
 @media (max-width: 899px) {
   .join-main {
     display: block;
     min-height: 0;
-    padding: 8.5rem 0.875rem 2.5rem;
+    padding: 5.75rem 0 2.75rem;
   }
 
   .join-shell {
-    width: min(720px, 100%);
-    margin: 0 auto;
-    display: block;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3.25rem;
   }
 
   .join-hero {
@@ -249,7 +251,9 @@ body.join-page {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 0 0.35rem;
+    width: 100%;
+    margin: 0;
+    padding: 1.75rem 1.35rem 0.25rem;
     box-sizing: border-box;
   }
 
@@ -260,8 +264,9 @@ body.join-page {
   }
 
   .join-points {
-    margin: 0.85rem 0 0;
+    margin: 1.15rem 0 0;
     display: grid;
+    gap: 0.65rem;
     width: max-content;
     max-width: 100%;
     justify-items: start;
@@ -269,7 +274,8 @@ body.join-page {
   }
 
   .join-panel {
-    margin-top: 2.75rem;
+    width: auto;
+    margin: 0 0.875rem;
   }
 }
 
@@ -355,5 +361,203 @@ body.join-page {
   .join-junk-toast,
   .join-junk-toast.is-out {
     animation: none;
+  }
+}
+
+/* ---- Post-signup details page ---- */
+body.created-page {
+  background: #fff;
+  color: #1d1d1f;
+}
+
+.created-main {
+  width: 100%;
+  min-height: 100svh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 5.75rem 1.25rem 2.75rem;
+  box-sizing: border-box;
+}
+
+.created-shell {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.created-shell[hidden],
+.created-empty[hidden] {
+  display: none !important;
+}
+
+.created-intro h1,
+.created-empty h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.created-kicker {
+  margin: 1.35rem 0 0.45rem;
+  color: #6e6e73;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.created-instructions,
+.created-empty p {
+  max-width: 34rem;
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.created-empty p {
+  margin-top: 0.85rem;
+  color: #6e6e73;
+}
+
+.created-empty .discover {
+  margin-top: 1.4rem;
+  background: #1d1d1f;
+  color: #fff;
+}
+
+.created-actions .btn {
+  min-height: 2.75rem;
+  height: 2.75rem;
+  padding: 0 1.05rem;
+}
+
+.created-panel h2 {
+  margin: 0 0 1rem;
+  font-size: 1.35rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.created-details {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.25rem 0 0;
+}
+
+.created-details div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.created-details dt {
+  color: #6e6e73;
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.created-details dd {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.created-mail {
+  margin: 0.15rem 0 0;
+}
+
+@media (min-width: 900px) {
+  .created-main {
+    display: grid;
+    align-content: center;
+    padding-top: 5.25rem;
+  }
+
+  .created-shell {
+    grid-template-columns: minmax(16rem, 0.9fr) minmax(22rem, 1.15fr);
+    align-items: center;
+  }
+}
+
+@media (max-width: 899px) {
+  .created-main {
+    padding: 5.75rem 0 2.75rem;
+  }
+
+  .created-shell {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3.25rem;
+  }
+
+  .created-empty {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .created-intro,
+  .created-empty {
+    align-items: center;
+    text-align: center;
+    padding: 1.75rem 1.35rem 0.25rem;
+    box-sizing: border-box;
+  }
+
+  .created-instructions,
+  .created-empty p {
+    width: min(28rem, 100%);
+    text-align: left;
+  }
+
+  .created-kicker {
+    width: min(28rem, 100%);
+    text-align: left;
+  }
+
+  .created-panel {
+    margin: 0 0.875rem;
+  }
+
+  .created-empty .discover {
+    align-self: center;
+  }
+}
+
+@media print {
+  .loader,
+  .topbar,
+  .site-footer,
+  .skip,
+  .status-banner,
+  .created-actions,
+  .created-mail,
+  .join-link-row .btn {
+    display: none !important;
+  }
+
+  body.created-page,
+  .created-main {
+    background: #fff;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .created-shell {
+    display: block;
+  }
+
+  .created-panel {
+    margin: 1rem 0 0;
+    background: #fff;
   }
 }

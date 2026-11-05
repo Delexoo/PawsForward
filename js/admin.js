@@ -583,6 +583,39 @@
     return window.matchMedia && window.matchMedia("(max-width: 900px)").matches;
   }
 
+  function isStandaloneDisplay() {
+    try {
+      return (
+        window.matchMedia?.("(display-mode: standalone)")?.matches ||
+        window.matchMedia?.("(display-mode: fullscreen)")?.matches ||
+        window.navigator.standalone === true
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  let sheetViewportFrozen = false;
+
+  function syncSheetViewport() {
+    if (sheetViewportFrozen) return;
+    try {
+      // Standalone PWA: visualViewport often jumps when a dialog opens and
+      // made the sheet shoot up mid-animation. Prefer stable innerHeight there.
+      const vv = window.visualViewport;
+      const h = Math.round(
+        isStandaloneDisplay()
+          ? window.innerHeight || vv?.height || 0
+          : vv?.height || window.innerHeight || 0
+      );
+      if (h > 0) {
+        document.documentElement.style.setProperty("--pf-sheet-vh", `${h}px`);
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
   function dialogPanel(dialog) {
     return dialog?.querySelector?.(".site-leave-dialog-panel") || null;
   }
@@ -591,14 +624,25 @@
     return Array.from(document.querySelectorAll("dialog.pf-dialog, dialog.site-leave-dialog"));
   }
 
+  function clearPanelMotion(panel) {
+    if (!panel) return;
+    panel.style.transform = "";
+    panel.style.transition = "";
+    panel.style.willChange = "";
+  }
+
+  function clearPanelSizing(panel) {
+    if (!panel) return;
+    panel.style.maxHeight = "";
+    panel.style.height = "";
+  }
+
   function forceCloseDialog(dialog) {
     if (!dialog) return;
     const panel = dialogPanel(dialog);
-    dialog.classList.remove("is-sheet", "is-open", "is-entering", "is-closing", "is-dragging");
-    if (panel) {
-      panel.style.transform = "";
-      panel.style.transition = "";
-    }
+    dialog.classList.remove("is-sheet", "is-open", "is-entering", "is-closing", "is-dragging", "is-settled");
+    clearPanelMotion(panel);
+    clearPanelSizing(panel);
     if (dialog.open) dialog.close();
   }
 
@@ -607,40 +651,89 @@
     await Promise.all(openOnes.map((d) => closeAdminDialog(d, { immediate: true })));
   }
 
+  function prepareSheetPanel(dialog, panel) {
+    if (!panel || !isMobileSheetViewport()) return;
+    syncSheetViewport();
+    // CSS owns sizing — forced px heights made the sheet jump and clipped buttons.
+    panel.style.maxHeight = "";
+    panel.style.height = "";
+    panel.scrollTop = 0;
+    const scroller = panel.querySelector("[data-sheet-scroll]");
+    if (scroller) scroller.scrollTop = 0;
+  }
+
   async function openAdminDialog(dialog) {
     if (!dialog) return;
     await closeOtherAdminDialogs(dialog);
-    dialog.classList.remove("is-closing", "is-dragging");
+    dialog.classList.remove("is-closing", "is-dragging", "is-open", "is-entering", "is-settled");
     const panel = dialogPanel(dialog);
-    if (panel) {
-      panel.style.transform = "";
-      panel.style.transition = "";
+    clearPanelMotion(panel);
+    sheetViewportFrozen = false;
+    syncSheetViewport();
+    prepareSheetPanel(dialog, panel);
+
+    const mobile = isMobileSheetViewport();
+    const animate = mobile && panel && !prefersReducedMotion();
+
+    // Freeze viewport metrics for the whole open animation (PWA resize glitch).
+    if (mobile) sheetViewportFrozen = true;
+
+    // Park off-screen with a viewport-sized px translate (stable on standalone).
+    if (mobile) {
+      dialog.classList.add("is-sheet", "is-entering");
+      if (animate) {
+        const slide = Math.round(window.innerHeight || panel.offsetHeight || 800);
+        panel.style.willChange = "transform";
+        panel.style.transition = "none";
+        panel.style.transform = `translate3d(0, ${slide}px, 0)`;
+      }
     }
+
     if (typeof dialog.showModal === "function" && !dialog.open) {
       dialog.showModal();
     }
-    if (!isMobileSheetViewport()) return;
-    dialog.classList.add("is-sheet");
-    dialog.classList.add("is-entering");
-    if (panel) {
-      panel.style.transform = "translate3d(0, 110%, 0)";
-      panel.style.transition = "none";
+    // Don't remeasure height after showModal — that caused the PWA jump.
+    const scroller = panel?.querySelector?.("[data-sheet-scroll]");
+    if (scroller) scroller.scrollTop = 0;
+
+    if (!mobile) {
+      sheetViewportFrozen = false;
+      dialog.classList.add("is-open", "is-settled");
+      return;
     }
+    if (!animate) {
+      sheetViewportFrozen = false;
+      dialog.classList.remove("is-entering");
+      dialog.classList.add("is-open", "is-settled");
+      clearPanelMotion(panel);
+      return;
+    }
+
+    void panel.offsetHeight;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        if (panel) {
-          panel.style.transition = "transform 0.32s cubic-bezier(0.32, 0.72, 0, 1)";
-          panel.style.transform = "translate3d(0, 0, 0)";
+        if (!dialog.open || dialog.classList.contains("is-closing")) {
+          sheetViewportFrozen = false;
+          return;
         }
         dialog.classList.remove("is-entering");
         dialog.classList.add("is-open");
-        window.setTimeout(() => {
-          if (!dialog.open || dialog.classList.contains("is-closing")) return;
-          if (panel) {
-            panel.style.transform = "";
-            panel.style.transition = "";
+        panel.style.transition = "transform 0.34s cubic-bezier(0.32, 0.72, 0, 1)";
+        panel.style.transform = "translate3d(0, 0, 0)";
+        const settle = (e) => {
+          if (e && e.target !== panel) return;
+          if (e && e.propertyName && e.propertyName !== "transform") return;
+          panel.removeEventListener("transitionend", settle);
+          if (!dialog.open || dialog.classList.contains("is-closing")) {
+            sheetViewportFrozen = false;
+            return;
           }
-        }, 340);
+          dialog.classList.add("is-settled");
+          clearPanelMotion(panel);
+          sheetViewportFrozen = false;
+        };
+        panel.addEventListener("transitionend", settle);
+        window.setTimeout(() => settle(), 400);
       });
     });
   }
@@ -650,7 +743,8 @@
       forceCloseDialog(dialog);
       return Promise.resolve();
     }
-    if (opts.immediate || !isMobileSheetViewport()) {
+    if (opts.immediate || !isMobileSheetViewport() || prefersReducedMotion()) {
+      sheetViewportFrozen = false;
       forceCloseDialog(dialog);
       return Promise.resolve();
     }
@@ -665,22 +759,30 @@
       const finish = () => {
         if (done) return;
         done = true;
+        sheetViewportFrozen = false;
         forceCloseDialog(dialog);
         resolve();
       };
-      dialog.classList.add("is-closing");
-      dialog.classList.remove("is-open", "is-entering");
+      sheetViewportFrozen = true;
+      dialog.classList.remove("is-settled", "is-entering");
+      const slide = Math.round(window.innerHeight || panel?.offsetHeight || 800);
       if (panel) {
+        panel.style.transition = "none";
+        panel.style.transform = "translate3d(0, 0, 0)";
+        void panel.offsetHeight;
+        panel.style.willChange = "transform";
         panel.style.transition = "transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)";
-        panel.style.transform = "translate3d(0, 110%, 0)";
+        panel.style.transform = `translate3d(0, ${slide}px, 0)`;
       }
+      dialog.classList.add("is-closing");
+      dialog.classList.remove("is-open");
       const onEnd = (e) => {
         if (e.target !== panel || e.propertyName !== "transform") return;
         panel.removeEventListener("transitionend", onEnd);
         finish();
       };
       panel?.addEventListener("transitionend", onEnd);
-      window.setTimeout(finish, 340);
+      window.setTimeout(finish, 360);
     });
   }
 
@@ -716,169 +818,92 @@
     let lastY = 0;
     let lastT = 0;
     let dragging = false;
-    let armed = false;
-    let fromHandle = false;
     let moved = false;
     let velocity = 0;
     let activePointer = null;
 
-    const ARM_PX = 8;
     const DISMISS_PX = 96;
     const DISMISS_V = 0.7;
 
     function resetDragStyles() {
       panel.style.transition = "";
       panel.style.transform = "";
-      panel.style.touchAction = "";
+      panel.style.willChange = "";
     }
 
-    function beginDrag(e) {
+    function beginDrag(pointerId, clientY) {
       dragging = true;
       moved = false;
-      startY = e.clientY;
-      lastY = e.clientY;
+      startY = clientY;
+      lastY = clientY;
       lastT = performance.now();
       velocity = 0;
-      activePointer = e.pointerId;
+      activePointer = pointerId;
       dialog.classList.add("is-dragging");
       panel.style.transition = "none";
-      panel.style.touchAction = "none";
+      panel.style.willChange = "transform";
       try {
-        panel.setPointerCapture(e.pointerId);
+        handle.setPointerCapture?.(pointerId);
       } catch {
         /* ignore */
       }
     }
 
     function endDrag(commitClose) {
-      if (!dragging && !armed) return;
+      if (!dragging) return;
       dragging = false;
-      armed = false;
-      fromHandle = false;
       activePointer = null;
       dialog.classList.remove("is-dragging");
-      panel.style.touchAction = "";
       if (commitClose) {
         closeAdminDialog(dialog);
         return;
       }
+      dialog.classList.remove("is-settled");
       panel.style.transition = "transform 0.24s cubic-bezier(0.32, 0.72, 0, 1)";
       panel.style.transform = "translate3d(0, 0, 0)";
       const clear = () => {
         resetDragStyles();
+        dialog.classList.add("is-settled");
         panel.removeEventListener("transitionend", clear);
       };
       panel.addEventListener("transitionend", clear);
       window.setTimeout(clear, 280);
     }
 
-    function onPointerDown(e) {
+    // Handle-only drag. Body gestures must stay free so the sheet can scroll.
+    function onHandlePointerDown(e) {
       if (e.pointerType === "mouse" && e.button !== 0) return;
       if (!isMobileSheetViewport() || !dialog.open || dialog.classList.contains("is-closing")) return;
-      if (armed || dragging) return;
-
-      const onHandle = !!(handle && (e.target === handle || handle.contains?.(e.target)));
-      const interactive = e.target.closest?.(
-        "input, textarea, select, button:not(.pf-sheet-handle), a, .ui-select, label, [role='button']"
-      );
-      if (interactive && !onHandle) return;
-
-      fromHandle = onHandle;
-      // Handle always arms. Body only arms when scrolled to top (pull-to-dismiss).
-      if (!onHandle && panel.scrollTop > 0) return;
-
-      armed = true;
-      startY = e.clientY;
-      lastY = e.clientY;
-      lastT = performance.now();
-      velocity = 0;
-      moved = false;
-      activePointer = e.pointerId;
-      try {
-        panel.setPointerCapture(e.pointerId);
-      } catch {
-        /* ignore */
-      }
-      if (onHandle) beginDrag(e);
+      if (dragging) return;
+      beginDrag(e.pointerId, e.clientY);
+      if (e.cancelable) e.preventDefault();
       e.stopPropagation?.();
     }
 
-    function onPointerMove(e) {
-      if (activePointer != null && e.pointerId !== activePointer) return;
-      if (!armed && !dragging) return;
-
-      const dy = e.clientY - startY;
+    function onHandlePointerMove(e) {
+      if (!dragging || (activePointer != null && e.pointerId !== activePointer)) return;
       const now = performance.now();
       const dt = Math.max(1, now - lastT);
       velocity = (e.clientY - lastY) / dt;
       lastY = e.clientY;
       lastT = now;
-
-      if (!dragging) {
-        // Wait for a clear downward pull before stealing the scroll gesture.
-        if (dy < ARM_PX) return;
-        if (dy < 0) {
-          endDrag(false);
-          resetDragStyles();
-          return;
-        }
-        if (!fromHandle && panel.scrollTop > 0) {
-          armed = false;
-          activePointer = null;
-          return;
-        }
-        beginDrag(e);
-      }
-
       const pull = Math.max(0, e.clientY - startY);
       if (pull > 4) moved = true;
       panel.style.transform = `translate3d(0, ${pull}px, 0)`;
       if (e.cancelable) e.preventDefault();
     }
 
-    function onPointerUp(e) {
-      if (activePointer != null && e.pointerId !== activePointer) return;
-      if (!armed && !dragging) return;
+    function onHandlePointerUp(e) {
+      if (!dragging || (activePointer != null && e.pointerId !== activePointer)) return;
       const dy = Math.max(0, lastY - startY);
-      const shouldClose = dragging && moved && (dy >= DISMISS_PX || velocity >= DISMISS_V);
-      if (!dragging) {
-        armed = false;
-        fromHandle = false;
-        activePointer = null;
-        try {
-          panel.releasePointerCapture(e.pointerId);
-        } catch {
-          /* ignore */
-        }
-        return;
-      }
+      const shouldClose = moved && (dy >= DISMISS_PX || velocity >= DISMISS_V);
       endDrag(shouldClose);
     }
 
-    // Capture on the panel so the handle + body share one gesture path.
-    panel.addEventListener("pointerdown", onPointerDown, { passive: false });
-    panel.addEventListener("pointermove", onPointerMove, { passive: false });
-    panel.addEventListener("pointerup", onPointerUp);
-    panel.addEventListener("pointercancel", onPointerUp);
-    handle?.addEventListener(
-      "touchstart",
-      (e) => {
-        if (!isMobileSheetViewport() || !dialog.open || !e.touches?.[0]) return;
-        if (e.cancelable) e.preventDefault();
-        const t = e.touches[0];
-        onPointerDown({
-          pointerType: "touch",
-          button: 0,
-          clientY: t.clientY,
-          pointerId: t.identifier,
-          target: handle,
-          cancelable: true,
-          preventDefault() {},
-          stopPropagation() {},
-        });
-      },
-      { passive: false }
-    );
+    handle.addEventListener("pointerdown", onHandlePointerDown, { passive: false });
+    handle.addEventListener("pointermove", onHandlePointerMove, { passive: false });
+    handle.addEventListener("pointerup", onHandlePointerUp);
+    handle.addEventListener("pointercancel", onHandlePointerUp);
   }
 
   function wireDialogBackdropClose() {
@@ -886,6 +911,14 @@
       enableDialogBackdropClose(dialog);
       enableDialogSheetDrag(dialog);
     });
+    syncSheetViewport();
+    if (!window.__pfSheetViewportBound) {
+      window.__pfSheetViewportBound = true;
+      const onViewport = () => syncSheetViewport();
+      window.addEventListener("resize", onViewport, { passive: true });
+      window.visualViewport?.addEventListener("resize", onViewport, { passive: true });
+      window.visualViewport?.addEventListener("scroll", onViewport, { passive: true });
+    }
   }
 
   function referralCode() {

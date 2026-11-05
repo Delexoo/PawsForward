@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /login
+Disallow: /created
 
 Sitemap: https://joinpawsforward.com/sitemap.xml

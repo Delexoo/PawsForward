@@ -1,5 +1,5 @@
 /* PawsForward — installability only; never pin HTML/CSS/JS behind a stale cache */
-const CACHE = "pawsforward-shell-v6";
+const CACHE = "pawsforward-shell-v7";
 const PRECACHE = [
   "./manifest.webmanifest",
   "./icons/favicon.png",

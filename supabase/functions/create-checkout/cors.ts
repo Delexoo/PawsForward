@@ -1,8 +1,8 @@
 /** Shared CORS — allow only known site origins (no wildcard). */
 export const ALLOWED_ORIGINS = [
-  "https://delexoo.github.io",
   "https://joinpawsforward.com",
   "https://www.joinpawsforward.com",
+  "https://delexoo.github.io",
   "http://127.0.0.1:5500",
   "http://localhost:5500",
   "http://127.0.0.1:8080",

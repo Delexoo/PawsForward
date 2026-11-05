@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Printable Paws Forward flyer — donate or get paid.">
+  <title>Flyer · Paws Forward</title>
+  <link rel="icon" href="icons/favicon.png?v=20261108z" type="image/png" sizes="64x64">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Fraunces:opsz,wght@9..144,560;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/flyer.css?v=20261109b">
+</head>
+<body>
+  <div class="flyer-toolbar no-print">
+    <p>Letter-size flyer · US Letter</p>
+    <button type="button" class="flyer-print" id="print-btn">Print</button>
+  </div>
+
+  <main class="sheet" aria-label="Paws Forward flyer">
+    <header class="sheet-brand">
+      <img class="sheet-mark" src="doc/brand-mark.png" width="40" height="40" alt="">
+      <p class="sheet-name">Paws Forward</p>
+    </header>
+
+    <h1 class="sheet-title">Help dogs.<br>Get paid to share.</h1>
+    <p class="sheet-lead">Our organization provides food, water, and shelter for dogs in need. Get paid by helping us promote our organization — create a QR code and earn 50% of every gift you share.</p>
+
+    <figure class="sheet-photo">
+      <img src="media/works-1.jpg" alt="Dog running through autumn leaves" width="1600" height="900">
+    </figure>
+
+    <section class="sheet-paths" aria-label="Scan to act">
+      <article class="path">
+        <h2>Donate</h2>
+        <p>Give any amount.</p>
+        <div class="path-qr" id="qr-donate" aria-hidden="true"></div>
+        <p class="path-url">joinpawsforward.com/donate</p>
+      </article>
+      <article class="path">
+        <h2>Get paid</h2>
+        <p>Share your QR. Keep 50%.</p>
+        <div class="path-qr" id="qr-join" aria-hidden="true"></div>
+        <p class="path-url">joinpawsforward.com/join</p>
+      </article>
+    </section>
+
+    <footer class="sheet-foot">
+      <p>Half helps dogs. Half goes to the sharer.</p>
+      <p class="sheet-site">joinpawsforward.com</p>
+    </footer>
+  </main>
+
+  <script src="js/vendor/qrcode.min.js?v=20261108z"></script>
+  <script src="js/qr.js?v=20261108z"></script>
+  <script src="js/flyer.js?v=20261109a"></script>
+</body>
+</html>

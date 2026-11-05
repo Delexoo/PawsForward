@@ -1,19 +1,13 @@
 (function () {
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const header = document.querySelector(".topbar");
-  const line = document.querySelector(".scroll-line");
   const media = document.querySelector(".hero-media");
   let frame = 0;
 
   function paint() {
     frame = 0;
     const y = window.scrollY;
-    const height = document.documentElement.scrollHeight - window.innerHeight;
     if (header) header.classList.toggle("is-solid", y > 24);
-    if (line) {
-      line.style.transform = `scaleX(${height > 0 ? Math.min(y / height, 1) : 0})`;
-      line.classList.toggle("is-dark", y > window.innerHeight * 0.72);
-    }
     if (reduced) return;
     if (media) {
       const shift = Math.min(Math.max(y, 0), window.innerHeight) * 0.16;

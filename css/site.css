@@ -16667,7 +16667,8 @@ html[data-theme="dark"] .settings-profile-photo-wrap.is-busy::after {
   gap: 6px;
   flex-shrink: 0;
 }
-.site-leave-dialog,
+/* Admin sheets use bottom-drawer positioning in paws.css — exclude them here. */
+body:not([data-page="admin"]) .site-leave-dialog,
 .settings-payout-dialog {
   padding: 0;
   border: none;
@@ -16896,7 +16897,8 @@ html[data-theme="dark"] .settings-profile-photo-wrap.is-busy::after {
   font-size: 13px;
 }
 @media (max-width: 640px) {
-  .site-leave-dialog,
+  /* Keep admin sheets as bottom drawers — do not force center transform here. */
+  body:not([data-page="admin"]) .site-leave-dialog,
   .settings-payout-dialog,
   .tpl-action-dialog,
   .tpl-action-dialog.tpl-action-dialog--reason,

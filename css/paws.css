@@ -825,30 +825,56 @@ body[data-page="admin"] .owner-console-team-overview-head {
   color: var(--muted);
 }
 
+/* Shared dialog chrome — positioning is viewport-specific below.
+   Never center with inset/margin on mobile: that flashes the sheet at the top
+   during open on iOS home-screen (standalone) PWAs. */
 body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
 body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
   position: fixed !important;
-  inset: 0 !important;
-  width: min(440px, calc(100vw - 48px)) !important;
-  max-width: min(440px, calc(100vw - 48px)) !important;
-  height: fit-content !important;
-  max-height: none !important;
-  margin: auto !important;
-  top: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  transform: none !important;
   border: none;
   padding: 0;
   background: transparent;
-  overflow: visible !important;
   box-shadow: none;
+  transform: none !important;
 }
 
-body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
-  width: min(480px, calc(100vw - 48px)) !important;
-  max-width: min(480px, calc(100vw - 48px)) !important;
+@media (min-width: 901px) {
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+    inset: 0 !important;
+    width: min(440px, calc(100vw - 48px)) !important;
+    max-width: min(440px, calc(100vw - 48px)) !important;
+    height: fit-content !important;
+    max-height: none !important;
+    margin: auto !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    overflow: visible !important;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+    width: min(480px, calc(100vw - 48px)) !important;
+    max-width: min(480px, calc(100vw - 48px)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog,
+  body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide {
+    inset: auto !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
 }
 
 /* Desktop: keep the whole dialog on screen without internal scrolling */
@@ -2941,6 +2967,11 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
   box-sizing: border-box;
 }
 
+.pf-emp-detail-scroll {
+  min-width: 0;
+  width: 100%;
+}
+
 .pf-emp-detail-head {
   display: flex;
   flex-direction: row;
@@ -3291,21 +3322,20 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
     display: none !important;
   }
 
-  /* Mobile: full-viewport host, sheet pinned to bottom (avoids mid-screen collapse) */
+  /* Bottom-pinned sheet host. Do NOT track visualViewport.offsetTop — that
+     made the panel jump/glitch downward when browser chrome moved. */
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog[open],
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide[open] {
     width: 100% !important;
     max-width: 100% !important;
-    height: 100% !important;
-    height: 100dvh !important;
-    max-height: 100% !important;
-    max-height: 100dvh !important;
     margin: 0 !important;
-    inset: 0 !important;
-    top: 0 !important;
+    inset: auto !important;
+    top: auto !important;
+    left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    left: 0 !important;
+    height: var(--pf-sheet-vh, 100dvh) !important;
+    max-height: var(--pf-sheet-vh, 100dvh) !important;
     transform: none !important;
     translate: none !important;
     display: flex !important;
@@ -3316,15 +3346,14 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
     padding: 0 !important;
     border: 0 !important;
     border-radius: 0 !important;
-    -webkit-border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
+    box-sizing: border-box !important;
   }
 
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog::backdrop,
   body[data-page="admin"] dialog.pf-dialog.site-leave-dialog--wide::backdrop {
     background: rgba(15, 23, 42, 0.42);
-    transition: opacity 0.28s ease;
   }
 
   body[data-page="admin"] dialog.pf-dialog.is-entering::backdrop,
@@ -3336,49 +3365,122 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
     position: relative;
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     margin: 0;
     flex: 0 1 auto;
-    padding: 8px 18px 0 !important;
-    max-height: min(92dvh, 100%);
+    padding: 8px 16px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: var(--pf-sheet-panel-max, min(72svh, calc(var(--pf-sheet-vh, 100svh) - 48px))) !important;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     border-radius: 22px 22px 0 0 !important;
-    border-top-left-radius: 22px !important;
-    border-top-right-radius: 22px !important;
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
-    -webkit-border-bottom-left-radius: 0 !important;
-    -webkit-border-bottom-right-radius: 0 !important;
     corner-shape: initial !important;
     border: 1px solid var(--border, #e2e8f0);
     border-bottom: 0 !important;
     background: var(--surface, #fff) !important;
     box-shadow: 0 -16px 48px rgba(15, 23, 42, 0.18);
-    transform: translate3d(0, 0, 0);
-    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
     touch-action: pan-y;
-    will-change: transform;
+    box-sizing: border-box;
+    transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
+  /* QR / Delete / other action sheets: scroll body + pinned footer buttons */
+  body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel.pf-sheet-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    padding: 0 16px !important;
+    max-height: var(--pf-sheet-panel-max, min(72svh, calc(var(--pf-sheet-vh, 100svh) - 48px))) !important;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog .pf-sheet-scroll {
+    flex: 1 1 0% !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    min-width: 0;
+    width: 100%;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y !important;
+    padding: 4px 0 10px;
+    box-sizing: border-box;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog .pf-sheet-panel > .pf-sheet-handle {
+    flex: 0 0 auto;
+  }
+
+  body[data-page="admin"] dialog.pf-dialog .pf-sheet-panel > .site-leave-dialog-actions {
+    position: relative !important;
+    bottom: auto !important;
+    flex: 0 0 auto !important;
+    margin-top: 0 !important;
+    padding: 10px 0 calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    background: var(--surface, #fff);
+    box-shadow: 0 -8px 16px rgba(255, 255, 255, 0.95);
+    z-index: 4;
+  }
+
+  body[data-page="admin"] #qr-dialog .qr-box {
+    margin: 8px 0 4px;
+    padding: 14px;
+  }
+
+  body[data-page="admin"] #qr-dialog .qr-box canvas,
+  body[data-page="admin"] #qr-dialog #qr-canvas-host img,
+  body[data-page="admin"] #qr-dialog #qr-canvas-host canvas {
+    max-width: min(220px, 56vw) !important;
+    height: auto !important;
+  }
+
+  body[data-page="admin"] #qr-dialog .site-leave-dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  body[data-page="admin"] #qr-dialog .site-leave-dialog-actions .btn:last-child {
+    grid-column: 1 / -1;
+  }
+
+  /* Use 100dvh (not 100%) so slide distance stays stable if panel height reflows. */
+  body[data-page="admin"] dialog.pf-dialog[open]:not(.is-open):not(.is-closing) .site-leave-dialog-panel,
   body[data-page="admin"] dialog.pf-dialog.is-entering .site-leave-dialog-panel {
-    transform: translate3d(0, 110%, 0);
-    transition: none;
+    transform: translate3d(0, 100dvh, 0);
+    transition: none !important;
   }
 
-  body[data-page="admin"] dialog.pf-dialog.is-closing .site-leave-dialog-panel,
-  body[data-page="admin"] dialog.pf-dialog.is-dragging .site-leave-dialog-panel {
-    transition: none;
+  body[data-page="admin"] dialog.pf-dialog.is-open:not(.is-entering):not(.is-closing):not(.is-dragging):not(.is-settled) .site-leave-dialog-panel {
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* Drop transform after the slide finishes so buttons/scroll stay solid. */
+  body[data-page="admin"] dialog.pf-dialog.is-settled:not(.is-dragging):not(.is-closing) .site-leave-dialog-panel {
+    transform: none !important;
+    transition: none !important;
   }
 
   body[data-page="admin"] dialog.pf-dialog.is-dragging .site-leave-dialog-panel {
+    transition: none !important;
     touch-action: none !important;
     overflow-y: hidden;
   }
 
   body[data-page="admin"] dialog.pf-dialog.is-closing .site-leave-dialog-panel {
-    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    transform: translate3d(0, 100dvh, 0) !important;
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1) !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel,
+    body[data-page="admin"] dialog.pf-dialog.is-closing .site-leave-dialog-panel {
+      transition: none !important;
+    }
   }
 
   /* Real drag handle (JS inserts .pf-sheet-handle). Pseudo pill kept as fallback only. */
@@ -3426,13 +3528,13 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
   }
 
   .pf-dialog .site-leave-dialog-actions {
-    position: sticky;
-    bottom: 0;
+    position: relative;
+    bottom: auto;
     z-index: 3;
-    margin-top: 10px;
-    padding: 12px 0 calc(14px + env(safe-area-inset-bottom, 0px));
+    margin-top: 12px;
+    padding: 0 0 2px;
     background: var(--surface, #fff);
-    box-shadow: 0 -10px 18px rgba(255, 255, 255, 0.92);
+    box-shadow: none;
     justify-content: stretch;
   }
 
@@ -3604,60 +3706,104 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
     max-width: none;
   }
 
-  /* Volunteer detail sheet: stable mobile layout (no wrap/clip glitches) */
+  /* Volunteer detail: compact sheet that fits the phone.
+     Close stays pinned; middle scrolls only if still needed. */
   body[data-page="admin"] #employee-detail-dialog[open] {
     z-index: 80;
   }
 
   body[data-page="admin"] #employee-detail-dialog .site-leave-dialog-panel.pf-emp-detail {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
+    display: flex !important;
+    flex-direction: column !important;
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    padding: 4px 16px 0 !important;
-    max-height: min(90dvh, 100%);
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+    min-height: 0;
+    height: auto !important;
+    max-height: min(88dvh, calc(var(--pf-sheet-vh, 100dvh) - 8px)) !important;
+    overflow: hidden !important;
+    padding: 0 14px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-sheet-handle {
+    flex: 0 0 auto;
+    height: 28px;
+    margin: 0;
+    background: var(--surface, #fff);
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-scroll {
+    flex: 0 1 auto !important;
+    height: auto !important;
+    max-height: none;
+    min-height: 0 !important;
+    min-width: 0;
+    width: 100%;
+    overflow: visible !important;
+    padding: 0 0 10px;
     box-sizing: border-box;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-head {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 12px;
-    margin: 0 0 14px;
-    text-align: center;
+    gap: 10px;
+    margin: 0 0 8px;
+    text-align: left;
+    min-width: 0;
+    width: 100%;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-detail-avatar-wrap {
-    margin: 0 auto;
+    margin: 0;
+    flex: 0 0 auto;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-avatar--lg {
-    width: 72px;
-    height: 72px;
+    width: 44px;
+    height: 44px;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-detail-avatar-reset {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-copy {
+    display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: stretch;
     width: 100%;
-    gap: 12px;
+    min-width: 0;
+    flex: 1 1 auto;
+    gap: 6px;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-identity {
-    justify-items: center;
+    justify-items: start;
     width: 100%;
+    min-width: 0;
   }
 
-  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-copy .site-leave-dialog-title,
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-copy .site-leave-dialog-title {
+    font-size: 0.98rem !important;
+    text-align: left;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.15;
+  }
+
   body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-phone {
-    text-align: center;
+    text-align: left;
+    max-width: 100%;
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-copy .pf-seg {
@@ -3665,12 +3811,14 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
     margin: 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    min-width: 0;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-seg-btn {
-    min-height: 42px;
-    font-size: 13px;
-    padding: 0 10px;
+    min-height: 34px;
+    font-size: 12px;
+    padding: 0 8px;
+    min-width: 0;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-seg-btn + .pf-seg-btn {
@@ -3678,18 +3826,27 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-    margin: 0 0 14px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    margin: 0 0 8px;
+    width: 100%;
+    min-width: 0;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-emp-stat {
-    padding: 12px 10px;
-    border-radius: 12px;
+    padding: 8px 4px;
+    border-radius: 10px;
+    min-width: 0;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-stat-label {
+    font-size: 9px;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-emp-stat-value {
-    font-size: 1rem;
+    font-size: 0.82rem;
+    overflow-wrap: anywhere;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-actions {
@@ -3698,28 +3855,46 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
     gap: 8px;
     width: 100%;
     max-width: none;
-    margin: 0 0 8px;
+    margin: 0;
     justify-content: stretch;
+    min-width: 0;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-chip-btn {
     width: 100%;
-    min-height: 42px;
-    padding: 0 12px;
+    min-height: 44px;
+    padding: 0 10px;
     font-size: 13px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    box-sizing: border-box;
+    border-radius: 12px;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-chip-btn--icon {
     width: 100%;
     min-width: 0;
+    padding: 0;
   }
 
   body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-foot {
-    margin-top: auto;
-    flex-shrink: 0;
+    position: relative !important;
+    bottom: auto !important;
+    margin: 10px 0 0 !important;
+    flex: 0 0 auto !important;
+    width: 100%;
+    padding: 0 !important;
+    box-shadow: none;
+    background: var(--surface, #fff);
+    z-index: 4;
+  }
+
+  body[data-page="admin"] #employee-detail-dialog .pf-emp-detail-foot .btn {
+    min-height: 46px;
+    width: 100%;
   }
 
   .pf-stat-strip {

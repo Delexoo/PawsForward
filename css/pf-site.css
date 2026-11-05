@@ -111,13 +111,17 @@ main { flex: 1; }
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
+  height: 2.85rem;
+  padding: 0 1.05rem 0 0.85rem;
+  border-radius: 999px;
+  background: #fff;
   color: #1d1d1f;
+  box-shadow: 0 10px 28px rgb(28 27 25 / 10%);
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   text-decoration: none;
   white-space: nowrap;
-  text-shadow: 0 1px 12px rgb(255 255 255 / 55%);
 }
 
 .topbar .logo img {
@@ -148,12 +152,7 @@ main { flex: 1; }
   cursor: pointer;
 }
 
-/* Over dark hero video, keep brand readable until scroll */
-.home .topbar .logo {
-  color: #fff;
-  text-shadow: 0 1px 14px rgb(0 0 0 / 45%);
-}
-
+.home .topbar .logo,
 .home .topbar.is-solid .logo,
 .topbar.is-open .logo,
 .join-page .topbar .logo {
@@ -468,20 +467,6 @@ html.pf-nav-skip .loader {
   display: none !important;
 }
 
-.scroll-line {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 40;
-  width: 100%;
-  height: 2px;
-  transform: scaleX(0);
-  transform-origin: left center;
-  background: rgb(255 255 255 / 80%);
-}
-
-.scroll-line.is-dark { background: #1d1d1f; }
-
 /* ---- Footer ---- */
 .site-footer {
   width: 100%;
@@ -657,6 +642,8 @@ html.can-reveal .reveal.is-in {
   border-radius: 0.85rem;
   background: #fff;
   color: var(--ink);
+  /* 16px+ prevents iOS Safari zoom-on-focus */
+  font-size: 16px;
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
@@ -713,6 +700,7 @@ html.can-reveal .reveal.is-in {
   background: #fff;
   color: var(--ink);
   font: inherit;
+  font-size: 16px;
   text-align: left;
   cursor: pointer;
   transition: border-color 160ms ease, box-shadow 160ms ease;

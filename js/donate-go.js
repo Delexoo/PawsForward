@@ -9,7 +9,7 @@
 
   var base =
     (window.SITE_CONFIG && window.SITE_CONFIG.supabaseUrl) ||
-    "https://tauiyhyjujddsgvlihef.supabase.co";
+    "https://fnkccwjoyfnackmdycti.supabase.co";
   var origin =
     (window.SITE_CONFIG && window.SITE_CONFIG.siteOrigin) ||
     "https://joinpawsforward.com";

@@ -1,4 +1,7 @@
 .env
+.env.vercel.tmp
+supabase/.env
+supabase/.temp/
 .DS_Store
 Thumbs.db
 node_modules/

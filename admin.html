@@ -20,8 +20,8 @@
     document.documentElement.setAttribute("data-ui-color", "white");
   </script>
   <script src="js/theme.js?v=20261108ab"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261108v">
-  <link rel="stylesheet" href="css/paws.css?v=20261110b">
+  <link rel="stylesheet" href="css/site.css?v=20261110i">
+  <link rel="stylesheet" href="css/paws.css?v=20261110j">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
@@ -226,12 +226,14 @@
   </dialog>
 
   <dialog class="site-leave-dialog pf-dialog site-leave-dialog--wide" id="qr-dialog" aria-labelledby="qr-dialog-title">
-    <div class="site-leave-dialog-panel">
-      <h2 class="site-leave-dialog-title" id="qr-dialog-title">Volunteer QR</h2>
-      <p class="site-leave-dialog-text" id="qr-dialog-lead">Share this code. Scanning opens Stripe Checkout directly so donors can give any amount.</p>
-      <div class="qr-box">
-        <div id="qr-canvas-host"></div>
-        <p class="qr-link" id="qr-link-text"></p>
+    <div class="site-leave-dialog-panel pf-sheet-panel">
+      <div class="pf-sheet-scroll" data-sheet-scroll>
+        <h2 class="site-leave-dialog-title" id="qr-dialog-title">Volunteer QR</h2>
+        <p class="site-leave-dialog-text" id="qr-dialog-lead">Share this code. Scanning opens Stripe Checkout directly so donors can give any amount.</p>
+        <div class="qr-box">
+          <div id="qr-canvas-host"></div>
+          <p class="qr-link" id="qr-link-text"></p>
+        </div>
       </div>
       <div class="site-leave-dialog-actions">
         <button type="button" class="btn secondary" id="qr-copy-link">Copy</button>
@@ -257,9 +259,11 @@
   </dialog>
 
   <dialog class="site-leave-dialog pf-dialog" id="confirm-dialog" aria-labelledby="confirm-dialog-title">
-    <div class="site-leave-dialog-panel">
-      <h2 class="site-leave-dialog-title" id="confirm-dialog-title">Are you sure?</h2>
-      <p class="site-leave-dialog-text" id="confirm-dialog-lead">This action cannot be undone.</p>
+    <div class="site-leave-dialog-panel pf-sheet-panel">
+      <div class="pf-sheet-scroll" data-sheet-scroll>
+        <h2 class="site-leave-dialog-title" id="confirm-dialog-title">Are you sure?</h2>
+        <p class="site-leave-dialog-text" id="confirm-dialog-lead">This action cannot be undone.</p>
+      </div>
       <div class="site-leave-dialog-actions">
         <button type="button" class="btn secondary" id="confirm-cancel">Cancel</button>
         <button type="button" class="btn pf-confirm-danger" id="confirm-ok">Delete</button>
@@ -269,57 +273,59 @@
 
   <dialog class="site-leave-dialog pf-dialog site-leave-dialog--wide" id="employee-detail-dialog" aria-labelledby="employee-detail-title">
     <div class="site-leave-dialog-panel pf-emp-detail">
-      <div class="pf-emp-detail-head">
-        <div class="pf-detail-avatar-wrap">
-          <button type="button" class="pf-detail-avatar-btn" id="detail-avatar-pick" title="Change photo" aria-label="Change volunteer photo">
-            <img id="detail-avatar" class="pf-avatar pf-avatar--lg" src="doc/default-avatar.jpg" alt="" width="64" height="64">
-          </button>
-          <button type="button" class="pf-detail-avatar-reset" id="detail-avatar-reset" title="Reset to default photo" aria-label="Reset to default photo">
-            <span aria-hidden="true">↻</span>
-          </button>
-        </div>
-        <div class="pf-emp-detail-copy">
-          <div class="pf-emp-detail-identity">
-            <h2 class="site-leave-dialog-title" id="employee-detail-title">Volunteer</h2>
-            <p class="pf-emp-detail-phone" id="employee-detail-phone">—</p>
+      <div class="pf-emp-detail-scroll" data-sheet-scroll>
+        <div class="pf-emp-detail-head">
+          <div class="pf-detail-avatar-wrap">
+            <button type="button" class="pf-detail-avatar-btn" id="detail-avatar-pick" title="Change photo" aria-label="Change volunteer photo">
+              <img id="detail-avatar" class="pf-avatar pf-avatar--lg" src="doc/default-avatar.jpg" alt="" width="64" height="64">
+            </button>
+            <button type="button" class="pf-detail-avatar-reset" id="detail-avatar-reset" title="Reset to default photo" aria-label="Reset to default photo">
+              <span aria-hidden="true">↻</span>
+            </button>
           </div>
-          <div class="pf-seg" role="group" aria-label="Payout">
-            <button type="button" class="pf-seg-btn" data-detail="pay">Pay</button>
-            <button type="button" class="pf-seg-btn" data-detail="paid">Paid</button>
+          <div class="pf-emp-detail-copy">
+            <div class="pf-emp-detail-identity">
+              <h2 class="site-leave-dialog-title" id="employee-detail-title">Volunteer</h2>
+              <p class="pf-emp-detail-phone" id="employee-detail-phone">—</p>
+            </div>
+            <div class="pf-seg" role="group" aria-label="Payout">
+              <button type="button" class="pf-seg-btn" data-detail="pay">Pay</button>
+              <button type="button" class="pf-seg-btn" data-detail="paid">Paid</button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="pf-emp-detail-stats" aria-label="Volunteer stats">
-        <div class="pf-emp-stat">
-          <span class="pf-emp-stat-label">Visits</span>
-          <span class="pf-emp-stat-value" id="detail-visits">—</span>
+        <div class="pf-emp-detail-stats" aria-label="Volunteer stats">
+          <div class="pf-emp-stat">
+            <span class="pf-emp-stat-label">Visits</span>
+            <span class="pf-emp-stat-value" id="detail-visits">—</span>
+          </div>
+          <div class="pf-emp-stat">
+            <span class="pf-emp-stat-label">Raised</span>
+            <span class="pf-emp-stat-value" id="detail-raised">—</span>
+          </div>
+          <div class="pf-emp-stat">
+            <span class="pf-emp-stat-label">Owed</span>
+            <span class="pf-emp-stat-value" id="detail-owed">—</span>
+          </div>
+          <div class="pf-emp-stat">
+            <span class="pf-emp-stat-label">Paid</span>
+            <span class="pf-emp-stat-value" id="detail-paid">—</span>
+          </div>
         </div>
-        <div class="pf-emp-stat">
-          <span class="pf-emp-stat-label">Raised</span>
-          <span class="pf-emp-stat-value" id="detail-raised">—</span>
-        </div>
-        <div class="pf-emp-stat">
-          <span class="pf-emp-stat-label">Owed</span>
-          <span class="pf-emp-stat-value" id="detail-owed">—</span>
-        </div>
-        <div class="pf-emp-stat">
-          <span class="pf-emp-stat-label">Paid</span>
-          <span class="pf-emp-stat-value" id="detail-paid">—</span>
-        </div>
-      </div>
 
-      <div class="pf-emp-detail-actions" role="group" aria-label="Volunteer actions">
-        <button type="button" class="pf-chip-btn" data-detail="qr">QR Code</button>
-        <button type="button" class="pf-chip-btn" data-detail="edit">Edit</button>
-        <button type="button" class="pf-chip-btn pf-chip-btn--icon" data-detail="visits" data-icon="map-pin" title="Locations" aria-label="View locations"></button>
-        <button type="button" class="pf-chip-btn pf-chip-btn--danger" data-detail="delete">Delete</button>
+        <div class="pf-emp-detail-actions" role="group" aria-label="Volunteer actions">
+          <button type="button" class="pf-chip-btn" data-detail="qr">QR Code</button>
+          <button type="button" class="pf-chip-btn" data-detail="edit">Edit</button>
+          <button type="button" class="pf-chip-btn pf-chip-btn--icon" data-detail="visits" data-icon="map-pin" title="Locations" aria-label="View locations"></button>
+          <button type="button" class="pf-chip-btn pf-chip-btn--danger" data-detail="delete">Delete</button>
+        </div>
       </div>
-      <input id="detail-avatar-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
 
       <div class="site-leave-dialog-actions pf-emp-detail-foot">
         <button type="button" class="btn" id="employee-detail-close">Close</button>
       </div>
+      <input id="detail-avatar-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
     </div>
   </dialog>
 
@@ -395,6 +401,6 @@
   <script src="js/shell.js?v=20261108v"></script>
   <script src="js/vendor/qrcode.min.js?v=20261108v"></script>
   <script src="js/qr.js?v=20261108v"></script>
-  <script src="js/admin.js?v=20261110b"></script>
+  <script src="js/admin.js?v=20261110j"></script>
 </body>
 </html>

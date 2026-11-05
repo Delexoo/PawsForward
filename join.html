@@ -27,8 +27,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/pf-site.css?v=20261108ae">
-  <link rel="stylesheet" href="css/pf-join.css?v=20261109x">
+  <link rel="stylesheet" href="css/pf-site.css?v=20261110a">
+  <link rel="stylesheet" href="css/pf-join.css?v=20261110b">
   <script src="js/config.js?v=20261109n"></script>
   <script src="js/canonical.js?v=20261108z"></script>
 </head>
@@ -45,7 +45,6 @@
   <script src="js/pf-load.js?v=20261108aa"></script>
 
   <a class="skip" href="#content">Skip to content</a>
-  <div class="scroll-line" aria-hidden="true"></div>
 
   <header class="topbar">
     <a class="logo" href="/">
@@ -67,16 +66,16 @@
 
   <main id="content" class="join-main">
     <div class="join-shell">
-      <header class="join-hero reveal">
-        <h1>Get your QR.<br>Get paid.</h1>
+      <section class="join-hero reveal" aria-labelledby="join-title">
+        <h1 id="join-title">Get your QR.<br>Get paid.</h1>
         <ul class="join-points" aria-label="How it works">
           <li>Create your link in 30 seconds</li>
           <li>People donate to our charity</li>
           <li>You earn <strong id="join-commission">50%</strong> of it every time</li>
         </ul>
-      </header>
+      </section>
 
-      <div class="join-panel reveal" id="join-card">
+      <section class="join-panel reveal" id="join-card" aria-label="Create your QR">
         <div id="status-banner" class="status-banner" hidden role="status"></div>
 
         <form class="join-form" id="join-form" action="#" method="post">
@@ -127,36 +126,7 @@
             <a href="/privacy">privacy policy</a>.
           </p>
         </form>
-
-        <section class="join-success" id="join-success" hidden>
-          <h2 id="join-success-title">You’re in</h2>
-          <p class="lede" id="join-success-lead">Here’s your donation link and QR. Share either one.</p>
-
-          <aside class="join-junk-toast" id="join-junk-toast" hidden role="status" aria-live="polite">
-            <p>Don’t forget to check your junk mail.</p>
-            <button type="button" class="join-junk-toast-close" id="join-junk-toast-close" aria-label="Dismiss">×</button>
-          </aside>
-
-          <div class="join-qr" id="join-qr" role="img" aria-label="Your donation QR code"></div>
-
-          <div class="join-detail">
-            <label class="join-label" for="join-share-url">Donation link</label>
-            <div class="join-link-row">
-              <input id="join-share-url" class="join-share-input" type="text" readonly>
-              <button type="button" class="btn btn-primary join-copy-btn" id="join-copy">Copy</button>
-            </div>
-          </div>
-
-          <div class="join-actions">
-            <button type="button" class="btn btn-ghost" id="join-download">Download QR</button>
-            <button type="button" class="btn btn-ghost" id="join-share">Share</button>
-          </div>
-          <p class="join-fineprint">
-            Code: <code id="join-code"></code>
-            · We also email these to you.
-          </p>
-        </section>
-      </div>
+      </section>
     </div>
   </main>
 
@@ -192,9 +162,7 @@
     });
   </script>
   <script src="js/vendor/supabase.js?v=20261108z" defer></script>
-  <script src="js/vendor/qrcode.min.js?v=20261108z" defer></script>
   <script src="js/supabase-client.js?v=20261108z" defer></script>
-  <script src="js/qr.js?v=20261108z" defer></script>
-  <script src="js/join.js?v=20261109r" defer></script>
+  <script src="js/join.js?v=20261110b" defer></script>
 </body>
 </html>

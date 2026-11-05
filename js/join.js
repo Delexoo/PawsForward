@@ -3,16 +3,6 @@
     banner: document.getElementById("status-banner"),
     form: document.getElementById("join-form"),
     submit: document.getElementById("join-submit"),
-    success: document.getElementById("join-success"),
-    successTitle: document.getElementById("join-success-title"),
-    successName: document.getElementById("join-success-name"),
-    successLead: document.getElementById("join-success-lead"),
-    qr: document.getElementById("join-qr"),
-    shareUrl: document.getElementById("join-share-url"),
-    code: document.getElementById("join-code"),
-    copy: document.getElementById("join-copy"),
-    download: document.getElementById("join-download"),
-    share: document.getElementById("join-share"),
     commission: document.getElementById("join-commission"),
     name: document.getElementById("join-name"),
     email: document.getElementById("join-email"),
@@ -26,30 +16,7 @@
     errHandle: document.getElementById("err-join-handle"),
     age: document.getElementById("join-age"),
     errAge: document.getElementById("err-join-age"),
-    junkToast: document.getElementById("join-junk-toast"),
-    junkToastClose: document.getElementById("join-junk-toast-close"),
   };
-
-  let current = { url: "", name: "", code: "", email: "", phone: "", qrPage: "", shareText: "" };
-  let junkToastTimer = 0;
-
-  function hideJunkToast() {
-    if (!els.junkToast || els.junkToast.hidden) return;
-    window.clearTimeout(junkToastTimer);
-    els.junkToast.classList.add("is-out");
-    window.setTimeout(() => {
-      els.junkToast.hidden = true;
-      els.junkToast.classList.remove("is-out");
-    }, 220);
-  }
-
-  function showJunkToast() {
-    if (!els.junkToast) return;
-    window.clearTimeout(junkToastTimer);
-    els.junkToast.classList.remove("is-out");
-    els.junkToast.hidden = false;
-    junkToastTimer = window.setTimeout(hideJunkToast, 10000);
-  }
 
   function setBanner(msg, kind) {
     if (!els.banner) return;
@@ -138,65 +105,9 @@
     return origin ? `${origin}/qr` : new URL("/qr", location.origin).href;
   }
 
-  function shareMessage(url) {
-    return `Help this dog charity, donate any amount here:\n${url}`;
-  }
-
-  async function qrShareFile(url, code) {
-    try {
-      const dataUrl = await window.PfQr.toDataURL(url, 512);
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      const name = `pawsforward-${code || "qr"}.png`;
-      return new File([blob], name, { type: "image/png" });
-    } catch {
-      return null;
-    }
-  }
-
   function isEmail(value) {
     const email = String(value || "").trim();
     return email.length >= 5 && email.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  function publicSiteOrigin() {
-    return (
-      String(window.SITE_CONFIG?.siteOrigin || "").replace(/\/$/, "") ||
-      "https://joinpawsforward.com"
-    );
-  }
-
-  async function emailWelcome() {
-    if (!current.email || !current.code) {
-      return { ok: false, error: "Email is not ready yet." };
-    }
-    // Always hit the production API — local preview has no /api route.
-    const apiOrigin = publicSiteOrigin();
-    const linkOrigin = siteOrigin() || apiOrigin;
-    try {
-      const res = await fetch(`${apiOrigin}/api/send-promoter-welcome`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: current.email,
-          referral_code: current.code,
-          share_url: current.url || `${apiOrigin}/donate?ref=${encodeURIComponent(current.code)}`,
-          qr_page_url: current.qrPage || `${apiOrigin}/qr?ref=${encodeURIComponent(current.code)}`,
-          site_origin: apiOrigin,
-          link_origin: linkOrigin,
-        }),
-      });
-      if (res.status === 404) return { ok: false, error: "Welcome email is not deployed yet." };
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) return { ok: false, error: body.error || body.message || "Could not send email." };
-      return { ok: true };
-    } catch (err) {
-      const msg = String(err?.message || "");
-      if (/load failed|failed to fetch|networkerror/i.test(msg)) {
-        return { ok: false, error: "Welcome email is not available yet." };
-      }
-      return { ok: false, error: msg || "Could not send email." };
-    }
   }
 
   function phoneDigits(value) {
@@ -256,48 +167,25 @@
     return String(value || "").replace(/\u00A0/g, " ").trim();
   }
 
-  async function showSuccess(row, email, phone) {
-    const name = cleanName(row.first_name) || "promoter";
-    const url = shareUrlFor(row.referral_code);
-    const code = row.referral_code || "";
-    const qrPage = qrPageUrlFor(code);
-    const shareText = shareMessage(url);
-    current = {
-      url,
-      name,
+  function openCreatedPage(row, payload) {
+    const code = String(row.referral_code || "").trim();
+    const record = {
+      name: cleanName(row.first_name) || cleanName(payload.name),
+      email: String(payload.email || row.email || "").trim().toLowerCase(),
+      phone: String(payload.phone || "").trim(),
+      paymentType: String(row.payment_type || payload.payment_type || "").trim(),
+      paymentHandle: String(row.payment_handle || payload.payment_handle || "").trim(),
       code,
-      email: String(email || row.email || "").trim().toLowerCase(),
-      phone: phone || "",
-      qrPage,
-      shareText,
+      url: shareUrlFor(code),
+      qrPage: qrPageUrlFor(code),
     };
-
-    // Show every detail first — never wait on email/QR before revealing the panel.
-    if (els.form) els.form.hidden = true;
-    if (els.success) els.success.hidden = false;
-    if (els.successTitle) {
-      els.successTitle.textContent = name ? `You’re in, ${name}` : "You’re in";
-    }
-    if (els.successLead) {
-      els.successLead.textContent = "Here’s your donation link and QR.";
-    }
-    if (els.shareUrl) els.shareUrl.value = url;
-    if (els.code) els.code.textContent = code || "—";
-    setBanner("You’re set — copy, download, or share below.", "ok");
-    showJunkToast();
-
     try {
-      await window.PfQr.renderInto(els.qr, url, 220);
+      sessionStorage.setItem("pf-created-qr", JSON.stringify(record));
+      sessionStorage.setItem("pf-nav", "1");
     } catch (err) {
       console.error(err);
-      setBanner("Account created. QR image failed — use your donation link below.", "err");
     }
-
-    void emailWelcome().then((mailed) => {
-      if (mailed.ok) {
-        setBanner(`You’re set — also emailed ${current.email}.`, "ok");
-      }
-    });
+    location.assign(`/created?ref=${encodeURIComponent(code)}`);
   }
 
   async function onSubmit(event) {
@@ -365,7 +253,7 @@
       return;
     }
 
-    await showSuccess(row, payload.email, payload.phone);
+    openCreatedPage(row, payload);
   }
 
   function enhanceSelect(select) {
@@ -533,61 +421,5 @@
     els.form?.addEventListener("submit", onSubmit);
     els.phone?.addEventListener("input", () => applyPhoneInputFormat(els.phone));
     if (els.phone?.value) applyPhoneInputFormat(els.phone);
-    els.copy?.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(current.url);
-        setBanner("Donation link copied.", "ok");
-      } catch {
-        els.shareUrl?.select();
-        setBanner("Could not copy automatically — select and copy the donation link.", "err");
-      }
-    });
-    els.download?.addEventListener("click", async () => {
-      try {
-        const dataUrl = await window.PfQr.toDataURL(current.url, 512);
-        window.PfQr.downloadDataUrl(dataUrl, `pawsforward-${current.code || "qr"}.png`);
-      } catch (err) {
-        console.error(err);
-        setBanner("Could not download QR.", "err");
-      }
-    });
-    els.share?.addEventListener("click", async () => {
-      const text = current.shareText || shareMessage(current.url);
-      const url = current.url;
-      try {
-        if (navigator.share) {
-          const file = await qrShareFile(url, current.code);
-          const canFiles =
-            file &&
-            navigator.canShare &&
-            navigator.canShare({ files: [file] });
-          if (canFiles) {
-            await navigator.share({
-              title: "Help this dog charity",
-              text,
-              files: [file],
-            });
-          } else {
-            await navigator.share({
-              title: "Help this dog charity",
-              text,
-              url,
-            });
-          }
-          setBanner("Share sheet opened.", "ok");
-          return;
-        }
-      } catch (err) {
-        if (err && err.name === "AbortError") return;
-        console.warn(err);
-      }
-      try {
-        await navigator.clipboard.writeText(text);
-        setBanner("Share message copied — paste it anywhere.", "ok");
-      } catch {
-        setBanner("Could not share — copy your donation link instead.", "err");
-      }
-    });
-    els.junkToastClose?.addEventListener("click", hideJunkToast);
   });
 })();

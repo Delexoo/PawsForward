@@ -1,5 +1,9 @@
 supabase/functions/welcome-promoter
 supabase/functions/welcome-promoter/**
 .env
+.env.*
 .git
 node_modules
+supabase/.temp
+scripts/test-signup.json
+scripts/test-signup-noemail.json

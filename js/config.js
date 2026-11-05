@@ -1,11 +1,11 @@
 window.SITE_CONFIG = {
-  supabaseUrl: "https://tauiyhyjujddsgvlihef.supabase.co",
+  supabaseUrl: "https://fnkccwjoyfnackmdycti.supabase.co",
   supabaseAnonKey:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhdWl5aHlqdWpkZHNndmxpaGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NzAwMzUsImV4cCI6MjEwOTE0NjAzNX0.PUO-GkCX1BkER3wGe7HvwAWyBR5N3T_eS6Xu5sOtPAM",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZua2Njd2pveWZuYWNrbWR5Y3RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2ODAzMjcsImV4cCI6MjEwOTI1NjMyN30.jrBk2da06ubL_vzdN80m10ObubHDlsvX1lK_qJL_lx4",
   commissionRate: 0.5,
   appName: "PawsForward",
   /** Bump when shipping UI so browsers skip stale JS/CSS. */
-  assetVersion: "20261108aa",
+  assetVersion: "20261109n",
   contactEmail: "joinpawsforward@outlook.com",
   privacyEmail: "joinpawsforward@outlook.com",
   siteOrigin: "https://joinpawsforward.com",
