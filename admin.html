@@ -21,7 +21,7 @@
   </script>
   <script src="js/theme.js?v=20261108ab"></script>
   <link rel="stylesheet" href="css/site.css?v=20261110i">
-  <link rel="stylesheet" href="css/paws.css?v=20261110j">
+  <link rel="stylesheet" href="css/paws.css?v=20261110m">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
@@ -143,13 +143,76 @@
           <p class="dash-empty-desc">Attributed gifts show up here.</p>
         </div>
       </section>
+
+      <section class="pf-mini-panel pf-admin-page" id="settings" data-admin-page="settings" aria-labelledby="settings-heading" hidden>
+        <div class="pf-section-head pf-section-head--compact">
+          <h2 class="pf-mini-heading" id="settings-heading">Settings</h2>
+        </div>
+        <div class="pf-settings-scroll">
+          <p class="pf-settings-lead">Push alerts are sent to this device while the dashboard is open.</p>
+
+          <h3 class="pf-settings-group">Notifications</h3>
+          <div class="pf-settings-list">
+            <label class="pf-setting" for="set-notify-qr">
+              <span class="pf-setting-copy">
+                <span class="pf-setting-title">New QR code</span>
+                <span class="pf-setting-desc">Notify when somebody creates a referral QR.</span>
+              </span>
+              <input class="pf-switch" id="set-notify-qr" type="checkbox" role="switch" data-setting="notifyQrCreated">
+            </label>
+            <label class="pf-setting" for="set-notify-scan">
+              <span class="pf-setting-copy">
+                <span class="pf-setting-title">QR scan</span>
+                <span class="pf-setting-desc">Notify when somebody scans a QR code.</span>
+              </span>
+              <input class="pf-switch" id="set-notify-scan" type="checkbox" role="switch" data-setting="notifyQrScanned">
+            </label>
+            <label class="pf-setting" for="set-notify-donation">
+              <span class="pf-setting-copy">
+                <span class="pf-setting-title">New donation</span>
+                <span class="pf-setting-desc">Notify when a gift comes in through a QR or the donate page.</span>
+              </span>
+              <input class="pf-switch" id="set-notify-donation" type="checkbox" role="switch" data-setting="notifyDonation">
+            </label>
+          </div>
+
+          <h3 class="pf-settings-group">More</h3>
+          <div class="pf-settings-list">
+            <label class="pf-setting" for="set-auto-refresh">
+              <span class="pf-setting-copy">
+                <span class="pf-setting-title">Auto refresh</span>
+                <span class="pf-setting-desc">Keep checking for new QR codes, scans, and donations while this page is open.</span>
+              </span>
+              <input class="pf-switch" id="set-auto-refresh" type="checkbox" role="switch" data-setting="autoRefresh">
+            </label>
+            <label class="pf-setting" for="set-notify-sound">
+              <span class="pf-setting-copy">
+                <span class="pf-setting-title">Alert sound</span>
+                <span class="pf-setting-desc">Play a short sound with each push notification.</span>
+              </span>
+              <input class="pf-switch" id="set-notify-sound" type="checkbox" role="switch" data-setting="notifySound">
+            </label>
+            <label class="pf-setting" for="set-confirm-delete">
+              <span class="pf-setting-copy">
+                <span class="pf-setting-title">Confirm deletes</span>
+                <span class="pf-setting-desc">Ask before a volunteer and their QR history are removed.</span>
+              </span>
+              <input class="pf-switch" id="set-confirm-delete" type="checkbox" role="switch" data-setting="confirmDeletes">
+            </label>
+          </div>
+
+          <p class="pf-settings-note" id="settings-note" role="status"></p>
+          <button type="button" class="pf-settings-signout" id="settings-lock-btn">Sign out</button>
+        </div>
+      </section>
     </div>
 
     <nav class="pf-dock" aria-label="PawsForward admin">
       <div class="pf-dock-tabs" role="tablist" aria-label="Dashboard pages">
-        <button type="button" class="pf-dock-tab is-active" role="tab" aria-selected="true" data-admin-nav="dashboard"><span class="pf-dock-tab-full">Dashboard</span><span class="pf-dock-tab-short" aria-hidden="true">Home</span></button>
-        <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="employees"><span class="pf-dock-tab-full">Volunteers</span><span class="pf-dock-tab-short" aria-hidden="true">Team</span></button>
-        <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" data-admin-nav="donations"><span class="pf-dock-tab-full">Donations</span><span class="pf-dock-tab-short" aria-hidden="true">Gifts</span></button>
+        <button type="button" class="pf-dock-tab is-active" role="tab" aria-selected="true" aria-controls="overview" data-admin-nav="dashboard"><span class="pf-dock-tab-full">Dashboard</span><span class="pf-dock-tab-short" aria-hidden="true">Home</span></button>
+        <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" aria-controls="employees" data-admin-nav="employees"><span class="pf-dock-tab-full">Volunteers</span><span class="pf-dock-tab-short" aria-hidden="true">Team</span></button>
+        <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" aria-controls="donations" data-admin-nav="donations"><span class="pf-dock-tab-full">Donations</span><span class="pf-dock-tab-short" aria-hidden="true">Gifts</span></button>
+        <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" aria-controls="settings" data-admin-nav="settings"><span class="pf-dock-tab-full">Settings</span><span class="pf-dock-tab-short" aria-hidden="true">Set</span></button>
       </div>
     </nav>
   </div>
@@ -401,6 +464,6 @@
   <script src="js/shell.js?v=20261108v"></script>
   <script src="js/vendor/qrcode.min.js?v=20261108v"></script>
   <script src="js/qr.js?v=20261108v"></script>
-  <script src="js/admin.js?v=20261110j"></script>
+  <script src="js/admin.js?v=20261110m"></script>
 </body>
 </html>

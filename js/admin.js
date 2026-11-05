@@ -128,7 +128,22 @@
   let pendingAvatarReset = false;
   const ADMIN_PAGE_KEY = "pf_admin_page_v1";
 
-  const ADMIN_PAGES = ["dashboard", "employees", "donations"];
+  const ADMIN_PAGES = ["dashboard", "employees", "donations", "settings"];
+  const SETTINGS_KEY = "pf_admin_settings_v1";
+  const DEFAULT_SETTINGS = {
+    notifyQrCreated: true,
+    notifyQrScanned: true,
+    notifyDonation: false,
+    notifySound: false,
+    confirmDeletes: true,
+    autoRefresh: true,
+  };
+  let alertsPrimed = false;
+  const seenEmployeeIds = new Set();
+  const seenVisitIds = new Set();
+  const seenDonationIds = new Set();
+  let alertTimer = 0;
+  let alertAudio = null;
   let adminPageBusy = false;
 
   function normalizeAdminPage(pageId) {
@@ -177,6 +192,7 @@
 
     if (instant || !current || prefersReducedMotion()) {
       showAdminPageInstant(next);
+      if (next === "settings") void onSettingsOpened();
       return;
     }
 
@@ -203,6 +219,7 @@
     });
     incoming.classList.remove("is-enter");
     adminPageBusy = false;
+    if (next === "settings") void onSettingsOpened();
   }
 
   function wireAdminNav() {
@@ -216,6 +233,245 @@
       /* ignore */
     }
     setAdminPage(normalizeAdminPage(initial), { instant: true });
+  }
+
+  function readSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (!raw) return { ...DEFAULT_SETTINGS };
+      const parsed = JSON.parse(raw);
+      return { ...DEFAULT_SETTINGS, ...(parsed && typeof parsed === "object" ? parsed : {}) };
+    } catch {
+      return { ...DEFAULT_SETTINGS };
+    }
+  }
+
+  function writeSettings(next) {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function syncSettingsNote() {
+    const note = document.getElementById("settings-note");
+    if (!note) return;
+    const settings = readSettings();
+    const wantsAlert = settings.notifyQrCreated || settings.notifyQrScanned || settings.notifyDonation;
+    if (!wantsAlert) {
+      note.textContent = "Push notifications are off. Turn one on to get alerts on this device.";
+      return;
+    }
+    if (!("Notification" in window)) {
+      note.textContent = "This browser cannot show system alerts. New activity still appears in the dashboard.";
+      return;
+    }
+    if (Notification.permission === "denied") {
+      note.textContent = "Notifications are blocked. Allow them for this site in the browser settings.";
+      return;
+    }
+    if (Notification.permission !== "granted") {
+      note.textContent = "Allow notifications so alerts can reach this device while the dashboard is open.";
+      return;
+    }
+    note.textContent = "Alerts are on for this device while the dashboard stays open.";
+  }
+
+  function applySettingsForm() {
+    const settings = readSettings();
+    document.querySelectorAll("[data-setting]").forEach((input) => {
+      const key = input.getAttribute("data-setting");
+      input.checked = Boolean(settings[key]);
+    });
+    syncSettingsNote();
+  }
+
+  async function ensureNotifyPermission() {
+    if (!("Notification" in window)) return false;
+    if (Notification.permission === "granted") return true;
+    if (Notification.permission === "denied") return false;
+    try {
+      const result = await Notification.requestPermission();
+      return result === "granted";
+    } catch {
+      return false;
+    }
+  }
+
+  function playAlertSound() {
+    if (!readSettings().notifySound) return;
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    try {
+      if (!alertAudio) alertAudio = new Ctx();
+      const osc = alertAudio.createOscillator();
+      const gain = alertAudio.createGain();
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.05, alertAudio.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, alertAudio.currentTime + 0.18);
+      osc.connect(gain);
+      gain.connect(alertAudio.destination);
+      osc.start();
+      osc.stop(alertAudio.currentTime + 0.2);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function pushAlert(title, body, tag) {
+    playAlertSound();
+    setBanner(`${title}. ${body}`, "ok");
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    try {
+      const note = new Notification(title, {
+        body,
+        icon: "icons/icon-192.png",
+        tag: tag || title,
+      });
+      note.onclick = () => {
+        window.focus();
+        note.close();
+      };
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
+  function visitKeys(visit) {
+    const keys = [`row:${visit?.created_at}|${visit?.referral_code}|${visit?.employee_id}|${visit?.city}`];
+    if (visit?.id) keys.push(`id:${visit.id}`);
+    return keys;
+  }
+
+  function rememberVisit(visit) {
+    visitKeys(visit).forEach((key) => seenVisitIds.add(key));
+  }
+
+  function visitIsNew(visit) {
+    return visitKeys(visit).every((key) => !seenVisitIds.has(key));
+  }
+
+  function employeeForRecord(record, employees) {
+    return (
+      employees.find((emp) => emp.id && emp.id === record.employee_id) ||
+      employees.find((emp) => emp.referral_code && emp.referral_code === record.referral_code) ||
+      null
+    );
+  }
+
+  function announceFreshActivity(employees, visits, donations) {
+    if (!alertsPrimed) {
+      employees.forEach((emp) => emp.id && seenEmployeeIds.add(emp.id));
+      visits.forEach((visit) => rememberVisit(visit));
+      donations.forEach((donation) => donation.id && seenDonationIds.add(donation.id));
+      alertsPrimed = true;
+      return;
+    }
+
+    const settings = readSettings();
+    const freshEmployees = employees.filter((emp) => emp.id && !seenEmployeeIds.has(emp.id));
+    const freshVisits = visits.filter((visit) => visitIsNew(visit));
+    const freshDonations = donations.filter((donation) => donation.id && !seenDonationIds.has(donation.id));
+    freshEmployees.forEach((emp) => seenEmployeeIds.add(emp.id));
+    freshVisits.forEach((visit) => rememberVisit(visit));
+    freshDonations.forEach((donation) => seenDonationIds.add(donation.id));
+
+    if (settings.notifyQrCreated && freshEmployees.length) {
+      if (freshEmployees.length > 3) {
+        pushAlert("New QR codes", `${freshEmployees.length} referral QR codes were created.`, "qr-created-batch");
+      } else {
+        freshEmployees.forEach((emp) => {
+          pushAlert("New QR code", `${personLabel(emp)} created a referral QR.`, `qr-${emp.id}`);
+        });
+      }
+    }
+
+    if (settings.notifyQrScanned && freshVisits.length) {
+      if (freshVisits.length > 3) {
+        pushAlert("QR scans", `${freshVisits.length} QR codes were scanned.`, "qr-scan-batch");
+      } else {
+        freshVisits.forEach((visit) => {
+          const emp = employeeForRecord(visit, employees);
+          const who = emp ? `${personLabel(emp)}'s QR` : "A QR code";
+          const place = [visit.city, visit.region, visit.country].filter(Boolean).join(", ");
+          const body = place ? `${who} was scanned in ${place}.` : `${who} was scanned.`;
+          pushAlert("QR scan", body, `scan-${visitKeys(visit)[0]}`);
+        });
+      }
+    }
+
+    if (settings.notifyDonation && freshDonations.length) {
+      if (freshDonations.length > 3) {
+        pushAlert("New donations", `${freshDonations.length} gifts came in.`, "donation-batch");
+      } else {
+        freshDonations.forEach((donation) => {
+          const emp = employeeForRecord(donation, employees);
+          const who = emp ? ` for ${personLabel(emp)}` : "";
+          pushAlert("New donation", `${money(donation.amount)} gift${who}.`, `gift-${donation.id}`);
+        });
+      }
+    }
+  }
+
+  function rememberEmployees(rows) {
+    (rows || []).forEach((row) => row?.id && seenEmployeeIds.add(row.id));
+  }
+
+  function syncAlertPolling() {
+    window.clearInterval(alertTimer);
+    alertTimer = 0;
+    const settings = readSettings();
+    const wants =
+      settings.autoRefresh ||
+      settings.notifyQrCreated ||
+      settings.notifyQrScanned ||
+      settings.notifyDonation;
+    if (!wants) return;
+    alertTimer = window.setInterval(() => {
+      if (document.hidden) return;
+      loadDashboard({ skipCachePaint: true, silent: true });
+    }, 20000);
+  }
+
+  async function onSettingsOpened() {
+    const settings = readSettings();
+    const wants = settings.notifyQrCreated || settings.notifyQrScanned || settings.notifyDonation;
+    if (wants && "Notification" in window && Notification.permission === "default") {
+      await ensureNotifyPermission();
+    }
+    syncSettingsNote();
+  }
+
+  function wireSettings() {
+    applySettingsForm();
+    document.getElementById("settings")?.addEventListener("change", async (event) => {
+      const input = event.target.closest?.("[data-setting]");
+      if (!input) return;
+      const key = input.getAttribute("data-setting");
+      const settings = readSettings();
+      const isAlert = key === "notifyQrCreated" || key === "notifyQrScanned" || key === "notifyDonation";
+      if (input.checked && isAlert) {
+        const allowed = await ensureNotifyPermission();
+        if (!allowed) {
+          input.checked = false;
+          settings[key] = false;
+          writeSettings(settings);
+          syncSettingsNote();
+          syncAlertPolling();
+          return;
+        }
+      }
+      settings[key] = Boolean(input.checked);
+      writeSettings(settings);
+      syncSettingsNote();
+      syncAlertPolling();
+    });
+    document.getElementById("settings-lock-btn")?.addEventListener("click", async () => {
+      await window.SitePin?.lock?.();
+      location.replace("/login");
+    });
+    syncAlertPolling();
   }
 
   function avatarUrl(emp) {
@@ -1604,6 +1860,7 @@
     renderEmployees(employees, donationStats, visitStats);
     renderDonations(donations, employeeMap, locationIndex);
     renderGeo(visits);
+    announceFreshActivity(employees, visits, donations);
   }
 
   async function loadDashboard(opts = {}) {
@@ -1617,7 +1874,7 @@
     if (cached?.employees && !opts.skipCachePaint) {
       applyDashboardData(cached);
       setLoading(false);
-    } else {
+    } else if (!opts.silent) {
       setLoading(true);
       setBanner("Loading…");
     }
@@ -1631,7 +1888,7 @@
           sb.from("employees").select("*").order("created_at", { ascending: false }),
           sb.from("donations").select("*").order("created_at", { ascending: false }).limit(200),
           sb.from("payouts").select("*").order("created_at", { ascending: false }).limit(500),
-          sb.from("visits").select("city,region,country,created_at,referral_code,employee_id").order("created_at", { ascending: false }).limit(1000),
+          sb.from("visits").select("id,city,region,country,created_at,referral_code,employee_id").order("created_at", { ascending: false }).limit(1000),
           sb.from("donations").select("id", { count: "exact", head: true }).gte("created_at", since24h),
         ]),
         new Promise((_, reject) =>
@@ -1664,7 +1921,7 @@
     writeCache(payload);
     applyDashboardData(payload);
     setLoading(false);
-    setBanner("", null);
+    if (!opts.silent) setBanner("", null);
   }
 
   function clearEmployeeErrors() {
@@ -1815,6 +2072,7 @@
         console.error(avatarErr);
         els.employeeSubmit.disabled = false;
         setBanner(avatarErr.message || "Saved details, but photo upload failed.", "err");
+        rememberEmployees([data]);
         await loadDashboard({ skipCachePaint: true });
         return;
       }
@@ -1831,6 +2089,7 @@
     editingEmployeeId = null;
     clearPendingAvatar();
     setBanner(isEdit ? `Updated ${personLabel(data)}.` : `Created ${personLabel(data)}.`, "ok");
+    if (!isEdit) rememberEmployees([data]);
     await loadDashboard({ skipCachePaint: true });
     if (!isEdit) await openQrDialog(data);
   }
@@ -1857,6 +2116,7 @@
       return;
     }
     setBanner(`Duplicated as ${data.first_name} ${data.last_name}.`, "ok");
+    rememberEmployees([data]);
     await loadDashboard({ skipCachePaint: true });
     await openQrDialog(data);
   }
@@ -1903,6 +2163,7 @@
       made === 1 ? `Added placeholder ${from}.` : `Added placeholders ${from}–${to}.`,
       "ok"
     );
+    rememberEmployees(data);
     await loadDashboard({ skipCachePaint: true });
   }
 
@@ -1967,12 +2228,14 @@
 
   async function deleteEmployee(emp) {
     const label = `${emp.first_name} ${emp.last_name}`.trim();
-    const ok = await askConfirm({
-      title: `Delete ${label}?`,
-      lead: "This permanently removes their profile, QR attribution, donations, and visit history.",
-      confirmLabel: "Delete everything",
-    });
-    if (!ok) return;
+    if (readSettings().confirmDeletes) {
+      const ok = await askConfirm({
+        title: `Delete ${label}?`,
+        lead: "This permanently removes their profile, QR attribution, donations, and visit history.",
+        confirmLabel: "Delete everything",
+      });
+      if (!ok) return;
+    }
     const sb = window.SiteSupabase.getClient();
     if (!sb) {
       setBanner("Supabase is not configured.", "err");
@@ -1994,6 +2257,7 @@
   function wireDialogs() {
     wireDialogBackdropClose();
     wireAdminNav();
+    wireSettings();
     wirePullToHardRefresh();
     els.btnNew?.addEventListener("click", openNewEmployee);
     els.btnPlaceholders?.addEventListener("click", () => addPlaceholderEmployees(5));

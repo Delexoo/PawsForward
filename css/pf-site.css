@@ -527,18 +527,22 @@ html.pf-nav-skip .loader {
 }
 
 @media (max-width: 699px) {
-  .to-top { padding-top: 1.1rem; }
+  .to-top { padding-top: 1.4rem; }
 
   .footer-grid {
-    gap: 0.2rem 0.75rem;
-    padding-top: 0.75rem;
+    gap: 0.28rem 0.75rem;
+    padding-top: 0.95rem;
   }
 
-  .footer-label { margin-bottom: 0.25rem; }
+  .footer-label { margin-bottom: 0.32rem; }
 
   .footer-grid a {
     font-size: 0.74rem;
-    line-height: 1.4;
+    line-height: 1.52;
+  }
+
+  .site-footer .wrap.footer-grid {
+    padding-bottom: 1.75rem;
   }
 }
 
