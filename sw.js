@@ -1,5 +1,5 @@
 /* PawsForward — installability only; never pin HTML/CSS/JS behind a stale cache */
-const CACHE = "pawsforward-shell-v8";
+const CACHE = "pawsforward-shell-v9";
 const PRECACHE = [
   "./manifest.webmanifest",
   "./icons/favicon.png",
@@ -45,6 +45,42 @@ self.addEventListener("activate", (event) => {
       .keys()
       .then((keys) => Promise.all(keys.map((k) => (k === CACHE ? null : caches.delete(k)))))
       .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+  const title = String(data.title || "Paws Forward");
+  const body = String(data.body || "");
+  const tag = String(data.tag || data.kind || "paws-forward");
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clients) => {
+      const lookingAtDashboard = clients.some((client) => {
+        try {
+          const path = new URL(client.url).pathname;
+          return (path === "/admin" || path.startsWith("/admin/")) && client.visibilityState === "visible";
+        } catch {
+          return false;
+        }
+      });
+      clients.forEach((client) => {
+        client.postMessage({ type: "pf-activity", kind: data.kind || "" });
+      });
+      if (lookingAtDashboard) return;
+      await self.registration.showNotification(title, {
+        body,
+        icon: "/icons/icon-192.png",
+        badge: "/icons/favicon.png",
+        tag,
+        renotify: true,
+        data: { url: "/admin" },
+      });
+    })
   );
 });
 

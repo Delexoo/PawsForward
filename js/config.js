@@ -9,6 +9,7 @@ window.SITE_CONFIG = {
   contactEmail: "joinpawsforward@outlook.com",
   privacyEmail: "joinpawsforward@outlook.com",
   siteOrigin: "https://joinpawsforward.com",
+  vapidPublicKey: "BC44d9O-FcxjkVEOZGvwpSAvmY5YwO03tMJPxx78djzLoBgIHnPd74_5mlOj0mwRo678Tojax67JszXuWHpc6Qs",
 };
 
 /** Stripe Checkout URL — donors go here directly (no donate interstitial). */

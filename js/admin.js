@@ -139,17 +139,18 @@
     autoRefresh: true,
     autoLogin: false,
   };
-  let alertsPrimed = false;
   let statusIsAlert = false;
   let notifyNudgeShown = false;
   const seenEmployeeIds = new Set();
   const seenVisitIds = new Set();
   const seenDonationIds = new Set();
   const SEEN_KEY = "pf_alert_seen_v1";
-  const RECENT_MS = 30 * 60 * 1000;
   let alertTimer = 0;
   let alertAudio = null;
   let adminPageBusy = false;
+  let pushReady = false;
+  let pushHintShown = false;
+  let liveChannel = null;
 
   function normalizeAdminPage(pageId) {
     if (pageId === "inbox") return "donations";
@@ -480,11 +481,6 @@
     visitKeys(visit).forEach((key) => seenVisitIds.add(key));
   }
 
-  function visitIsNew(visit) {
-    if (visit?.id) return !seenVisitIds.has(`id:${visit.id}`);
-    return visitKeys(visit).every((key) => !seenVisitIds.has(key));
-  }
-
   function employeeForRecord(record, employees) {
     return (
       employees.find((emp) => emp.id && emp.id === record.employee_id) ||
@@ -520,59 +516,121 @@
     }
   }
 
-  function isRecentRecord(row) {
-    const at = Date.parse(row?.created_at || "");
-    return Number.isFinite(at) && Date.now() - at >= 0 && Date.now() - at <= RECENT_MS;
-  }
-
   function announceFreshActivity(employees, visits, donations) {
-    const unseenEmployees = employees.filter((emp) => emp.id && !seenEmployeeIds.has(emp.id));
-    const unseenVisits = visits.filter((visit) => visitIsNew(visit));
-    const unseenDonations = donations.filter((donation) => donation.id && !seenDonationIds.has(donation.id));
-    const freshEmployees = alertsPrimed ? unseenEmployees : unseenEmployees.filter(isRecentRecord);
-    const freshVisits = alertsPrimed ? unseenVisits : unseenVisits.filter(isRecentRecord);
-    const freshDonations = alertsPrimed ? unseenDonations : unseenDonations.filter(isRecentRecord);
-
     employees.forEach((emp) => emp.id && seenEmployeeIds.add(emp.id));
     visits.forEach((visit) => rememberVisit(visit));
     donations.forEach((donation) => donation.id && seenDonationIds.add(donation.id));
-    alertsPrimed = true;
     saveSeenAlerts();
+  }
 
+  function vapidBytes(value) {
+    const text = String(value || "").trim();
+    if (!text) return null;
+    const padded = text.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (text.length % 4)) % 4);
+    const raw = atob(padded);
+    const out = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i += 1) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+
+  function liveAlertCopy(kind, row) {
     const settings = readSettings();
-    if (settings.notifyQrCreated && freshEmployees.length) {
-      if (freshEmployees.length > 3) {
-        pushAlert("New QR codes", `${freshEmployees.length} referral QR codes were created.`, "qr-created-batch");
-      } else {
-        freshEmployees.forEach((emp) => {
-          pushAlert("New QR code", `${personLabel(emp)} created a referral QR.`, `qr-${emp.id}`);
-        });
-      }
+    if (kind === "qr_created" && settings.notifyQrCreated) {
+      return ["New QR code", `${personLabel(row)} created a referral QR.`, `qr-${row.id}`];
     }
-
-    if (settings.notifyQrScanned && freshVisits.length) {
-      if (freshVisits.length > 3) {
-        pushAlert("QR scans", `${freshVisits.length} QR codes were scanned.`, "qr-scan-batch");
-      } else {
-        freshVisits.forEach((visit) => {
-          const emp = employeeForRecord(visit, employees);
-          const who = emp ? `${personLabel(emp)}'s QR` : "A QR code";
-          const place = formatPlace(visit);
-          const body = place ? `${who} was scanned in ${place}.` : `${who} was scanned.`;
-          pushAlert("QR scan", body, `scan-${visitKeys(visit)[0]}`);
-        });
-      }
+    if (kind === "qr_scanned" && settings.notifyQrScanned) {
+      const emp = employeeForRecord(row, latestEmployees);
+      const who = emp ? `${personLabel(emp)}'s QR` : "A QR code";
+      const place = formatPlace(row);
+      const body = place ? `${who} was scanned in ${place}.` : `${who} was scanned.`;
+      return ["QR scan", body, `scan-${row.id || visitKeys(row)[0]}`];
     }
+    if (kind === "donation" && settings.notifyDonation) {
+      const emp = employeeForRecord(row, latestEmployees);
+      const who = emp ? ` for ${personLabel(emp)}` : "";
+      return ["New donation", `${money(row.amount)} gift${who}.`, `gift-${row.id}`];
+    }
+    return null;
+  }
 
-    if (settings.notifyDonation && freshDonations.length) {
-      if (freshDonations.length > 3) {
-        pushAlert("New donations", `${freshDonations.length} gifts came in.`, "donation-batch");
-      } else {
-        freshDonations.forEach((donation) => {
-          const emp = employeeForRecord(donation, employees);
-          const who = emp ? ` for ${personLabel(emp)}` : "";
-          pushAlert("New donation", `${money(donation.amount)} gift${who}.`, `gift-${donation.id}`);
-        });
+  function noteLiveRow(kind, row) {
+    if (!row) return;
+    if (kind === "qr_created" && row.id) seenEmployeeIds.add(row.id);
+    if (kind === "qr_scanned") rememberVisit(row);
+    if (kind === "donation" && row.id) seenDonationIds.add(row.id);
+    saveSeenAlerts();
+    const copy = liveAlertCopy(kind, row);
+    if (copy && document.hidden && !pushReady) void showSystemAlert(copy[0], copy[1], copy[2]);
+    if (!document.hidden) loadDashboard({ skipCachePaint: true, silent: true });
+  }
+
+  function startLiveAlerts() {
+    const sb = window.SiteSupabase?.getClient?.();
+    if (!sb || liveChannel) return;
+    liveChannel = sb
+      .channel("operator-alerts")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "employees" }, (payload) => {
+        noteLiveRow("qr_created", payload.new);
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "visits" }, (payload) => {
+        noteLiveRow("qr_scanned", payload.new);
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "donations" }, (payload) => {
+        noteLiveRow("donation", payload.new);
+      })
+      .subscribe();
+  }
+
+  async function syncPushSubscription() {
+    const settings = readSettings();
+    const wants = settings.notifyQrCreated || settings.notifyQrScanned || settings.notifyDonation;
+    const key = window.SITE_CONFIG?.vapidPublicKey;
+    const sb = window.SiteSupabase?.getClient?.();
+    if (!wants || !key || !sb || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+      pushReady = false;
+      return;
+    }
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      pushReady = false;
+      return;
+    }
+    try {
+      const reg = (await navigator.serviceWorker.getRegistration()) || (await registerAlertWorker());
+      if (!reg) {
+        pushReady = false;
+        return;
+      }
+      const ready = await navigator.serviceWorker.ready;
+      const appKey = vapidBytes(key);
+      if (!appKey) return;
+      let sub = await ready.pushManager.getSubscription();
+      if (!sub) {
+        sub = await ready.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey });
+      }
+      const json = sub.toJSON();
+      const { error } = await sb.from("operator_push_subscriptions").upsert(
+        {
+          endpoint: json.endpoint,
+          p256dh: json.keys?.p256dh,
+          auth: json.keys?.auth,
+          notify_qr_created: Boolean(settings.notifyQrCreated),
+          notify_qr_scanned: Boolean(settings.notifyQrScanned),
+          notify_donation: Boolean(settings.notifyDonation),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "endpoint" }
+      );
+      pushReady = !error && Boolean(json.endpoint && json.keys?.p256dh && json.keys?.auth);
+      if (error) console.warn(error);
+    } catch (err) {
+      pushReady = false;
+      console.warn(err);
+      const ios = /iphone|ipad|ipod/i.test(navigator.userAgent || "");
+      const standalone =
+        window.matchMedia?.("(display-mode: standalone)")?.matches || navigator.standalone === true;
+      if (ios && !standalone && !pushHintShown) {
+        pushHintShown = true;
+        setBanner("Add this site to your Home Screen so alerts can arrive while the dashboard is closed.", "info");
       }
     }
   }
@@ -656,10 +714,11 @@
         }
       }
       syncAlertPolling();
+      void syncPushSubscription();
       if (input.checked && isAlert && !hadPermission && Notification.permission === "granted") {
         pushAlert(
           "Notifications are on",
-          "You'll get alerts on this device while the dashboard is open.",
+          "You'll get an alert the moment something happens, even if this page is closed.",
           "notify-enabled"
         );
       }
@@ -675,9 +734,10 @@
       if (!("Notification" in window) || Notification.permission !== "default") return;
       void ensureNotifyPermission().then((allowed) => {
         if (allowed) {
+          void syncPushSubscription();
           pushAlert(
             "Notifications are on",
-            "You'll get alerts on this device while the dashboard is open.",
+            "You'll get an alert the moment something happens, even if this page is closed.",
             "notify-enabled"
           );
         }
@@ -695,7 +755,12 @@
       loadDashboard({ skipCachePaint: true, silent: true });
     });
     loadSeenAlerts();
-    void registerAlertWorker();
+    void registerAlertWorker().then(() => syncPushSubscription());
+    navigator.serviceWorker?.addEventListener("message", (event) => {
+      if (event.data?.type !== "pf-activity" || document.hidden) return;
+      loadDashboard({ skipCachePaint: true, silent: true });
+    });
+    startLiveAlerts();
     armNotifyPermission();
     syncAlertPolling();
   }
