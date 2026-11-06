@@ -1,5 +1,5 @@
 /* PawsForward — installability only; never pin HTML/CSS/JS behind a stale cache */
-const CACHE = "pawsforward-shell-v7";
+const CACHE = "pawsforward-shell-v8";
 const PRECACHE = [
   "./manifest.webmanifest",
   "./icons/favicon.png",
@@ -45,6 +45,19 @@ self.addEventListener("activate", (event) => {
       .keys()
       .then((keys) => Promise.all(keys.map((k) => (k === CACHE ? null : caches.delete(k)))))
       .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = event.notification?.data?.url || "/admin";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      const open = clients.find((client) => client.url.includes("/admin"));
+      if (open) return open.focus();
+      if (self.clients.openWindow) return self.clients.openWindow(target);
+      return undefined;
+    })
   );
 });
 

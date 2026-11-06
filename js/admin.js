@@ -139,6 +139,8 @@
     autoRefresh: true,
   };
   let alertsPrimed = false;
+  let statusIsAlert = false;
+  let notifyNudgeShown = false;
   const seenEmployeeIds = new Set();
   const seenVisitIds = new Set();
   const seenDonationIds = new Set();
@@ -198,33 +200,45 @@
 
     adminPageBusy = true;
     syncAdminNav(next);
-    // Hide every other page first so volunteers never flash under transitions.
     document.querySelectorAll(".pf-admin-page").forEach((panel) => {
       if (panel === current || panel === incoming) return;
       panel.hidden = true;
-      panel.classList.remove("is-active", "is-enter", "is-exit");
+      panel.classList.remove("is-active", "is-enter", "is-exit", "is-back");
     });
-    current.classList.add("is-exit");
-    current.classList.remove("is-active");
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 160);
-    });
-    current.hidden = true;
-    current.classList.remove("is-exit");
 
+    const order = ADMIN_PAGES;
+    const forward = order.indexOf(next) >= order.indexOf(current.getAttribute("data-admin-page"));
+    current.classList.toggle("is-back", !forward);
+    incoming.classList.toggle("is-back", !forward);
+    current.classList.add("is-exit");
+    current.classList.remove("is-active", "is-enter");
     incoming.hidden = false;
-    incoming.classList.add("is-active", "is-enter");
+    incoming.classList.add("is-enter");
+    incoming.classList.remove("is-exit", "is-active");
+
     await new Promise((resolve) => {
-      window.setTimeout(resolve, 240);
+      window.setTimeout(resolve, 280);
     });
-    incoming.classList.remove("is-enter");
+
+    current.hidden = true;
+    current.classList.remove("is-exit", "is-back");
+    incoming.classList.add("is-active");
+    incoming.classList.remove("is-enter", "is-back");
     adminPageBusy = false;
     if (next === "settings") void onSettingsOpened();
   }
 
   function wireAdminNav() {
     document.querySelectorAll("[data-admin-nav]").forEach((btn) => {
-      btn.addEventListener("click", () => setAdminPage(btn.getAttribute("data-admin-nav")));
+      btn.addEventListener("click", () => {
+        const page = btn.getAttribute("data-admin-nav");
+        if (page === "settings") {
+          const settings = readSettings();
+          const wants = settings.notifyQrCreated || settings.notifyQrScanned || settings.notifyDonation;
+          if (wants) void ensureNotifyPermission().then(() => syncSettingsNote());
+        }
+        setAdminPage(page);
+      });
     });
     let initial = "dashboard";
     try {
@@ -305,30 +319,65 @@
     if (!Ctx) return;
     try {
       if (!alertAudio) alertAudio = new Ctx();
-      const osc = alertAudio.createOscillator();
-      const gain = alertAudio.createGain();
-      osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.05, alertAudio.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, alertAudio.currentTime + 0.18);
-      osc.connect(gain);
-      gain.connect(alertAudio.destination);
-      osc.start();
-      osc.stop(alertAudio.currentTime + 0.2);
+      const start = () => {
+        const osc = alertAudio.createOscillator();
+        const gain = alertAudio.createGain();
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.05, alertAudio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, alertAudio.currentTime + 0.18);
+        osc.connect(gain);
+        gain.connect(alertAudio.destination);
+        osc.start();
+        osc.stop(alertAudio.currentTime + 0.2);
+      };
+      if (alertAudio.state === "suspended") {
+        alertAudio.resume().then(start).catch(() => {});
+        return;
+      }
+      start();
     } catch {
       /* ignore */
     }
   }
 
-  function pushAlert(title, body, tag) {
-    playAlertSound();
-    setBanner(`${title}. ${body}`, "ok");
+  function registerAlertWorker() {
+    if (!("serviceWorker" in navigator)) return Promise.resolve(null);
+    return navigator.serviceWorker.register("/sw.js").catch((err) => {
+      console.warn(err);
+      return null;
+    });
+  }
+
+  async function showSystemAlert(title, body, tag) {
     if (!("Notification" in window) || Notification.permission !== "granted") return;
+    const options = {
+      body,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/favicon.png",
+      tag: tag || title,
+      renotify: true,
+      data: { url: "/admin" },
+    };
     try {
-      const note = new Notification(title, {
-        body,
-        icon: "icons/icon-192.png",
-        tag: tag || title,
-      });
+      if ("serviceWorker" in navigator) {
+        const reg = (await navigator.serviceWorker.getRegistration()) || (await registerAlertWorker());
+        const active = reg?.active ? reg : reg ? await navigator.serviceWorker.ready : null;
+        if (active?.showNotification) {
+          try {
+            await active.showNotification(title, options);
+          } catch (err) {
+            const plain = { ...options };
+            delete plain.renotify;
+            await active.showNotification(title, plain);
+          }
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+    try {
+      const note = new Notification(title, options);
       note.onclick = () => {
         window.focus();
         note.close();
@@ -336,6 +385,28 @@
     } catch (err) {
       console.warn(err);
     }
+  }
+
+  function pushAlert(title, body, tag) {
+    playAlertSound();
+    setBanner(`${title}. ${body}`, "ok");
+    statusIsAlert = true;
+    void showSystemAlert(title, body, tag);
+  }
+
+  function maybeNudgeNotifications() {
+    if (notifyNudgeShown || statusIsAlert) return;
+    const settings = readSettings();
+    const wants = settings.notifyQrCreated || settings.notifyQrScanned || settings.notifyDonation;
+    if (!wants || !("Notification" in window) || Notification.permission === "granted") return;
+    notifyNudgeShown = true;
+    const el = document.getElementById("admin-status");
+    if (Notification.permission === "denied") {
+      setBanner("Notifications are blocked. Allow them for this site in the browser settings.", "err");
+      return;
+    }
+    setBanner("Tap this message to allow QR alerts on this device.", "info");
+    el?.classList.add("is-action");
   }
 
   function visitKeys(visit) {
@@ -349,6 +420,7 @@
   }
 
   function visitIsNew(visit) {
+    if (visit?.id) return !seenVisitIds.has(`id:${visit.id}`);
     return visitKeys(visit).every((key) => !seenVisitIds.has(key));
   }
 
@@ -429,7 +501,6 @@
       settings.notifyDonation;
     if (!wants) return;
     alertTimer = window.setInterval(() => {
-      if (document.hidden) return;
       loadDashboard({ skipCachePaint: true, silent: true });
     }, 20000);
   }
@@ -451,6 +522,7 @@
       const key = input.getAttribute("data-setting");
       const settings = readSettings();
       const isAlert = key === "notifyQrCreated" || key === "notifyQrScanned" || key === "notifyDonation";
+      const hadPermission = "Notification" in window && Notification.permission === "granted";
       if (input.checked && isAlert) {
         const allowed = await ensureNotifyPermission();
         if (!allowed) {
@@ -466,11 +538,43 @@
       writeSettings(settings);
       syncSettingsNote();
       syncAlertPolling();
+      if (input.checked && isAlert && !hadPermission && Notification.permission === "granted") {
+        pushAlert(
+          "Notifications are on",
+          "You'll get alerts on this device while the dashboard is open.",
+          "notify-enabled"
+        );
+      }
     });
     document.getElementById("settings-lock-btn")?.addEventListener("click", async () => {
       await window.SitePin?.lock?.();
       location.replace("/login");
     });
+    document.getElementById("admin-status")?.addEventListener("click", () => {
+      if (!("Notification" in window) || Notification.permission !== "default") return;
+      void ensureNotifyPermission().then((allowed) => {
+        syncSettingsNote();
+        if (allowed) {
+          pushAlert(
+            "Notifications are on",
+            "You'll get alerts on this device while the dashboard is open.",
+            "notify-enabled"
+          );
+        }
+      });
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) return;
+      const settings = readSettings();
+      const wants =
+        settings.autoRefresh ||
+        settings.notifyQrCreated ||
+        settings.notifyQrScanned ||
+        settings.notifyDonation;
+      if (!wants) return;
+      loadDashboard({ skipCachePaint: true, silent: true });
+    });
+    void registerAlertWorker();
     syncAlertPolling();
   }
 
@@ -548,6 +652,8 @@
   function setBanner(msg, kind) {
     const el = document.getElementById("admin-status");
     if (!el) return;
+    statusIsAlert = false;
+    el.classList.remove("is-action");
     const text = String(msg || "").trim();
     if (!text) {
       el.hidden = true;
@@ -839,37 +945,37 @@
     return window.matchMedia && window.matchMedia("(max-width: 900px)").matches;
   }
 
-  function isStandaloneDisplay() {
-    try {
-      return (
-        window.matchMedia?.("(display-mode: standalone)")?.matches ||
-        window.matchMedia?.("(display-mode: fullscreen)")?.matches ||
-        window.navigator.standalone === true
-      );
-    } catch {
-      return false;
-    }
-  }
-
   let sheetViewportFrozen = false;
 
   function syncSheetViewport() {
     if (sheetViewportFrozen) return;
+    if (adminDialogs().some((dialog) => dialog.open)) return;
     try {
-      // Standalone PWA: visualViewport often jumps when a dialog opens and
-      // made the sheet shoot up mid-animation. Prefer stable innerHeight there.
-      const vv = window.visualViewport;
-      const h = Math.round(
-        isStandaloneDisplay()
-          ? window.innerHeight || vv?.height || 0
-          : vv?.height || window.innerHeight || 0
-      );
-      if (h > 0) {
-        document.documentElement.style.setProperty("--pf-sheet-vh", `${h}px`);
-      }
+      const h = Math.round(window.innerHeight || 0);
+      if (h > 0) document.documentElement.style.setProperty("--pf-sheet-vh", `${h}px`);
     } catch {
       /* ignore */
     }
+  }
+
+  const SHEET_RISE = "transform 0.44s cubic-bezier(0.22, 1, 0.36, 1)";
+  const SHEET_FALL = "transform 0.36s cubic-bezier(0.4, 0, 0.2, 1)";
+
+  function sheetHeight(panel) {
+    if (!panel) return 1;
+    return Math.max(1, Math.ceil(panel.getBoundingClientRect().height || panel.offsetHeight || 0));
+  }
+
+  function holdSheet(panel, y) {
+    const px = Math.max(0, Math.round(y));
+    panel.style.transition = "none";
+    panel.style.transform = `translate3d(0, ${px}px, 0)`;
+    panel.style.setProperty("--pf-sheet-slide", `${Math.max(px, 1)}px`);
+    return px;
+  }
+
+  function lockSheetSlide(panel) {
+    return holdSheet(panel, sheetHeight(panel));
   }
 
   function dialogPanel(dialog) {
@@ -885,6 +991,7 @@
     panel.style.transform = "";
     panel.style.transition = "";
     panel.style.willChange = "";
+    panel.style.visibility = "";
   }
 
   function clearPanelSizing(panel) {
@@ -931,24 +1038,25 @@
     const mobile = isMobileSheetViewport();
     const animate = mobile && panel && !prefersReducedMotion();
 
-    // Freeze viewport metrics for the whole open animation (PWA resize glitch).
     if (mobile) sheetViewportFrozen = true;
 
-    // Park off-screen with a viewport-sized px translate (stable on standalone).
     if (mobile) {
       dialog.classList.add("is-sheet", "is-entering");
-      if (animate) {
-        const slide = Math.round(window.innerHeight || panel.offsetHeight || 800);
+      if (animate && panel) {
+        panel.style.visibility = "hidden";
         panel.style.willChange = "transform";
         panel.style.transition = "none";
-        panel.style.transform = `translate3d(0, ${slide}px, 0)`;
       }
     }
 
     if (typeof dialog.showModal === "function" && !dialog.open) {
       dialog.showModal();
     }
-    // Don't remeasure height after showModal — that caused the PWA jump.
+    try {
+      dialog.focus({ preventScroll: true });
+    } catch {
+      /* ignore */
+    }
     const scroller = panel?.querySelector?.("[data-sheet-scroll]");
     if (scroller) scroller.scrollTop = 0;
 
@@ -965,6 +1073,10 @@
       return;
     }
 
+    const slide = sheetHeight(panel);
+    panel.style.height = `${slide}px`;
+    holdSheet(panel, slide);
+    panel.style.visibility = "visible";
     void panel.offsetHeight;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -974,22 +1086,27 @@
         }
         dialog.classList.remove("is-entering");
         dialog.classList.add("is-open");
-        panel.style.transition = "transform 0.34s cubic-bezier(0.32, 0.72, 0, 1)";
+        panel.style.transition = SHEET_RISE;
         panel.style.transform = "translate3d(0, 0, 0)";
+        let settled = false;
         const settle = (e) => {
-          if (e && e.target !== panel) return;
-          if (e && e.propertyName && e.propertyName !== "transform") return;
+          if (settled) return;
+          if (e && (e.target !== panel || e.propertyName !== "transform")) return;
+          settled = true;
           panel.removeEventListener("transitionend", settle);
           if (!dialog.open || dialog.classList.contains("is-closing")) {
             sheetViewportFrozen = false;
             return;
           }
+          panel.style.transition = "none";
+          panel.style.transform = "translate3d(0, 0, 0)";
+          panel.style.willChange = "auto";
+          panel.style.height = "";
           dialog.classList.add("is-settled");
-          clearPanelMotion(panel);
           sheetViewportFrozen = false;
         };
         panel.addEventListener("transitionend", settle);
-        window.setTimeout(() => settle(), 400);
+        window.setTimeout(() => settle(), 560);
       });
     });
   }
@@ -1020,25 +1137,26 @@
         resolve();
       };
       sheetViewportFrozen = true;
-      dialog.classList.remove("is-settled", "is-entering");
-      const slide = Math.round(window.innerHeight || panel?.offsetHeight || 800);
+      const slide = panel ? sheetHeight(panel) : 0;
       if (panel) {
-        panel.style.transition = "none";
-        panel.style.transform = "translate3d(0, 0, 0)";
-        void panel.offsetHeight;
+        panel.style.height = `${slide}px`;
         panel.style.willChange = "transform";
-        panel.style.transition = "transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)";
+        holdSheet(panel, 0);
+        void panel.offsetHeight;
+      }
+      dialog.classList.remove("is-settled", "is-entering", "is-open");
+      dialog.classList.add("is-closing");
+      if (panel) {
+        panel.style.transition = SHEET_FALL;
         panel.style.transform = `translate3d(0, ${slide}px, 0)`;
       }
-      dialog.classList.add("is-closing");
-      dialog.classList.remove("is-open");
       const onEnd = (e) => {
         if (e.target !== panel || e.propertyName !== "transform") return;
         panel.removeEventListener("transitionend", onEnd);
         finish();
       };
       panel?.addEventListener("transitionend", onEnd);
-      window.setTimeout(finish, 360);
+      window.setTimeout(finish, 480);
     });
   }
 
@@ -1115,7 +1233,7 @@
         return;
       }
       dialog.classList.remove("is-settled");
-      panel.style.transition = "transform 0.24s cubic-bezier(0.32, 0.72, 0, 1)";
+      panel.style.transition = SHEET_RISE;
       panel.style.transform = "translate3d(0, 0, 0)";
       const clear = () => {
         resetDragStyles();
@@ -1123,7 +1241,7 @@
         panel.removeEventListener("transitionend", clear);
       };
       panel.addEventListener("transitionend", clear);
-      window.setTimeout(clear, 280);
+      window.setTimeout(clear, 520);
     }
 
     // Handle-only drag. Body gestures must stay free so the sheet can scroll.
@@ -1921,7 +2039,8 @@
     writeCache(payload);
     applyDashboardData(payload);
     setLoading(false);
-    if (!opts.silent) setBanner("", null);
+    if (!opts.silent && !statusIsAlert) setBanner("", null);
+    if (!opts.silent) maybeNudgeNotifications();
   }
 
   function clearEmployeeErrors() {

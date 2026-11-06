@@ -235,12 +235,17 @@ body.join-page {
   .join-main {
     display: block;
     min-height: 0;
+    max-width: 100%;
     padding: 5.75rem 0 2.75rem;
   }
 
   .join-shell {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     margin: 0;
+    padding-inline: 1.15rem;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -253,8 +258,9 @@ body.join-page {
     align-items: center;
     text-align: center;
     width: 100%;
+    max-width: 100%;
     margin: 0;
-    padding: 1.75rem 1.35rem 0.25rem;
+    padding: 1.75rem 0.2rem 0.25rem;
     box-sizing: border-box;
   }
 
@@ -275,10 +281,12 @@ body.join-page {
   }
 
   .join-panel {
-    width: auto;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
     align-self: stretch;
-    margin: 0 0.875rem;
+    margin: 0;
+    box-sizing: border-box;
   }
 
   .join-form,
@@ -503,11 +511,16 @@ body.created-page {
 
 @media (max-width: 899px) {
   .created-main {
+    max-width: 100%;
     padding: 5.75rem 0 2.75rem;
   }
 
   .created-shell {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding-inline: 1.15rem;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -526,7 +539,9 @@ body.created-page {
   .created-empty {
     align-items: center;
     text-align: center;
-    padding: 1.75rem 1.35rem 0.25rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 1.75rem 0.2rem 0.25rem;
     box-sizing: border-box;
   }
 
@@ -542,10 +557,12 @@ body.created-page {
   }
 
   .created-panel {
-    width: auto;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
     align-self: stretch;
-    margin: 0 0.875rem;
+    margin: 0;
+    box-sizing: border-box;
   }
 
   .created-empty .discover {
