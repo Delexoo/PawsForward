@@ -3,6 +3,14 @@
   padding: 1.5rem 1.1rem 4rem;
 }
 
+.signin-main {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: calc(5.25rem + env(safe-area-inset-top, 0px)) 1.1rem 2.5rem;
+  box-sizing: border-box;
+}
+
 .account-shell,
 .signin-shell {
   width: min(720px, 100%);
@@ -25,6 +33,11 @@
 .signin-lead {
   margin: 0 0 1.1rem;
   color: #3a3a3c;
+}
+
+.signin-shell h1,
+.signin-lead {
+  text-align: center;
 }
 
 .account-stats {
