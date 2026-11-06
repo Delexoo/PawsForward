@@ -27,18 +27,32 @@ as $$
 $$;
 
 revoke all on function public.is_operator() from public;
-grant execute on function public.is_operator() to anon, authenticated;
+grant execute on function public.is_operator() to anon, authenticated, service_role;
 
 create or replace function public.protect_employee_self_update()
 returns trigger
 language plpgsql
+security definer
+set search_path = public
 as $$
 begin
-  if auth.uid() is null or public.is_operator() then
+  if coalesce(auth.jwt() ->> 'role', '') = 'service_role' or auth.uid() is null then
     return new;
   end if;
+  if public.is_operator() then
+    return new;
+  end if;
+
+  if new.user_id is distinct from old.user_id
+     and not (
+       new.user_id = auth.uid()
+       and (old.user_id is null or old.user_id = auth.uid())
+     )
+  then
+    raise exception 'You can only change your payout method.' using errcode = '42501';
+  end if;
+
   if new.id is distinct from old.id
-     or new.user_id is distinct from old.user_id
      or new.referral_code is distinct from old.referral_code
      or new.email is distinct from old.email
      or new.phone is distinct from old.phone
