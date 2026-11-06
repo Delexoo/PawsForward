@@ -82,12 +82,34 @@
   setupListingSlides();
 
   const video = document.querySelector(".hero-video");
-  if (video) {
-    const play = () => {
-      const p = video.play();
-      if (p && typeof p.catch === "function") p.catch(() => {});
+  if (video && media) {
+    let gaveUp = false;
+    const showStill = () => {
+      gaveUp = true;
+      media.classList.remove("is-playing");
+      video.pause();
     };
-    video.addEventListener("canplay", play);
-    if (video.readyState >= 2) play();
+    const showVideo = () => {
+      if (gaveUp || video.paused || video.readyState < 2) return;
+      media.classList.add("is-playing");
+    };
+    const tryPlay = () => {
+      if (gaveUp || reduced) return;
+      const pending = video.play();
+      if (pending && typeof pending.then === "function") {
+        pending.then(showVideo).catch(showStill);
+        return;
+      }
+      showVideo();
+    };
+    video.addEventListener("playing", showVideo);
+    video.addEventListener("error", showStill);
+    if (reduced) showStill();
+    else {
+      tryPlay();
+      window.setTimeout(() => {
+        if (!media.classList.contains("is-playing")) showStill();
+      }, 2500);
+    }
   }
 })();

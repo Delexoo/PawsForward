@@ -159,12 +159,39 @@
     return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   }
 
+  let dockIndicatorReady = false;
+
+  function moveDockIndicator(animate) {
+    const tabs = document.querySelector(".pf-dock-tabs");
+    const active = tabs?.querySelector(".pf-dock-tab.is-active");
+    if (!tabs || !active) return;
+    let indicator = tabs.querySelector(".pf-dock-indicator");
+    if (!indicator) {
+      indicator = document.createElement("span");
+      indicator.className = "pf-dock-indicator";
+      indicator.setAttribute("aria-hidden", "true");
+      tabs.prepend(indicator);
+    }
+    const shouldAnimate = animate && dockIndicatorReady && !prefersReducedMotion();
+    if (!shouldAnimate) indicator.style.transition = "none";
+    indicator.style.width = `${active.offsetWidth}px`;
+    indicator.style.height = `${active.offsetHeight}px`;
+    indicator.style.transform = `translate3d(${active.offsetLeft}px, ${active.offsetTop}px, 0)`;
+    if (!shouldAnimate) {
+      indicator.getBoundingClientRect();
+      indicator.style.transition = "";
+    }
+    tabs.classList.add("is-ready");
+    dockIndicatorReady = true;
+  }
+
   function syncAdminNav(next) {
     document.querySelectorAll("[data-admin-nav]").forEach((btn) => {
       const active = btn.getAttribute("data-admin-nav") === next;
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", active ? "true" : "false");
     });
+    moveDockIndicator(true);
     try {
       sessionStorage.setItem(ADMIN_PAGE_KEY, next);
     } catch {
@@ -236,7 +263,7 @@
         if (page === "settings") {
           const settings = readSettings();
           const wants = settings.notifyQrCreated || settings.notifyQrScanned || settings.notifyDonation;
-          if (wants) void ensureNotifyPermission().then(() => syncSettingsNote());
+          if (wants) void ensureNotifyPermission();
         }
         setAdminPage(page);
       });
@@ -248,6 +275,13 @@
       /* ignore */
     }
     setAdminPage(normalizeAdminPage(initial), { instant: true });
+    const tabs = document.querySelector(".pf-dock-tabs");
+    if (tabs && window.ResizeObserver) {
+      const observer = new ResizeObserver(() => moveDockIndicator(false));
+      observer.observe(tabs);
+    } else {
+      window.addEventListener("resize", () => moveDockIndicator(false));
+    }
   }
 
   function readSettings() {
@@ -269,45 +303,12 @@
     }
   }
 
-  function autoLoginNote(settings) {
-    const until = Number(window.SiteSupabase?.autoLoginUntil?.() || 0);
-    if (!settings.autoLogin || until <= Date.now()) return "";
-    const when = new Date(until).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-    return ` Auto login skips the PIN until ${when}.`;
-  }
-
-  function syncSettingsNote() {
-    const note = document.getElementById("settings-note");
-    if (!note) return;
-    const settings = readSettings();
-    const auto = autoLoginNote(settings);
-    const wantsAlert = settings.notifyQrCreated || settings.notifyQrScanned || settings.notifyDonation;
-    if (!wantsAlert) {
-      note.textContent = `Push notifications are off. Turn one on to get alerts on this device.${auto}`;
-      return;
-    }
-    if (!("Notification" in window)) {
-      note.textContent = `This browser cannot show system alerts. New activity still appears in the dashboard.${auto}`;
-      return;
-    }
-    if (Notification.permission === "denied") {
-      note.textContent = `Notifications are blocked. Allow them for this site in the browser settings.${auto}`;
-      return;
-    }
-    if (Notification.permission !== "granted") {
-      note.textContent = `Allow notifications so alerts can reach this device while the dashboard is open.${auto}`;
-      return;
-    }
-    note.textContent = `Alerts are on for this device while the dashboard stays open.${auto}`;
-  }
-
   function applySettingsForm() {
     const settings = readSettings();
     document.querySelectorAll("[data-setting]").forEach((input) => {
       const key = input.getAttribute("data-setting");
       input.checked = Boolean(settings[key]);
     });
-    syncSettingsNote();
   }
 
   async function ensureNotifyPermission() {
@@ -398,8 +399,6 @@
 
   function pushAlert(title, body, tag) {
     playAlertSound();
-    setBanner(`${title}. ${body}`, "ok");
-    statusIsAlert = true;
     void showSystemAlert(title, body, tag);
   }
 
@@ -475,7 +474,7 @@
         freshVisits.forEach((visit) => {
           const emp = employeeForRecord(visit, employees);
           const who = emp ? `${personLabel(emp)}'s QR` : "A QR code";
-          const place = [visit.city, visit.region, visit.country].filter(Boolean).join(", ");
+          const place = formatPlace(visit);
           const body = place ? `${who} was scanned in ${place}.` : `${who} was scanned.`;
           pushAlert("QR scan", body, `scan-${visitKeys(visit)[0]}`);
         });
@@ -520,7 +519,6 @@
     if (wants && "Notification" in window && Notification.permission === "default") {
       await ensureNotifyPermission();
     }
-    syncSettingsNote();
   }
 
   function wireSettings() {
@@ -538,7 +536,6 @@
           input.checked = false;
           settings[key] = false;
           writeSettings(settings);
-          syncSettingsNote();
           syncAlertPolling();
           return;
         }
@@ -552,13 +549,12 @@
             input.checked = false;
             settings.autoLogin = false;
             writeSettings(settings);
-            setBanner("Sign in again before turning on auto login.", "err");
+            setBanner("Sign in again before turning on Bypass PIN.", "err");
           }
         } else {
           window.SiteSupabase?.clearAutoSession?.();
         }
       }
-      syncSettingsNote();
       syncAlertPolling();
       if (input.checked && isAlert && !hadPermission && Notification.permission === "granted") {
         pushAlert(
@@ -578,7 +574,6 @@
     document.getElementById("admin-status")?.addEventListener("click", () => {
       if (!("Notification" in window) || Notification.permission !== "default") return;
       void ensureNotifyPermission().then((allowed) => {
-        syncSettingsNote();
         if (allowed) {
           pushAlert(
             "Notifications are on",
@@ -1344,9 +1339,76 @@
     });
   }
 
+  const REGION_ABBR = {
+    alabama: "AL",
+    alaska: "AK",
+    arizona: "AZ",
+    arkansas: "AR",
+    california: "CA",
+    colorado: "CO",
+    connecticut: "CT",
+    delaware: "DE",
+    florida: "FL",
+    georgia: "GA",
+    hawaii: "HI",
+    idaho: "ID",
+    illinois: "IL",
+    indiana: "IN",
+    iowa: "IA",
+    kansas: "KS",
+    kentucky: "KY",
+    louisiana: "LA",
+    maine: "ME",
+    maryland: "MD",
+    massachusetts: "MA",
+    michigan: "MI",
+    minnesota: "MN",
+    mississippi: "MS",
+    missouri: "MO",
+    montana: "MT",
+    nebraska: "NE",
+    nevada: "NV",
+    "new hampshire": "NH",
+    "new jersey": "NJ",
+    "new mexico": "NM",
+    "new york": "NY",
+    "north carolina": "NC",
+    "north dakota": "ND",
+    ohio: "OH",
+    oklahoma: "OK",
+    oregon: "OR",
+    pennsylvania: "PA",
+    "rhode island": "RI",
+    "south carolina": "SC",
+    "south dakota": "SD",
+    tennessee: "TN",
+    texas: "TX",
+    utah: "UT",
+    vermont: "VT",
+    virginia: "VA",
+    washington: "WA",
+    "west virginia": "WV",
+    wisconsin: "WI",
+    wyoming: "WY",
+    "district of columbia": "DC",
+  };
+
+  function shortRegion(region) {
+    const value = String(region || "").trim();
+    if (!value) return "";
+    if (/^[A-Za-z]{2}$/.test(value)) return value.toUpperCase();
+    return REGION_ABBR[value.toLowerCase()] || value;
+  }
+
   function formatPlace(parts) {
-    const cleaned = [parts.city, parts.region, parts.country].filter(Boolean);
-    return cleaned.length ? cleaned.join(", ") : "";
+    const city = String(parts?.city || "").trim();
+    const region = shortRegion(parts?.region);
+    if (city && region) return `${city}, ${region}`;
+    if (city) return city;
+    if (region) return region;
+    const country = String(parts?.country || "").trim();
+    if (/^(united states|united states of america|usa|us)$/i.test(country)) return "";
+    return country;
   }
 
   function buildLocationIndex(visits) {
@@ -1882,7 +1944,7 @@
       const key = formatPlace(v) || "Unknown";
       counts.set(key, (counts.get(key) || 0) + 1);
     });
-    const ranked = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const ranked = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
     if (!els.geoChart) return;
     els.geoChart.innerHTML = "";
     if (!ranked.length) {
@@ -1891,60 +1953,21 @@
     }
     if (els.geoEmpty) els.geoEmpty.hidden = true;
 
-    const max = ranked[0][1] || 1;
-    const rowH = 11;
-    const labelW = 96;
-    const gap = 3;
-    const chartW = 260;
-    const barMax = chartW - labelW - 18;
-    const height = ranked.length * rowH + 1;
-    const ns = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(ns, "svg");
-    svg.setAttribute("viewBox", `0 0 ${chartW} ${height}`);
-    svg.setAttribute("class", "pf-geo-svg");
-    svg.setAttribute("role", "presentation");
-    svg.setAttribute("preserveAspectRatio", "xMinYMin meet");
-
-    ranked.forEach(([label, count], i) => {
-      const y = i * rowH;
-      const barW = Math.max(3, Math.round((count / max) * barMax));
-      const short = label.length > 16 ? label.slice(0, 14) + "…" : label;
-
-      const text = document.createElementNS(ns, "text");
-      text.setAttribute("x", "0");
-      text.setAttribute("y", String(y + 8));
-      text.setAttribute("class", "pf-geo-label");
-      text.textContent = short;
-      text.appendChild(document.createElementNS(ns, "title")).textContent = `${label}: ${count}`;
-      svg.appendChild(text);
-
-      const track = document.createElementNS(ns, "rect");
-      track.setAttribute("x", String(labelW));
-      track.setAttribute("y", String(y + 3));
-      track.setAttribute("width", String(barMax));
-      track.setAttribute("height", "4");
-      track.setAttribute("rx", "2");
-      track.setAttribute("class", "pf-geo-track");
-      svg.appendChild(track);
-
-      const bar = document.createElementNS(ns, "rect");
-      bar.setAttribute("x", String(labelW));
-      bar.setAttribute("y", String(y + 3));
-      bar.setAttribute("width", String(barW));
-      bar.setAttribute("height", "4");
-      bar.setAttribute("rx", "2");
-      bar.setAttribute("class", "pf-geo-bar");
-      svg.appendChild(bar);
-
-      const countText = document.createElementNS(ns, "text");
-      countText.setAttribute("x", String(labelW + barW + gap));
-      countText.setAttribute("y", String(y + 8));
-      countText.setAttribute("class", "pf-geo-count");
-      countText.textContent = String(count);
-      svg.appendChild(countText);
+    const list = document.createElement("ul");
+    list.className = "pf-geo-list";
+    ranked.forEach(([label, count]) => {
+      const li = document.createElement("li");
+      li.className = "pf-geo-row";
+      const name = document.createElement("span");
+      name.className = "pf-geo-name";
+      name.textContent = label;
+      const num = document.createElement("span");
+      num.className = "pf-geo-num";
+      num.textContent = String(count);
+      li.append(name, num);
+      list.appendChild(li);
     });
-
-    els.geoChart.appendChild(svg);
+    els.geoChart.appendChild(list);
   }
 
   function applyDashboardData({ employees, donations, payouts, visits, donors24h }) {

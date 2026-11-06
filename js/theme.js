@@ -90,8 +90,7 @@
     } else if (theme === "dark") {
       nextTheme = "dark";
     } else {
-      const prefersDark = global.matchMedia?.("(prefers-color-scheme: dark)")?.matches;
-      nextTheme = prefersDark ? "dark" : "light";
+      nextTheme = "light";
     }
 
     const uiColor = readUiColor();

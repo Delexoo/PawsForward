@@ -41,6 +41,7 @@
   --scrollbar-thumb-hover: rgba(15, 23, 42, 0.28);
   --ui-scale: 1.1;
   --course-panel-scale: 1;
+  color-scheme: only light;
 }
 
 /* Desktop: roomier type and controls (mobile keeps 1.1). */
@@ -52,7 +53,7 @@
 
 /* Bold modern visual refresh for dark mode. */
 html[data-theme="dark"] {
-  color-scheme: dark;
+  color-scheme: only light;
   --bg: #07090f;
   --bg-top: #0d111c;
   --bg-bottom: #05070c;
@@ -15348,7 +15349,7 @@ body.legal-logged-in .legal-standalone-foot {
 
 /* Dark theme - super dark grey (full site) */
 html[data-theme="dark"] {
-  color-scheme: dark;
+  color-scheme: only light;
   --bg: #09090b;
   --bg-top: #0c0c0e;
   --bg-bottom: #050506;
@@ -19754,7 +19755,7 @@ html[data-theme="dark"] .course-summary-trigger {
 /* Bold modern final cascade guard */
 :root,
 html[data-theme="dark"] {
-  color-scheme: dark;
+  color-scheme: only light;
   --bg: #080a12;
   --bg-top: #080a12;
   --bg-bottom: #080a12;
@@ -20259,7 +20260,7 @@ html[data-theme="dark"] .lf-toggle-btn.active,
 /* Luxury slim visual layer */
 :root,
 html[data-theme="dark"] {
-  color-scheme: dark;
+  color-scheme: only light;
   --bg: #070708;
   --bg-top: #11100f;
   --bg-bottom: #030304;
@@ -20823,7 +20824,7 @@ html[data-ui-color="white"] {
 }
 
 html[data-ui-color="black"] {
-  color-scheme: dark;
+  color-scheme: only light;
   --bg: #070707;
   --bg-top: #111111;
   --bg-bottom: #000000;

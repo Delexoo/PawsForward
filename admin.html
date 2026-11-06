@@ -6,6 +6,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Paws Forward">
   <meta name="theme-color" content="#0f172a">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light">
   <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="PawsForward admin console — track donations, volunteer QR codes, payouts owed, and supportive locations. Operators only.">
   <link rel="canonical" href="https://joinpawsforward.com/admin">
@@ -19,9 +21,9 @@
     document.documentElement.setAttribute("data-theme", "light");
     document.documentElement.setAttribute("data-ui-color", "white");
   </script>
-  <script src="js/theme.js?v=20261108ab"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261110i">
-  <link rel="stylesheet" href="css/paws.css?v=20261110y">
+  <script src="js/theme.js?v=20261111e"></script>
+  <link rel="stylesheet" href="css/site.css?v=20261111e">
+  <link rel="stylesheet" href="css/paws.css?v=20261111g">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
@@ -112,7 +114,7 @@
         </div>
         <div class="pf-activity-locations">
           <h3 class="pf-mini-subheading">Locations</h3>
-          <div class="pf-geo-chart" id="geo-chart" role="img" aria-label="Supportive locations chart"></div>
+          <div class="pf-geo-chart" id="geo-chart" aria-label="Supportive locations"></div>
           <div class="dash-empty" id="geo-empty" hidden>
             <p class="dash-empty-title">No visit data yet</p>
             <p class="dash-empty-desc">Visit analytics will show up here when available.</p>
@@ -183,7 +185,7 @@
           <div class="pf-settings-list">
             <label class="pf-setting" for="set-auto-login">
               <span class="pf-setting-copy">
-                <span class="pf-setting-title">Auto login</span>
+                <span class="pf-setting-title">Bypass PIN</span>
                 <span class="pf-setting-desc">Skip the PIN on this device for 7 days, including after you reopen the app.</span>
               </span>
               <input class="pf-switch" id="set-auto-login" type="checkbox" role="switch" data-setting="autoLogin">
@@ -211,7 +213,6 @@
             </label>
           </div>
 
-          <p class="pf-settings-note" id="settings-note" role="status"></p>
           <button type="button" class="pf-settings-signout" id="settings-lock-btn">Sign out</button>
         </div>
       </section>
@@ -219,6 +220,7 @@
 
     <nav class="pf-dock" aria-label="PawsForward admin">
       <div class="pf-dock-tabs" role="tablist" aria-label="Dashboard pages">
+        <span class="pf-dock-indicator" aria-hidden="true"></span>
         <button type="button" class="pf-dock-tab is-active" role="tab" aria-selected="true" aria-controls="overview" data-admin-nav="dashboard"><span class="pf-dock-tab-full">Dashboard</span><span class="pf-dock-tab-short" aria-hidden="true">Home</span></button>
         <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" aria-controls="employees" data-admin-nav="employees"><span class="pf-dock-tab-full">Volunteers</span><span class="pf-dock-tab-short" aria-hidden="true">Team</span></button>
         <button type="button" class="pf-dock-tab" role="tab" aria-selected="false" aria-controls="donations" data-admin-nav="donations"><span class="pf-dock-tab-full">Donations</span><span class="pf-dock-tab-short" aria-hidden="true">Gifts</span></button>
@@ -474,6 +476,6 @@
   <script src="js/shell.js?v=20261108v"></script>
   <script src="js/vendor/qrcode.min.js?v=20261108v"></script>
   <script src="js/qr.js?v=20261108v"></script>
-  <script src="js/admin.js?v=20261110s"></script>
+  <script src="js/admin.js?v=20261111h"></script>
 </body>
 </html>
