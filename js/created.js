@@ -123,19 +123,8 @@
     if (els.empty) els.empty.hidden = false;
   }
 
-  function shareMessage(url) {
-    return `Help this dog charity, donate any amount here:\n${url}`;
-  }
-
-  async function qrShareFile(url, code) {
-    try {
-      const dataUrl = await window.PfQr.toDataURL(url, 512);
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      return new File([blob], `pawsforward-${code || "qr"}.png`, { type: "image/png" });
-    } catch {
-      return null;
-    }
+  function shareText() {
+    return "Help this dog charity, donate any amount here:";
   }
 
   async function emailWelcome(record) {
@@ -287,16 +276,13 @@
 
   els.share?.addEventListener("click", async () => {
     if (!current.url) return;
-    const text = shareMessage(current.url);
+    const text = shareText();
+    const message = `${text}\n${current.url}`;
     try {
       if (navigator.share) {
-        const file = await qrShareFile(current.url, current.code);
-        const canFiles = file && navigator.canShare && navigator.canShare({ files: [file] });
-        if (canFiles) {
-          await navigator.share({ title: "Help this dog charity", text, files: [file] });
-        } else {
-          await navigator.share({ title: "Help this dog charity", text, url: current.url });
-        }
+        const withUrl = { title: "Help this dog charity", text, url: current.url };
+        const canSeparate = !navigator.canShare || navigator.canShare(withUrl);
+        await navigator.share(canSeparate ? withUrl : { title: "Help this dog charity", text: message });
         setBanner("Share sheet opened.", "ok");
         return;
       }
@@ -305,7 +291,7 @@
       console.warn(err);
     }
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(message);
       setBanner("Share message copied — paste it anywhere.", "ok");
     } catch {
       setBanner("Could not share — copy your donation link instead.", "err");
