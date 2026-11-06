@@ -1123,10 +1123,6 @@
             sheetViewportFrozen = false;
             return;
           }
-          panel.style.transition = "none";
-          panel.style.transform = "translate3d(0, 0, 0)";
-          panel.style.willChange = "auto";
-          panel.style.height = "";
           dialog.classList.add("is-settled");
           sheetViewportFrozen = false;
         };
