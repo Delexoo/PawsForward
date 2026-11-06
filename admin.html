@@ -21,7 +21,7 @@
   </script>
   <script src="js/theme.js?v=20261108ab"></script>
   <link rel="stylesheet" href="css/site.css?v=20261110i">
-  <link rel="stylesheet" href="css/paws.css?v=20261110w">
+  <link rel="stylesheet" href="css/paws.css?v=20261110x">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
@@ -41,12 +41,15 @@
     })();
   </script>
   <script src="js/vendor/supabase.js?v=20261108v"></script>
-  <script src="js/supabase-client.js?v=20261108v"></script>
-  <script src="js/pin-lock.js?v=20261108v"></script>
+  <script src="js/supabase-client.js?v=20261110r"></script>
+  <script src="js/pin-lock.js?v=20261110r"></script>
   <script>
     (function () {
       try {
-        if (sessionStorage.getItem("pf_site_unlock_v1") === "1") {
+        var auto = null;
+        try { auto = JSON.parse(localStorage.getItem("pf_auto_login_v1") || "null"); } catch (err) { auto = null; }
+        var autoOn = !!(auto && auto.refresh_token && Number(auto.until) > Date.now());
+        if (autoOn || sessionStorage.getItem("pf_site_unlock_v1") === "1") {
           document.documentElement.classList.remove("site-lock-active");
           document.addEventListener("DOMContentLoaded", function () {
             document.body.classList.add("site-unlocked");
@@ -178,6 +181,13 @@
 
           <h3 class="pf-settings-group">More</h3>
           <div class="pf-settings-list">
+            <label class="pf-setting" for="set-auto-login">
+              <span class="pf-setting-copy">
+                <span class="pf-setting-title">Auto login</span>
+                <span class="pf-setting-desc">Skip the PIN on this device for 7 days, including after you reopen the app.</span>
+              </span>
+              <input class="pf-switch" id="set-auto-login" type="checkbox" role="switch" data-setting="autoLogin">
+            </label>
             <label class="pf-setting" for="set-auto-refresh">
               <span class="pf-setting-copy">
                 <span class="pf-setting-title">Auto refresh</span>
@@ -464,6 +474,6 @@
   <script src="js/shell.js?v=20261108v"></script>
   <script src="js/vendor/qrcode.min.js?v=20261108v"></script>
   <script src="js/qr.js?v=20261108v"></script>
-  <script src="js/admin.js?v=20261110q"></script>
+  <script src="js/admin.js?v=20261110r"></script>
 </body>
 </html>

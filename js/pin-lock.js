@@ -8,6 +8,8 @@
   const UNLOCK_KEY = "pf_site_unlock_v1";
   const ACTIVITY_KEY = "pf_site_activity_v1";
   const FAIL_KEY = "pf_pin_fail_v1";
+  const AUTO_KEY = "pf_auto_login_v1";
+  const SETTINGS_KEY = "pf_admin_settings_v1";
   const MAX_FAIL = 8;
   const LOCKOUT_MS = 5 * 60 * 1000;
   const IDLE_MS = 24 * 60 * 60 * 1000; // end session after 24h idle
@@ -38,8 +40,35 @@
     }
   }
 
+  function autoLoginActive() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(AUTO_KEY) || "null");
+      const until = Number(parsed?.until) || 0;
+      if (!parsed?.refresh_token || until <= Date.now()) {
+        if (parsed) localStorage.removeItem(AUTO_KEY);
+        return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function autoLoginEnabled() {
+    try {
+      return Boolean(JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}").autoLogin);
+    } catch {
+      return false;
+    }
+  }
+
   function isUnlocked() {
     try {
+      if (autoLoginActive()) {
+        sessionStorage.setItem(UNLOCK_KEY, "1");
+        touchActivity();
+        return true;
+      }
       if (sessionStorage.getItem(UNLOCK_KEY) !== "1") return false;
       if (idleExpired()) {
         lock();
@@ -171,6 +200,7 @@
         refresh_token: body.refresh_token,
       });
       unlock();
+      if (autoLoginEnabled()) await global.SiteSupabase?.persistAutoSession?.();
       return { ok: true };
     } catch (err) {
       console.error(err);
@@ -217,8 +247,10 @@
   }
 
   function bootUi() {
-    if (isUnlocked()) applyUnlockedUi();
-    else if (isLoginPage()) {
+    if (isUnlocked()) {
+      applyUnlockedUi();
+      if (isLoginPage()) requireUnlock();
+    } else if (isLoginPage()) {
       document.documentElement.classList.remove("site-lock-active");
       document.body?.classList.remove("site-unlocked");
     } else if (isAdminPage()) applyLockedUi();

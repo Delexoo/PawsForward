@@ -137,6 +137,7 @@
     notifySound: false,
     confirmDeletes: true,
     autoRefresh: true,
+    autoLogin: false,
   };
   let alertsPrimed = false;
   let statusIsAlert = false;
@@ -268,28 +269,36 @@
     }
   }
 
+  function autoLoginNote(settings) {
+    const until = Number(window.SiteSupabase?.autoLoginUntil?.() || 0);
+    if (!settings.autoLogin || until <= Date.now()) return "";
+    const when = new Date(until).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    return ` Auto login skips the PIN until ${when}.`;
+  }
+
   function syncSettingsNote() {
     const note = document.getElementById("settings-note");
     if (!note) return;
     const settings = readSettings();
+    const auto = autoLoginNote(settings);
     const wantsAlert = settings.notifyQrCreated || settings.notifyQrScanned || settings.notifyDonation;
     if (!wantsAlert) {
-      note.textContent = "Push notifications are off. Turn one on to get alerts on this device.";
+      note.textContent = `Push notifications are off. Turn one on to get alerts on this device.${auto}`;
       return;
     }
     if (!("Notification" in window)) {
-      note.textContent = "This browser cannot show system alerts. New activity still appears in the dashboard.";
+      note.textContent = `This browser cannot show system alerts. New activity still appears in the dashboard.${auto}`;
       return;
     }
     if (Notification.permission === "denied") {
-      note.textContent = "Notifications are blocked. Allow them for this site in the browser settings.";
+      note.textContent = `Notifications are blocked. Allow them for this site in the browser settings.${auto}`;
       return;
     }
     if (Notification.permission !== "granted") {
-      note.textContent = "Allow notifications so alerts can reach this device while the dashboard is open.";
+      note.textContent = `Allow notifications so alerts can reach this device while the dashboard is open.${auto}`;
       return;
     }
-    note.textContent = "Alerts are on for this device while the dashboard stays open.";
+    note.textContent = `Alerts are on for this device while the dashboard stays open.${auto}`;
   }
 
   function applySettingsForm() {
@@ -536,6 +545,19 @@
       }
       settings[key] = Boolean(input.checked);
       writeSettings(settings);
+      if (key === "autoLogin") {
+        if (input.checked) {
+          const until = await window.SiteSupabase?.persistAutoSession?.();
+          if (!until) {
+            input.checked = false;
+            settings.autoLogin = false;
+            writeSettings(settings);
+            setBanner("Sign in again before turning on auto login.", "err");
+          }
+        } else {
+          window.SiteSupabase?.clearAutoSession?.();
+        }
+      }
       syncSettingsNote();
       syncAlertPolling();
       if (input.checked && isAlert && !hadPermission && Notification.permission === "granted") {
@@ -547,6 +569,9 @@
       }
     });
     document.getElementById("settings-lock-btn")?.addEventListener("click", async () => {
+      const settings = readSettings();
+      settings.autoLogin = false;
+      writeSettings(settings);
       await window.SitePin?.lock?.();
       location.replace("/login");
     });
@@ -2643,6 +2668,9 @@
 
     document.body.classList.add("site-unlocked");
     document.getElementById("admin-lock-btn")?.addEventListener("click", async () => {
+      const settings = readSettings();
+      settings.autoLogin = false;
+      writeSettings(settings);
       await window.SitePin?.lock?.();
       location.replace("/login");
     });
