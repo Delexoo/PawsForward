@@ -3880,18 +3880,68 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
     overscroll-behavior: contain;
   }
 
-  .pf-employee-row {
-    flex-direction: row;
+  body[data-page="admin"] .pf-employee-row {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "avatar name action"
+      "stats stats stats";
     align-items: center;
-    gap: 8px;
-    flex-wrap: nowrap;
+    column-gap: 8px;
+    row-gap: 6px;
   }
 
-  .pf-employee-stats {
-    max-width: 100%;
+  body[data-page="admin"] .pf-employee-identity,
+  body[data-page="admin"] .pf-employee-main {
+    display: contents;
   }
 
-  .pf-employee-actions {
+  body[data-page="admin"] .pf-employee-row .pf-avatar {
+    grid-area: avatar;
+    align-self: start;
+    margin-top: 1px;
+  }
+
+  body[data-page="admin"] .pf-employee-name-row {
+    grid-area: name;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 6px;
+    row-gap: 1px;
+  }
+
+  body[data-page="admin"] .pf-employee-main strong {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="admin"] .pf-employee-joined {
+    margin-left: auto;
+  }
+
+  body[data-page="admin"] .pf-employee-stats {
+    grid-area: stats;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    max-width: none;
+    gap: 4px;
+    margin-top: 0;
+  }
+
+  body[data-page="admin"] .pf-stat-chip {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+  }
+
+  body[data-page="admin"] .pf-employee-actions {
+    grid-area: action;
+    align-self: start;
     max-width: none;
     width: auto;
     display: flex;
@@ -3905,6 +3955,49 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
     justify-content: center;
     padding-inline: 8px;
     font-size: 11px;
+  }
+
+  /* Mobile L: four stats fit on one line */
+  @media (min-width: 400px) {
+    body[data-page="admin"] .pf-employee-stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    body[data-page="admin"] .pf-stat-chip {
+      padding-inline: 4px;
+      gap: 2px;
+    }
+  }
+
+  /* Mobile S: stack the header buttons and tighten the card */
+  @media (max-width: 359px) {
+    body[data-page="admin"] .pf-section-head--compact .pf-section-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    body[data-page="admin"] .pf-section-head--compact .pf-section-actions .pf-tool-btn,
+    body[data-page="admin"] .pf-section-head--compact .pf-tool-btn--primary {
+      width: 100%;
+      flex: 1 1 auto;
+    }
+
+    body[data-page="admin"] .pf-employee-row {
+      padding: 8px;
+      column-gap: 6px;
+    }
+
+    body[data-page="admin"] .pf-employee-main strong {
+      font-size: 0.8rem;
+    }
+
+    body[data-page="admin"] .pf-stat-chip-label {
+      font-size: 7px;
+    }
+
+    body[data-page="admin"] .pf-stat-chip-value {
+      font-size: 10px;
+    }
   }
 
   .pf-emp-detail-stats {
