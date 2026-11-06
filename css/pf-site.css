@@ -197,7 +197,7 @@ main { flex: 1; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: safe center;
   gap: 0.2rem;
   width: 100%;
   height: 100%;
@@ -206,6 +206,8 @@ main { flex: 1; }
   box-sizing: border-box;
   background: #fff;
   text-align: center;
+  overflow-x: hidden;
+  overflow-y: auto;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -218,13 +220,18 @@ main { flex: 1; }
   pointer-events: auto;
 }
 
-.menu-screen a {
+.menu-screen a,
+.menu-screen button {
   position: relative;
   display: block;
   width: fit-content;
   max-width: min(100%, 18ch);
   margin-inline: auto;
+  padding: 0;
+  border: 0;
+  background: none;
   color: #1d1d1f;
+  font: inherit;
   font-size: clamp(2.4rem, 7vw, 4.15rem);
   font-weight: 600;
   letter-spacing: -0.04em;
@@ -232,6 +239,7 @@ main { flex: 1; }
   text-align: center;
   text-decoration: none;
   text-wrap: balance;
+  cursor: pointer;
   opacity: 0;
   transform: translateY(1.75rem);
   transition:
@@ -256,7 +264,8 @@ main { flex: 1; }
 
 .menu-screen a:hover::after { transform: scaleX(1); }
 
-.topbar.is-open .menu-screen a {
+.topbar.is-open .menu-screen a,
+.topbar.is-open .menu-screen button {
   opacity: 1;
   transform: none;
   transition:
@@ -264,16 +273,21 @@ main { flex: 1; }
     transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.topbar.is-open .menu-screen a:nth-child(1) { transition-delay: 0.08s; }
-.topbar.is-open .menu-screen a:nth-child(2) { transition-delay: 0.16s; }
-.topbar.is-open .menu-screen a:nth-child(3) { transition-delay: 0.24s; }
-.topbar.is-open .menu-screen a:nth-child(4) { transition-delay: 0.32s; }
-.topbar.is-open .menu-screen a:nth-child(5) { transition-delay: 0.4s; }
-.topbar.is-open .menu-screen a:nth-child(6) { transition-delay: 0.48s; }
+.topbar.is-open .menu-screen > :nth-child(1) { transition-delay: 0.08s; }
+.topbar.is-open .menu-screen > :nth-child(2) { transition-delay: 0.16s; }
+.topbar.is-open .menu-screen > :nth-child(3) { transition-delay: 0.24s; }
+.topbar.is-open .menu-screen > :nth-child(4) { transition-delay: 0.32s; }
+.topbar.is-open .menu-screen > :nth-child(5) { transition-delay: 0.4s; }
+.topbar.is-open .menu-screen > :nth-child(6) { transition-delay: 0.48s; }
+.topbar.is-open .menu-screen > :nth-child(7) { transition-delay: 0.56s; }
+.topbar.is-open .menu-screen > :nth-child(8) { transition-delay: 0.64s; }
+.topbar.is-open .menu-screen > :nth-child(9) { transition-delay: 0.72s; }
+.topbar.is-open .menu-screen > :nth-child(10) { transition-delay: 0.8s; }
 
 @media (prefers-reduced-motion: reduce) {
   .menu-screen,
   .menu-screen a,
+  .menu-screen button,
   .menu-screen a::after,
   .menu-bars,
   .menu-bars::before,
