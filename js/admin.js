@@ -183,11 +183,33 @@
     }
     tabs.classList.add("is-ready");
     dockIndicatorReady = true;
-    const dock = tabs.closest(".pf-dock");
-    if (dock) {
-      const top = dock.getBoundingClientRect().top;
-      if (top > 0) {
-        document.body.style.setProperty("--pf-dock-space", `${Math.ceil(window.innerHeight - top + 18)}px`);
+    fitPanelsAboveDock(tabs.closest(".pf-dock"));
+  }
+
+  function fitPanelsAboveDock(dock) {
+    const bar = dock || document.querySelector(".pf-dock");
+    if (!bar) return;
+    const dockTop = bar.getBoundingClientRect().top;
+    if (dockTop < 48) return;
+    const gap = 8;
+    const rootBottom = document.documentElement.getBoundingClientRect().bottom;
+    const space = Math.ceil(rootBottom - dockTop + gap);
+    if (space > 48 && space < rootBottom) {
+      const nextSpace = `${space}px`;
+      if (document.body.style.getPropertyValue("--pf-dock-space") !== nextSpace) {
+        document.body.style.setProperty("--pf-dock-space", nextSpace);
+      }
+    }
+    const panel = document.querySelector(
+      ".pf-admin-page.is-active:not([hidden]):not(.is-enter):not(.is-exit)"
+    );
+    if (!panel) return;
+    const panelTop = panel.getBoundingClientRect().top;
+    const max = Math.floor(dockTop - panelTop - gap);
+    if (max > 160) {
+      const nextMax = `${max}px`;
+      if (document.body.style.getPropertyValue("--pf-panel-max") !== nextMax) {
+        document.body.style.setProperty("--pf-panel-max", nextMax);
       }
     }
   }
@@ -260,6 +282,7 @@
     incoming.classList.add("is-active");
     incoming.classList.remove("is-enter", "is-back");
     adminPageBusy = false;
+    requestAnimationFrame(() => fitPanelsAboveDock());
     if (next === "settings") void onSettingsOpened();
   }
 
@@ -283,12 +306,15 @@
     }
     setAdminPage(normalizeAdminPage(initial), { instant: true });
     const tabs = document.querySelector(".pf-dock-tabs");
+    const refit = () => moveDockIndicator(false);
     if (tabs && window.ResizeObserver) {
-      const observer = new ResizeObserver(() => moveDockIndicator(false));
+      const observer = new ResizeObserver(refit);
       observer.observe(tabs);
     } else {
-      window.addEventListener("resize", () => moveDockIndicator(false));
+      window.addEventListener("resize", refit);
     }
+    window.visualViewport?.addEventListener("resize", refit);
+    window.visualViewport?.addEventListener("scroll", refit);
   }
 
   function readSettings() {
@@ -560,6 +586,9 @@
           }
         } else {
           window.SiteSupabase?.clearAutoSession?.();
+          await window.SitePin?.lock?.();
+          location.replace("/login?next=admin");
+          return;
         }
       }
       syncAlertPolling();

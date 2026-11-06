@@ -6,9 +6,9 @@
   "use strict";
 
   const UNLOCK_KEY = "pf_site_unlock_v1";
+  const BYPASS_TAB_KEY = "pf_bypass_tab_v1";
   const ACTIVITY_KEY = "pf_site_activity_v1";
   const FAIL_KEY = "pf_pin_fail_v1";
-  const AUTO_KEY = "pf_auto_login_v1";
   const SETTINGS_KEY = "pf_admin_settings_v1";
   const MAX_FAIL = 8;
   const LOCKOUT_MS = 5 * 60 * 1000;
@@ -42,13 +42,7 @@
 
   function autoLoginActive() {
     try {
-      const parsed = JSON.parse(localStorage.getItem(AUTO_KEY) || "null");
-      const until = Number(parsed?.until) || 0;
-      if (!parsed?.refresh_token || until <= Date.now()) {
-        if (parsed) localStorage.removeItem(AUTO_KEY);
-        return false;
-      }
-      return true;
+      return global.SiteSupabase?.bypassPinActive?.() === true;
     } catch {
       return false;
     }
@@ -66,8 +60,14 @@
     try {
       if (autoLoginActive()) {
         sessionStorage.setItem(UNLOCK_KEY, "1");
+        sessionStorage.setItem(BYPASS_TAB_KEY, "1");
         touchActivity();
         return true;
+      }
+      if (sessionStorage.getItem(BYPASS_TAB_KEY) === "1") {
+        sessionStorage.removeItem(UNLOCK_KEY);
+        sessionStorage.removeItem(BYPASS_TAB_KEY);
+        return false;
       }
       if (sessionStorage.getItem(UNLOCK_KEY) !== "1") return false;
       if (idleExpired()) {
@@ -93,6 +93,7 @@
   function unlock() {
     try {
       sessionStorage.setItem(UNLOCK_KEY, "1");
+      sessionStorage.removeItem(BYPASS_TAB_KEY);
       touchActivity();
       localStorage.removeItem(FAIL_KEY);
     } catch {
@@ -104,7 +105,13 @@
   async function lock() {
     try {
       sessionStorage.removeItem(UNLOCK_KEY);
+      sessionStorage.removeItem(BYPASS_TAB_KEY);
       sessionStorage.removeItem(ACTIVITY_KEY);
+    } catch {
+      /* ignore */
+    }
+    try {
+      global.SiteSupabase?.clearAutoSession?.();
     } catch {
       /* ignore */
     }

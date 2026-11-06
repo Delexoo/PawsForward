@@ -283,8 +283,10 @@ body[data-page="admin"] .pf-admin-page.is-active:not([hidden]):not(.is-enter):no
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  scroll-padding-bottom: 20px;
-  padding-bottom: 20px;
+  scroll-padding-bottom: 12px;
+  padding-bottom: 12px;
+  height: var(--pf-panel-max, calc(100dvh - 88px - env(safe-area-inset-bottom, 0px)));
+  max-height: var(--pf-panel-max, calc(100dvh - 88px - env(safe-area-inset-bottom, 0px)));
 }
 
 body[data-page="admin"] .pf-admin-page.is-active:not([hidden]) > .pf-section-head,

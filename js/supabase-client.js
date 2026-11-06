@@ -9,7 +9,9 @@
   const STORAGE_KEY = "pf-admin-auth";
   const HANDOFF_PREFIX = "pf_auth_handoff_v1:";
   const AUTO_KEY = "pf_auto_login_v1";
+  const SETTINGS_KEY = "pf_admin_settings_v1";
   const AUTO_MS = 7 * 24 * 60 * 60 * 1000;
+  const AUTO_SKEW_MS = 60 * 1000;
 
   let client = null;
   /** In-memory auth storage — cleared on full page reload. */
@@ -64,6 +66,10 @@
       },
     });
     client.auth.onAuthStateChange((_event, session) => {
+      if (!bypassSettingOn()) {
+        clearAutoSession();
+        return;
+      }
       if (!session?.refresh_token) return;
       const saved = readAutoRecord();
       if (!saved) return;
@@ -72,18 +78,40 @@
     return client;
   }
 
-  function readAutoRecord() {
+  function bypassSettingOn() {
     try {
-      const parsed = JSON.parse(global.localStorage.getItem(AUTO_KEY) || "null");
-      const until = Number(parsed?.until) || 0;
-      if (!parsed?.refresh_token || until <= Date.now()) {
-        if (parsed) global.localStorage.removeItem(AUTO_KEY);
-        return null;
-      }
-      return parsed;
+      return JSON.parse(global.localStorage.getItem(SETTINGS_KEY) || "null")?.autoLogin === true;
     } catch {
+      return false;
+    }
+  }
+
+  function deadlineAllowed(until) {
+    const now = Date.now();
+    return Number.isFinite(until) && until > now && until <= now + AUTO_MS + AUTO_SKEW_MS;
+  }
+
+  function readAutoRecord() {
+    let parsed = null;
+    try {
+      parsed = JSON.parse(global.localStorage.getItem(AUTO_KEY) || "null");
+    } catch {
+      clearAutoSession();
       return null;
     }
+    if (!parsed) return null;
+    const until = Number(parsed.until);
+    const refresh = typeof parsed.refresh_token === "string" ? parsed.refresh_token : "";
+    const access = typeof parsed.access_token === "string" ? parsed.access_token : "";
+    if (!bypassSettingOn() || !refresh || !access || !deadlineAllowed(until)) {
+      clearAutoSession();
+      return null;
+    }
+    return parsed;
+  }
+
+  function bypassPinActive() {
+    return Boolean(readAutoRecord());
   }
 
   function writeAutoRecord(until, session) {
@@ -110,6 +138,10 @@
   }
 
   async function persistAutoSession(session) {
+    if (!bypassSettingOn()) {
+      clearAutoSession();
+      return 0;
+    }
     const sb = getClient();
     let current = session;
     if (!current?.refresh_token && sb) {
@@ -117,7 +149,14 @@
       current = data?.session;
     }
     if (!current?.access_token || !current?.refresh_token) return 0;
-    const until = Date.now() + AUTO_MS;
+    let until = Date.now() + AUTO_MS;
+    try {
+      const parsed = JSON.parse(global.localStorage.getItem(AUTO_KEY) || "null");
+      const prev = Number(parsed?.until);
+      if (deadlineAllowed(prev)) until = prev;
+    } catch {
+      /* start a new 7-day window */
+    }
     try {
       writeAutoRecord(until, current);
     } catch {
@@ -215,6 +254,7 @@
     persistAutoSession,
     restoreAutoSession,
     clearAutoSession,
+    bypassPinActive,
     autoLoginUntil,
     signOut,
   };

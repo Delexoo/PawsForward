@@ -24,7 +24,7 @@
   </script>
   <script src="js/theme.js?v=20261111e"></script>
   <link rel="stylesheet" href="css/site.css?v=20261111e">
-  <link rel="stylesheet" href="css/paws.css?v=20261111r">
+  <link rel="stylesheet" href="css/paws.css?v=20261111u">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
@@ -47,15 +47,19 @@
     })();
   </script>
   <script src="js/vendor/supabase.js?v=20261108v"></script>
-  <script src="js/supabase-client.js?v=20261110r"></script>
-  <script src="js/pin-lock.js?v=20261110r"></script>
+  <script src="js/supabase-client.js?v=20261111t"></script>
+  <script src="js/pin-lock.js?v=20261111t"></script>
   <script>
     (function () {
       try {
-        var auto = null;
-        try { auto = JSON.parse(localStorage.getItem("pf_auto_login_v1") || "null"); } catch (err) { auto = null; }
-        var autoOn = !!(auto && auto.refresh_token && Number(auto.until) > Date.now());
-        if (autoOn || sessionStorage.getItem("pf_site_unlock_v1") === "1") {
+        var autoOn = window.SiteSupabase && window.SiteSupabase.bypassPinActive && window.SiteSupabase.bypassPinActive() === true;
+        var bypassTab = sessionStorage.getItem("pf_bypass_tab_v1") === "1";
+        if (autoOn) sessionStorage.setItem("pf_bypass_tab_v1", "1");
+        if (bypassTab && !autoOn) {
+          sessionStorage.removeItem("pf_site_unlock_v1");
+          sessionStorage.removeItem("pf_bypass_tab_v1");
+        }
+        if (autoOn || (sessionStorage.getItem("pf_site_unlock_v1") === "1" && !bypassTab)) {
           document.documentElement.classList.remove("site-lock-active");
           document.addEventListener("DOMContentLoaded", function () {
             document.body.classList.add("site-unlocked");
@@ -476,6 +480,6 @@
   <script src="js/shell.js?v=20261108v"></script>
   <script src="js/vendor/qrcode.min.js?v=20261108v"></script>
   <script src="js/qr.js?v=20261108v"></script>
-  <script src="js/admin.js?v=20261111p"></script>
+  <script src="js/admin.js?v=20261111u"></script>
 </body>
 </html>
