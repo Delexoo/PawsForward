@@ -202,6 +202,37 @@
         setBanner(`You’re set. We also emailed ${current.email}.`, "ok");
       }
     }
+    if (current.email && !record.accountSent) {
+      const account = await sendAccountEmail(current.email);
+      if (account.ok && account.sent) {
+        record.accountSent = true;
+        saveStored(record);
+        setBanner(`You’re set. We emailed ${current.email} a sign-in link for your dashboard.`, "ok");
+      }
+    }
+  }
+
+  async function sendAccountEmail(email) {
+    const cfg = window.SITE_CONFIG || {};
+    const base = String(cfg.supabaseUrl || "").replace(/\/$/, "");
+    const key = String(cfg.supabaseAnonKey || "");
+    if (!base || !key || !email) return { ok: false };
+    try {
+      const res = await fetch(`${base}/functions/v1/promoter-auth`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: key,
+          Authorization: "Bearer " + key,
+        },
+        body: JSON.stringify({ email, site_origin: cfg.siteOrigin || location.origin }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) return { ok: false };
+      return { ok: true, sent: body.sent !== false };
+    } catch {
+      return { ok: false };
+    }
   }
 
   document.addEventListener("DOMContentLoaded", async () => {

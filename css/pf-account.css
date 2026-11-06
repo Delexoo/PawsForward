@@ -1,0 +1,111 @@
+.account-main,
+.signin-main {
+  padding: 1.5rem 1.1rem 4rem;
+}
+
+.account-shell,
+.signin-shell {
+  width: min(720px, 100%);
+  margin: 0 auto;
+}
+
+.signin-shell {
+  width: min(460px, 100%);
+}
+
+.account-intro h1,
+.signin-shell h1 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(2rem, 6vw, 2.8rem);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.account-intro p,
+.signin-lead {
+  margin: 0 0 1.1rem;
+  color: #3a3a3c;
+}
+
+.account-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-bottom: 0.9rem;
+}
+
+.account-stat {
+  padding: 0.9rem 1rem;
+  border: 1px solid #e6e6ea;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.account-stat span {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6e6e73;
+}
+
+.account-stat strong {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 1.25rem;
+  letter-spacing: -0.03em;
+}
+
+.account-card {
+  margin-bottom: 0.9rem;
+}
+
+.account-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.account-meta {
+  margin: 0 0 1rem;
+  color: #3a3a3c;
+}
+
+.account-gifts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.account-gifts li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid #ececf0;
+}
+
+.account-link {
+  display: inline-flex;
+  margin-top: 0.8rem;
+  text-decoration: none;
+}
+
+.menu-screen button {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+@media (min-width: 720px) {
+  .account-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
