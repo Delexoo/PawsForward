@@ -145,6 +145,8 @@
   const seenEmployeeIds = new Set();
   const seenVisitIds = new Set();
   const seenDonationIds = new Set();
+  const SEEN_KEY = "pf_alert_seen_v1";
+  const RECENT_MS = 30 * 60 * 1000;
   let alertTimer = 0;
   let alertAudio = null;
   let adminPageBusy = false;
@@ -392,45 +394,63 @@
   }
 
   async function showSystemAlert(title, body, tag) {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-    const options = {
+    if (!("Notification" in window) || Notification.permission !== "granted") return false;
+    const base = {
       body,
       icon: "/icons/icon-192.png",
       badge: "/icons/favicon.png",
       tag: tag || title,
-      renotify: true,
       data: { url: "/admin" },
     };
     try {
       if ("serviceWorker" in navigator) {
         const reg = (await navigator.serviceWorker.getRegistration()) || (await registerAlertWorker());
-        const active = reg?.active ? reg : reg ? await navigator.serviceWorker.ready : null;
-        if (active?.showNotification) {
-          try {
-            await active.showNotification(title, options);
-          } catch (err) {
-            const plain = { ...options };
-            delete plain.renotify;
-            await active.showNotification(title, plain);
-          }
-          return;
+        const ready = reg?.active ? reg : reg ? await navigator.serviceWorker.ready : null;
+        if (ready?.showNotification) {
+          await ready.showNotification(title, { ...base, renotify: true });
+          return true;
         }
       }
     } catch (err) {
       console.warn(err);
     }
     try {
-      const note = new Notification(title, options);
+      const note = new Notification(title, base);
       note.onclick = () => {
         window.focus();
         note.close();
       };
+      return true;
     } catch (err) {
       console.warn(err);
+      return false;
     }
   }
 
+  function showInAppAlert(title, body) {
+    let toast = document.getElementById("pf-alert-toast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "pf-alert-toast";
+      toast.className = "pf-alert-toast";
+      toast.setAttribute("role", "status");
+      document.body.appendChild(toast);
+    }
+    toast.replaceChildren();
+    const heading = document.createElement("strong");
+    heading.textContent = title;
+    const copy = document.createElement("p");
+    copy.textContent = body;
+    toast.append(heading, copy);
+    toast.hidden = false;
+    window.clearTimeout(showInAppAlert.timer);
+    showInAppAlert.timer = window.setTimeout(() => {
+      toast.hidden = true;
+    }, 8000);
+  }
+
   function pushAlert(title, body, tag) {
+    showInAppAlert(title, body);
     playAlertSound();
     void showSystemAlert(title, body, tag);
   }
@@ -473,23 +493,53 @@
     );
   }
 
-  function announceFreshActivity(employees, visits, donations) {
-    if (!alertsPrimed) {
-      employees.forEach((emp) => emp.id && seenEmployeeIds.add(emp.id));
-      visits.forEach((visit) => rememberVisit(visit));
-      donations.forEach((donation) => donation.id && seenDonationIds.add(donation.id));
-      alertsPrimed = true;
-      return;
+  function loadSeenAlerts() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SEEN_KEY) || "null");
+      if (!raw || typeof raw !== "object") return;
+      (raw.employees || []).forEach((id) => seenEmployeeIds.add(id));
+      (raw.visits || []).forEach((id) => seenVisitIds.add(id));
+      (raw.donations || []).forEach((id) => seenDonationIds.add(id));
+    } catch {
+      /* ignore */
     }
+  }
+
+  function saveSeenAlerts() {
+    try {
+      localStorage.setItem(
+        SEEN_KEY,
+        JSON.stringify({
+          employees: [...seenEmployeeIds].slice(-400),
+          visits: [...seenVisitIds].slice(-800),
+          donations: [...seenDonationIds].slice(-400),
+        })
+      );
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function isRecentRecord(row) {
+    const at = Date.parse(row?.created_at || "");
+    return Number.isFinite(at) && Date.now() - at >= 0 && Date.now() - at <= RECENT_MS;
+  }
+
+  function announceFreshActivity(employees, visits, donations) {
+    const unseenEmployees = employees.filter((emp) => emp.id && !seenEmployeeIds.has(emp.id));
+    const unseenVisits = visits.filter((visit) => visitIsNew(visit));
+    const unseenDonations = donations.filter((donation) => donation.id && !seenDonationIds.has(donation.id));
+    const freshEmployees = alertsPrimed ? unseenEmployees : unseenEmployees.filter(isRecentRecord);
+    const freshVisits = alertsPrimed ? unseenVisits : unseenVisits.filter(isRecentRecord);
+    const freshDonations = alertsPrimed ? unseenDonations : unseenDonations.filter(isRecentRecord);
+
+    employees.forEach((emp) => emp.id && seenEmployeeIds.add(emp.id));
+    visits.forEach((visit) => rememberVisit(visit));
+    donations.forEach((donation) => donation.id && seenDonationIds.add(donation.id));
+    alertsPrimed = true;
+    saveSeenAlerts();
 
     const settings = readSettings();
-    const freshEmployees = employees.filter((emp) => emp.id && !seenEmployeeIds.has(emp.id));
-    const freshVisits = visits.filter((visit) => visitIsNew(visit));
-    const freshDonations = donations.filter((donation) => donation.id && !seenDonationIds.has(donation.id));
-    freshEmployees.forEach((emp) => seenEmployeeIds.add(emp.id));
-    freshVisits.forEach((visit) => rememberVisit(visit));
-    freshDonations.forEach((donation) => seenDonationIds.add(donation.id));
-
     if (settings.notifyQrCreated && freshEmployees.length) {
       if (freshEmployees.length > 3) {
         pushAlert("New QR codes", `${freshEmployees.length} referral QR codes were created.`, "qr-created-batch");
@@ -543,7 +593,21 @@
     if (!wants) return;
     alertTimer = window.setInterval(() => {
       loadDashboard({ skipCachePaint: true, silent: true });
-    }, 20000);
+    }, 8000);
+  }
+
+  function armNotifyPermission() {
+    const ask = () => {
+      const settings = readSettings();
+      const wants = settings.notifyQrCreated || settings.notifyQrScanned || settings.notifyDonation;
+      if (!wants || !("Notification" in window) || Notification.permission !== "default") {
+        document.removeEventListener("pointerdown", ask, true);
+        return;
+      }
+      document.removeEventListener("pointerdown", ask, true);
+      void ensureNotifyPermission();
+    };
+    document.addEventListener("pointerdown", ask, true);
   }
 
   async function onSettingsOpened() {
@@ -630,7 +694,9 @@
       if (!wants) return;
       loadDashboard({ skipCachePaint: true, silent: true });
     });
+    loadSeenAlerts();
     void registerAlertWorker();
+    armNotifyPermission();
     syncAlertPolling();
   }
 

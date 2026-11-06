@@ -352,6 +352,19 @@ body[data-page="admin"] #donations .dash-empty {
   margin-top: 4px;
 }
 
+/* Desktop: keep the donations card down to the page switcher,
+   and let the empty message fill that card instead of a blank strip. */
+@media (min-width: 901px) {
+  body[data-page="admin"] #donations.is-active:not([hidden]):not(.is-enter):not(.is-exit):has(#donations-empty:not([hidden])) .dash-empty {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    margin-top: 0;
+  }
+}
+
 body[data-page="admin"] #employees:has(#employees-empty:not([hidden])) .pf-employee-list,
 body[data-page="admin"] #donations:has(#donations-empty:not([hidden])) .pf-donation-list {
   display: none;
@@ -2254,6 +2267,37 @@ html.pf-admin-booting body[data-page="admin"] #dashboard-content {
   flex-direction: column;
   gap: 8px;
   position: relative;
+}
+
+.pf-alert-toast {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 80;
+  width: min(420px, calc(100% - 24px));
+  margin: 0;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #fff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.28);
+  transform: translateX(-50%);
+  box-sizing: border-box;
+}
+
+.pf-alert-toast strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.pf-alert-toast p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #e2e8f0;
 }
 
 .pf-admin-status {
