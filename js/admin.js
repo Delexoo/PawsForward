@@ -2035,97 +2035,163 @@
     }
   }
 
-  function topPlaces(visits, limit = 5) {
-    const counts = new Map();
-    visits.forEach((v) => {
-      const key = formatPlace(v) || "Unknown";
-      counts.set(key, (counts.get(key) || 0) + 1);
-    });
-    return Array.from(counts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, limit);
-  }
-
   function openStatInfo(key) {
     if (!els.statInfoDialog) return;
-    const rate = Math.round(COMMISSION() * 100);
-    const attributedCount = latestDonations.filter((d) => d.employee_id).length;
-    const generalCount = latestDonations.length - attributedCount;
-    const recent = [...latestDonations]
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 5);
-    const places = topPlaces(latestVisits, 5);
+    const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    const employeeById = new Map(latestEmployees.map((emp) => [emp.id, emp]));
+
+    function openVolunteer(emp) {
+      if (!emp) return;
+      openEmployeeDetail(emp);
+    }
+
+    const owedRows = latestEmployees
+      .map((emp) => {
+        const raised = Number(latestDonationStats[emp.id]?.raised || 0);
+        const owed = netOwedFor(emp.id, raised);
+        return { emp, raised, owed, paid: paidFor(emp.id) };
+      })
+      .filter((row) => roundMoney(row.owed) > 0)
+      .sort((a, b) => b.owed - a.owed);
+
+    const raisedRows = latestEmployees
+      .map((emp) => ({
+        emp,
+        raised: Number(latestDonationStats[emp.id]?.raised || 0),
+        gifts: Number(latestDonationStats[emp.id]?.count || 0),
+        owed: netOwedFor(emp.id, latestDonationStats[emp.id]?.raised || 0),
+      }))
+      .filter((row) => row.raised > 0)
+      .sort((a, b) => b.raised - a.raised);
+    const unattributedRaised = Math.max(0, latestSnapshot.raised - latestSnapshot.attributedRaised);
+
+    const visitRows = (() => {
+      const counts = new Map();
+      latestVisits.forEach((visit) => {
+        const id = visit.employee_id || "";
+        const entry = counts.get(id) || { count: 0, place: "" };
+        entry.count += 1;
+        if (!entry.place) entry.place = formatPlace(visit);
+        counts.set(id, entry);
+      });
+      return [...counts.entries()]
+        .map(([id, entry]) => ({
+          emp: employeeById.get(id) || null,
+          name: employeeById.get(id) ? personLabel(employeeById.get(id)) : "Unattributed",
+          count: entry.count,
+          place: entry.place,
+        }))
+        .sort((a, b) => b.count - a.count);
+    })();
+
+    const giftRows = (donations) =>
+      [...donations]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .map((donation) => {
+          const emp = employeeById.get(donation.employee_id) || null;
+          const when = relativeTime(donation.created_at);
+          const who = emp ? personLabel(emp) : "No volunteer";
+          return {
+            name: donation.donor_label || "Anonymous",
+            value: money(donation.amount),
+            meta: when ? `${who} · ${when}` : who,
+            onClick: emp ? () => openVolunteer(emp) : null,
+          };
+        });
 
     const configs = {
       donors: {
         title: "Donors",
-        lead: "Total gift records currently loaded in Donations.",
-        items: [
-          `${latestSnapshot.donors} donation${latestSnapshot.donors === 1 ? "" : "s"} total`,
-          `${attributedCount} attributed to a volunteer`,
-          `${generalCount} general / unattributed`,
-          ...recent.map(
-            (d) =>
-              `${money(d.amount)} · ${d.donor_label || "Anonymous"} · ${relativeTime(d.created_at)}`
-          ),
-        ],
+        lead: "Each gift, newest first.",
+        empty: "No gifts yet.",
+        rows: giftRows(latestDonations),
       },
       donors24h: {
         title: "Last 24 hours",
-        lead: "Gifts recorded in the past 24 hours.",
-        items: [
-          `${latestSnapshot.donors24h} donation${latestSnapshot.donors24h === 1 ? "" : "s"} in the last 24h`,
-          `Org total still ${latestSnapshot.donors}`,
-          ...recent
-            .filter((d) => Date.now() - new Date(d.created_at).getTime() <= 24 * 60 * 60 * 1000)
-            .map((d) => `${money(d.amount)} · ${d.donor_label || "Anonymous"}`),
-        ],
+        lead: "Gifts from the last 24 hours.",
+        empty: "No gifts in the last 24 hours.",
+        rows: giftRows(latestDonations.filter((donation) => new Date(donation.created_at).getTime() >= dayAgo)),
       },
       raised: {
         title: "Raised",
-        lead: "Sum of all donation amounts in the feed.",
-        items: [
-          `${money(latestSnapshot.raised)} total raised`,
-          `${money(latestSnapshot.attributedRaised)} attributed to volunteers`,
-          `${money(latestSnapshot.raised - latestSnapshot.attributedRaised)} general / unattributed`,
-          `${latestSnapshot.donors} gifts counted`,
+        lead: "How much each volunteer has raised.",
+        empty: "No gifts yet.",
+        rows: [
+          ...raisedRows.map((row) => ({
+            name: personLabel(row.emp),
+            value: money(row.raised),
+            meta: `${row.gifts} gift${row.gifts === 1 ? "" : "s"} · owed ${money(row.owed)}`,
+            onClick: () => openVolunteer(row.emp),
+          })),
+          ...(unattributedRaised > 0
+            ? [{ name: "Unattributed", value: money(unattributedRaised), meta: "No volunteer" }]
+            : []),
         ],
       },
       owed: {
         title: "Owed",
-        lead: `Volunteer commission on attributed gifts (${rate}%), minus recorded payouts.`,
-        items: [
-          `${money(latestSnapshot.owed)} still owed`,
-          `${money(latestSnapshot.paid)} already paid out`,
-          `Based on ${money(latestSnapshot.attributedRaised)} attributed raised`,
-          `Commission rate ${rate}%`,
-          "Use Pay on a volunteer to record a payout and reduce owed",
-        ],
+        lead: "Who we still owe, and how much.",
+        empty: "Nobody is owed right now.",
+        rows: owedRows.map((row) => ({
+          name: personLabel(row.emp),
+          value: money(row.owed),
+          meta: [row.emp.payment_handle, `raised ${money(row.raised)}`, `paid ${money(row.paid)}`]
+            .filter(Boolean)
+            .join(" · "),
+          onClick: () => openVolunteer(row.emp),
+        })),
       },
       visits: {
         title: "Visits",
-        lead: "QR / donate page visits with location data when available.",
-        items: [
-          `${latestSnapshot.visits} visit${latestSnapshot.visits === 1 ? "" : "s"} recorded`,
-          ...places.map(([place, count]) => `${place} · ${count}`),
-        ],
+        lead: "QR visits by volunteer.",
+        empty: "No visits yet.",
+        rows: visitRows.map((row) => ({
+          name: row.name,
+          value: String(row.count),
+          meta: row.place || "",
+          onClick: row.emp ? () => openVolunteer(row.emp) : null,
+        })),
       },
     };
 
-    const cfg = configs[key] || {
-      title: "Dashboard",
-      lead: "Organization snapshot.",
-      items: [],
-    };
+    const cfg = configs[key] || { title: "Dashboard", lead: "Organization snapshot.", empty: "Nothing to show yet.", rows: [] };
     if (els.statInfoTitle) els.statInfoTitle.textContent = cfg.title;
     if (els.statInfoLead) els.statInfoLead.textContent = cfg.lead;
     if (els.statInfoList) {
-      els.statInfoList.innerHTML = "";
-      cfg.items.forEach((line) => {
+      els.statInfoList.replaceChildren();
+      const rows = cfg.rows || [];
+      if (!rows.length) {
         const li = document.createElement("li");
-        li.textContent = line;
+        li.className = "pf-info-empty";
+        li.textContent = cfg.empty;
         els.statInfoList.appendChild(li);
-      });
+      } else {
+        rows.forEach((row) => {
+          const li = document.createElement("li");
+          const body = document.createElement(row.onClick ? "button" : "div");
+          if (row.onClick) body.type = "button";
+          body.className = "pf-info-row";
+          const main = document.createElement("span");
+          main.className = "pf-info-main";
+          const name = document.createElement("span");
+          name.className = "pf-info-name";
+          name.textContent = row.name;
+          main.appendChild(name);
+          if (row.meta) {
+            const meta = document.createElement("span");
+            meta.className = "pf-info-meta";
+            meta.textContent = row.meta;
+            main.appendChild(meta);
+          }
+          const value = document.createElement("strong");
+          value.className = "pf-info-value";
+          value.textContent = row.value;
+          body.append(main, value);
+          if (row.onClick) body.addEventListener("click", row.onClick);
+          li.appendChild(body);
+          els.statInfoList.appendChild(li);
+        });
+      }
     }
     openAdminDialog(els.statInfoDialog);
   }

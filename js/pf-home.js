@@ -6,13 +6,7 @@
 
   function paint() {
     frame = 0;
-    const y = window.scrollY;
-    if (header) header.classList.toggle("is-solid", y > 24);
-    if (reduced) return;
-    if (media) {
-      const shift = Math.min(Math.max(y, 0), window.innerHeight) * 0.16;
-      media.style.transform = `translate3d(0, ${shift.toFixed(2)}px, 0)`;
-    }
+    if (header) header.classList.toggle("is-solid", window.scrollY > 24);
   }
 
   function onScroll() {
@@ -83,33 +77,63 @@
 
   const video = document.querySelector(".hero-video");
   if (video && media) {
-    let gaveUp = false;
+    let blocked = reduced;
+
     const showStill = () => {
-      gaveUp = true;
       media.classList.remove("is-playing");
-      video.pause();
     };
+
     const showVideo = () => {
-      if (gaveUp || video.paused || video.readyState < 2) return;
+      if (blocked || video.paused) return;
       media.classList.add("is-playing");
     };
+
     const tryPlay = () => {
-      if (gaveUp || reduced) return;
+      if (blocked) return;
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
       const pending = video.play();
       if (pending && typeof pending.then === "function") {
-        pending.then(showVideo).catch(showStill);
+        pending.then(showVideo).catch((err) => {
+          const name = err && err.name;
+          if (name === "NotAllowedError" || name === "SecurityError") {
+            blocked = true;
+            showStill();
+            return;
+          }
+        });
         return;
       }
       showVideo();
     };
+
     video.addEventListener("playing", showVideo);
-    video.addEventListener("error", showStill);
-    if (reduced) showStill();
-    else {
+    video.addEventListener("error", () => {
+      blocked = true;
+      showStill();
+    });
+
+    if (reduced) {
+      video.autoplay = false;
+      video.preload = "none";
+      showStill();
+    } else {
+      video.preload = "auto";
+      video.addEventListener("canplay", tryPlay);
       tryPlay();
-      window.setTimeout(() => {
-        if (!media.classList.contains("is-playing")) showStill();
-      }, 2500);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") tryPlay();
+      });
+      window.addEventListener(
+        "pointerdown",
+        () => {
+          if (media.classList.contains("is-playing") || video.error) return;
+          blocked = false;
+          tryPlay();
+        },
+        { passive: true }
+      );
     }
   }
 })();

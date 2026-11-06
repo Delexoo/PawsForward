@@ -3592,16 +3592,76 @@ body[data-page="admin"] .pf-employee-actions .btn-sm {
   padding: 0;
   display: grid;
   gap: 6px;
+  max-height: min(52vh, 24rem);
+  overflow: auto;
 }
 
 .pf-info-list li {
-  padding: 8px 10px;
+  padding: 0;
   border-radius: 10px;
   background: #f8fafc;
   font-size: 13px;
   font-weight: 600;
   color: #0f172a;
   text-align: left;
+}
+
+.pf-info-list li.pf-info-empty {
+  padding: 10px 12px;
+  color: #64748b;
+}
+
+.pf-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.pf-info-row {
+  cursor: pointer;
+}
+
+button.pf-info-row:hover,
+button.pf-info-row:focus-visible {
+  background: #eef2f6;
+}
+
+button.pf-info-row:focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: 2px;
+}
+
+.pf-info-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pf-info-name {
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.pf-info-meta {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.pf-info-value {
+  flex: none;
+  font-weight: 750;
 }
 
 .pf-emp-menu {

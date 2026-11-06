@@ -155,10 +155,9 @@
   function warmHeroVideo() {
     const video = document.querySelector(".hero-video");
     if (!video) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     try {
       video.preload = "auto";
-      const play = video.play();
-      if (play && typeof play.catch === "function") play.catch(() => {});
     } catch {
       /* ignore */
     }
