@@ -6,6 +6,7 @@
   const codeWrap = document.getElementById("signin-code-wrap");
   const codeInput = document.getElementById("signin-code");
   const submit = document.getElementById("signin-submit");
+  const resend = document.getElementById("signin-resend");
   const banner = document.getElementById("status-banner");
   const errEmail = document.getElementById("err-signin-email");
   const errCode = document.getElementById("err-signin-code");
@@ -29,15 +30,38 @@
     return email.length >= 5 && email.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
+  function currentEmail() {
+    return String(emailInput?.value || "").trim().toLowerCase();
+  }
+
   async function goIfSignedIn() {
     const sb = window.PfPromoter?.getClient?.();
     const { data } = (await sb?.auth.getSession()) || {};
     if (data?.session) location.replace("/account");
   }
 
+  function showCodeStep() {
+    if (codeWrap) codeWrap.hidden = false;
+    if (resend) resend.hidden = false;
+    if (submit) submit.textContent = "Verify and sign in";
+    if (codeInput) codeInput.focus();
+  }
+
+  async function sendCode(email) {
+    setBanner("Sending your code…");
+    const sent = await window.PfPromoter.requestLink(email);
+    if (!sent.ok) {
+      setBanner(sent.error || "Could not send the code.", "err");
+      return false;
+    }
+    showCodeStep();
+    setBanner("If that email has a QR, we sent a code. Enter it below.", "ok");
+    return true;
+  }
+
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const email = String(emailInput?.value || "").trim().toLowerCase();
+    const email = currentEmail();
     const code = String(codeInput?.value || "").replace(/\D/g, "");
     setFieldError(errEmail, "");
     setFieldError(errCode, "");
@@ -46,6 +70,7 @@
       return;
     }
     if (submit) submit.disabled = true;
+    if (resend) resend.disabled = true;
     try {
       if (codeWrap && !codeWrap.hidden) {
         if (code.length < 6) {
@@ -54,27 +79,39 @@
         }
         const verified = await window.PfPromoter.verifyCode(email, code);
         if (!verified.ok) {
-          setBanner("That code didn’t work. Request a new email and try again.", "err");
+          setBanner("That code didn’t work. Resend the code and try again.", "err");
           return;
         }
         location.replace("/account");
         return;
       }
-      setBanner("Sending your sign-in email…");
-      const sent = await window.PfPromoter.requestLink(email);
-      if (!sent.ok) {
-        setBanner(sent.error || "Could not send the sign-in email.", "err");
-        return;
-      }
-      if (codeWrap) codeWrap.hidden = false;
-      if (codeInput) codeInput.focus();
-      if (submit) submit.textContent = "Verify and sign in";
-      setBanner("If that email has a QR, we sent a sign-in link and a code. Check your inbox.", "ok");
+      await sendCode(email);
     } catch (err) {
       console.error(err);
       setBanner("Could not sign you in. Try again.", "err");
     } finally {
       if (submit) submit.disabled = false;
+      if (resend) resend.disabled = false;
+    }
+  });
+
+  resend?.addEventListener("click", async () => {
+    const email = currentEmail();
+    setFieldError(errEmail, "");
+    if (!validEmail(email)) {
+      setFieldError(errEmail, "Enter the email you used for your QR.");
+      return;
+    }
+    if (submit) submit.disabled = true;
+    resend.disabled = true;
+    try {
+      await sendCode(email);
+    } catch (err) {
+      console.error(err);
+      setBanner("Could not resend the code. Try again.", "err");
+    } finally {
+      if (submit) submit.disabled = false;
+      resend.disabled = false;
     }
   });
 
@@ -85,7 +122,7 @@
       return;
     }
     if (finished && !finished.skipped && !finished.ok) {
-      setBanner("That sign-in link expired. Enter your email and we’ll send a new one.", "err");
+      setBanner("That sign-in link expired. Enter your email and we’ll send a code.", "err");
     }
     await goIfSignedIn();
   });

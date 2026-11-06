@@ -207,7 +207,7 @@
       if (account.ok && account.sent) {
         record.accountSent = true;
         saveStored(record);
-        setBanner(`You’re set. We emailed ${current.email} a sign-in link for your dashboard.`, "ok");
+        setBanner(`You’re set. We emailed ${current.email} a sign-in code.`, "ok");
       }
     }
   }

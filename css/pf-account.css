@@ -1,14 +1,67 @@
-.account-main,
-.signin-main {
+.account-main {
   padding: 1.5rem 1.1rem 4rem;
 }
 
 .signin-main {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100svh;
   min-height: 100dvh;
-  padding: calc(5.25rem + env(safe-area-inset-top, 0px)) 1.1rem 2.5rem;
+  margin: 0;
+  padding:
+    calc(5.5rem + env(safe-area-inset-top, 0px))
+    max(1.15rem, env(safe-area-inset-right, 0px))
+    calc(2rem + env(safe-area-inset-bottom, 0px))
+    max(1.15rem, env(safe-area-inset-left, 0px));
   box-sizing: border-box;
+}
+
+.signin-shell {
+  width: min(28rem, 100%);
+  max-width: 100%;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.signin-shell h1,
+.signin-lead,
+.signin-shell .field label,
+.signin-shell .status-banner,
+.signin-shell .field-error {
+  text-align: center;
+}
+
+.signin-shell .field label {
+  display: block;
+}
+
+.signin-shell input {
+  text-align: center;
+}
+
+.signin-resend {
+  display: block;
+  width: 100%;
+  margin: 0.2rem 0 0;
+  padding: 0.45rem 0.5rem;
+  border: 0;
+  background: none;
+  color: #1d1d1f;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 650;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.signin-resend:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 .account-shell,

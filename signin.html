@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/pf-site.css?v=20261112a">
   <link rel="stylesheet" href="css/pf-join.css?v=20261110d">
-  <link rel="stylesheet" href="css/pf-account.css?v=20261111z">
+  <link rel="stylesheet" href="css/pf-account.css?v=20261112b">
   <script src="js/config.js?v=20261109n"></script>
 </head>
 <body>
@@ -37,7 +37,7 @@
   <main id="content" class="signin-main">
     <div class="signin-shell">
       <h1>Sign in</h1>
-      <p class="signin-lead">Use the email from your QR. We’ll send a link and a code. No password.</p>
+      <p class="signin-lead">Use the email from your QR. We’ll send a code. No password.</p>
       <section class="join-panel">
         <div id="status-banner" class="status-banner" hidden role="status"></div>
         <form class="join-form" id="signin-form" action="#" method="post">
@@ -48,10 +48,11 @@
           </div>
           <div class="field" id="signin-code-wrap" hidden>
             <label for="signin-code">Code from the email</label>
-            <input id="signin-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456">
+            <input id="signin-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456">
             <p class="field-error" id="err-signin-code" hidden></p>
           </div>
-          <button type="submit" class="join-submit" id="signin-submit">Email me a sign-in link</button>
+          <button type="submit" class="join-submit" id="signin-submit">Email me a code</button>
+          <button type="button" class="signin-resend" id="signin-resend" hidden>Resend code</button>
         </form>
       </section>
     </div>
@@ -59,6 +60,6 @@
   <script src="js/pf-load.js?v=20261108aa" defer></script>
   <script src="js/vendor/supabase.js?v=20261108z" defer></script>
   <script src="js/promoter-session.js?v=20261111v" defer></script>
-  <script src="js/signin.js?v=20261111v" defer></script>
+  <script src="js/signin.js?v=20261112b" defer></script>
 </body>
 </html>

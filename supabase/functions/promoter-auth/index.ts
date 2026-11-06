@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.49.1";
-import { ALLOWED_ORIGINS, corsHeaders } from "./cors.ts";
+import { corsHeaders } from "./cors.ts";
 
 function json(req: Request, body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -14,20 +14,6 @@ function adminClient() {
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
-}
-
-function escapeHtml(value: string) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function siteOrigin(raw: string) {
-  const origin = String(raw || "").trim().replace(/\/$/, "");
-  if (ALLOWED_ORIGINS.includes(origin)) return origin;
-  return "https://joinpawsforward.com";
 }
 
 async function resendApiKey(supabase: ReturnType<typeof adminClient>) {
@@ -103,6 +89,11 @@ Deno.serve(async (req) => {
       throw linked.error || new Error("Could not create a sign-in link.");
     }
 
+    const code = String(linked.data.properties.email_otp || "").replace(/\D/g, "");
+    if (code.length < 6) {
+      return json(req, { error: "Could not create a sign-in code." }, 500);
+    }
+
     const userId = linked.data.user?.id || created.data?.user?.id;
     if (userId) {
       const { error: linkErr } = await supabase
@@ -113,35 +104,10 @@ Deno.serve(async (req) => {
       if (linkErr) throw linkErr;
     }
 
-    const origin = siteOrigin(String(payload?.site_origin || ""));
-    const tokenHash = linked.data.properties.hashed_token;
-    const code = String(linked.data.properties.email_otp || "").trim();
-    const link =
-      `${origin}/account?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink`;
-    const name = String(rows[0]?.first_name || "").trim() || "there";
     const apiKey = await resendApiKey(supabase);
     if (!apiKey) return json(req, { error: "Email sending is not configured yet." }, 503);
 
     const from = Deno.env.get("RESEND_FROM") || "Paws Forward <joinpawsforward@outlook.com>";
-    const codeBlock = code
-      ? `<p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Or enter this code</p><p style="margin:0 0 28px;font-size:28px;font-weight:700;letter-spacing:0.18em;">${escapeHtml(code)}</p>`
-      : "";
-    const html = `<!doctype html>
-<html lang="en"><body style="margin:0;padding:40px 20px;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;line-height:1.55;">
-  <div style="max-width:480px;margin:0 auto;">
-    <p style="margin:0 0 28px;padding-bottom:16px;border-bottom:1px solid #000;font-size:16px;font-weight:700;">Paws Forward</p>
-    <h1 style="margin:0 0 12px;font-size:24px;">Hi ${escapeHtml(name)},</h1>
-    <p style="margin:0 0 24px;font-size:15px;">Use this link to sign in and see your balance, QR, and payout method. It expires soon.</p>
-    <p style="margin:0 0 28px;"><a href="${escapeHtml(link)}" style="display:inline-block;padding:12px 20px;background:#000;color:#fff;font-size:14px;font-weight:700;text-decoration:none;">Sign in</a></p>
-    ${codeBlock}
-    <p style="margin:0;padding-top:24px;border-top:1px solid #000;font-size:13px;">If you didn't ask for this, you can ignore the email.</p>
-  </div>
-</body></html>`;
-    const text =
-      `Hi ${name},\n\nSign in to your Paws Forward dashboard:\n${link}\n\n` +
-      (code ? `Or enter this code: ${code}\n\n` : "") +
-      `If you didn't ask for this, ignore this email.`;
-
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -151,9 +117,8 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from,
         to: [email],
-        subject: "Sign in to your Paws Forward dashboard",
-        html,
-        text,
+        subject: "Your sign-in code",
+        text: code,
       }),
     });
     const body = await res.json().catch(() => ({}));
