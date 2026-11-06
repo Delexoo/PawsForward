@@ -382,6 +382,7 @@ body.join-page {
 @media (prefers-reduced-motion: reduce) {
   .join-submit { transition: none; }
   .join-submit:hover:not(:disabled) { transform: none; }
+  .created-more summary::after { transition: none; }
   .join-junk-toast,
   .join-junk-toast.is-out {
     animation: none;
@@ -454,10 +455,113 @@ body.created-page {
   color: #fff;
 }
 
-.created-actions .btn {
+.created-qr-block {
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+}
+
+.created-icon-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.created-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #1d1d1f;
+  cursor: pointer;
+}
+
+.created-icon-btn svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.created-icon-btn:hover {
+  background: #1d1d1f;
+  color: #fff;
+}
+
+.created-icon-btn:focus-visible,
+.created-signin:focus-visible,
+.created-more summary:focus-visible {
+  outline: 2px solid #1d1d1f;
+  outline-offset: 3px;
+}
+
+.created-signin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 2.75rem;
-  height: 2.75rem;
-  padding: 0 1.05rem;
+  padding: 0 1.35rem;
+  border-radius: 980px;
+  background: #1d1d1f;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.created-signin:hover {
+  background: #000;
+}
+
+.created-more {
+  margin-top: 1rem;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.created-more summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0.8rem 1rem;
+  font-size: 0.98rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  list-style: none;
+}
+
+.created-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.created-more summary::after {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid #1d1d1f;
+  border-bottom: 2px solid #1d1d1f;
+  transform: rotate(45deg);
+  transition: transform 180ms ease;
+}
+
+.created-more[open] summary::after {
+  transform: rotate(225deg);
+}
+
+.created-more-body {
+  display: grid;
+  gap: 0.9rem;
+  padding: 0 1rem 1rem;
 }
 
 .created-panel h2 {
@@ -576,7 +680,9 @@ body.created-page {
   .site-footer,
   .skip,
   .status-banner,
-  .created-actions,
+  .created-icon-actions,
+  .created-signin,
+  .created-more,
   .created-mail,
   .join-link-row .btn {
     display: none !important;

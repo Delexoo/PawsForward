@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/pf-site.css?v=20261112a">
-  <link rel="stylesheet" href="css/pf-join.css?v=20261110d">
+  <link rel="stylesheet" href="css/pf-join.css?v=20261112d">
   <script src="js/config.js?v=20261109n"></script>
   <script src="js/canonical.js?v=20261108z"></script>
 </head>
@@ -73,26 +73,49 @@
         </p>
       </section>
 
-      <section class="join-panel created-panel" aria-labelledby="created-details-title">
-        <h2 id="created-details-title">Your details</h2>
+      <section class="join-panel created-panel" aria-label="Your QR">
         <div id="status-banner" class="status-banner" hidden role="status"></div>
-        <div class="join-qr" id="created-qr" role="img" aria-label="Your donation QR code"></div>
-
-        <div class="join-detail">
-          <label class="join-label" for="created-share-url">Donation link</label>
-          <div class="join-link-row">
-            <input id="created-share-url" class="join-share-input" type="text" readonly>
-            <button type="button" class="btn btn-primary join-copy-btn" id="created-copy">Copy</button>
+        <div class="created-qr-block">
+          <div class="join-qr" id="created-qr" role="img" aria-label="Your donation QR code"></div>
+          <div class="created-icon-actions" role="group" aria-label="QR actions">
+            <button type="button" class="created-icon-btn" id="created-print" aria-label="Print">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 9V3h12v6"></path>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <path d="M6 14h12v7H6z"></path>
+              </svg>
+            </button>
+            <button type="button" class="created-icon-btn" id="created-download" aria-label="Download QR">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v12"></path>
+                <path d="m7 11 5 5 5-5"></path>
+                <path d="M5 21h14"></path>
+              </svg>
+            </button>
+            <button type="button" class="created-icon-btn" id="created-share" aria-label="Share">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v12"></path>
+                <path d="m8 7 4-4 4 4"></path>
+                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"></path>
+              </svg>
+            </button>
           </div>
+          <a class="created-signin" href="/signin">Sign in</a>
         </div>
 
-        <dl class="created-details" id="created-details"></dl>
-
-        <div class="join-actions created-actions">
-          <button type="button" class="btn btn-ghost" id="created-print">Print</button>
-          <button type="button" class="btn btn-ghost" id="created-download">Download QR</button>
-          <button type="button" class="btn btn-ghost" id="created-share">Share</button>
-        </div>
+        <details class="created-more">
+          <summary id="created-details-title">Your details</summary>
+          <div class="created-more-body">
+            <div class="join-detail">
+              <label class="join-label" for="created-share-url">Donation link</label>
+              <div class="join-link-row">
+                <input id="created-share-url" class="join-share-input" type="text" readonly>
+                <button type="button" class="btn btn-primary join-copy-btn" id="created-copy">Copy</button>
+              </div>
+            </div>
+            <dl class="created-details" id="created-details"></dl>
+          </div>
+        </details>
         <p class="join-fineprint created-mail" id="created-mail">
           We email your QR and a sign-in code. Enter the code on the sign-in page to see your balance and payout method. Check junk mail if it isn’t in your inbox. <a href="/signin">Sign in</a>
         </p>
@@ -133,6 +156,6 @@
 
   <script src="js/vendor/qrcode.min.js?v=20261108z" defer></script>
   <script src="js/qr.js?v=20261108z" defer></script>
-  <script src="js/created.js?v=20261112b" defer></script>
+  <script src="js/created.js?v=20261112d" defer></script>
 </body>
 </html>

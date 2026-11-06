@@ -183,8 +183,8 @@
     addDetail("Name", name);
     addDetail("Email", record.email);
     addDetail("Phone", record.phone);
-    addDetail("How you get paid", paymentLabel(record.paymentType));
-    addDetail("Payout handle", record.paymentHandle);
+    addDetail("Payment type", paymentLabel(record.paymentType));
+    addDetail("Payout", record.paymentHandle);
     addDetail("Referral code", code);
 
     try {
