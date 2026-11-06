@@ -133,7 +133,7 @@
   const DEFAULT_SETTINGS = {
     notifyQrCreated: true,
     notifyQrScanned: true,
-    notifyDonation: false,
+    notifyDonation: true,
     notifySound: false,
     confirmDeletes: true,
     autoRefresh: true,
@@ -323,11 +323,16 @@
   function readSettings() {
     try {
       const raw = localStorage.getItem(SETTINGS_KEY);
-      if (!raw) return { ...DEFAULT_SETTINGS };
-      const parsed = JSON.parse(raw);
-      return { ...DEFAULT_SETTINGS, ...(parsed && typeof parsed === "object" ? parsed : {}) };
+      const parsed = raw ? JSON.parse(raw) : null;
+      const settings = { ...DEFAULT_SETTINGS, ...(parsed && typeof parsed === "object" ? parsed : {}) };
+      if (!parsed || parsed.notifyDonationDefaulted !== true) {
+        settings.notifyDonation = true;
+        settings.notifyDonationDefaulted = true;
+        writeSettings(settings);
+      }
+      return settings;
     } catch {
-      return { ...DEFAULT_SETTINGS };
+      return { ...DEFAULT_SETTINGS, notifyDonation: true, notifyDonationDefaulted: true };
     }
   }
 
@@ -548,7 +553,8 @@
     if (kind === "donation" && settings.notifyDonation) {
       const emp = employeeForRecord(row, latestEmployees);
       const who = emp ? ` for ${personLabel(emp)}` : "";
-      return ["New donation", `${money(row.amount)} gift${who}.`, `gift-${row.id}`];
+      const amount = money(row.amount);
+      return ["New donation", `${amount} gift${who}.`, `gift-${row.id}`];
     }
     return null;
   }
@@ -560,7 +566,13 @@
     if (kind === "donation" && row.id) seenDonationIds.add(row.id);
     saveSeenAlerts();
     const copy = liveAlertCopy(kind, row);
-    if (copy && document.hidden && !pushReady) void showSystemAlert(copy[0], copy[1], copy[2]);
+    if (copy && !pushReady) {
+      if (document.hidden) void showSystemAlert(copy[0], copy[1], copy[2]);
+      else {
+        showInAppAlert(copy[0], copy[1]);
+        playAlertSound();
+      }
+    }
     if (!document.hidden) loadDashboard({ skipCachePaint: true, silent: true });
   }
 
@@ -758,6 +770,10 @@
     void registerAlertWorker().then(() => syncPushSubscription());
     navigator.serviceWorker?.addEventListener("message", (event) => {
       if (event.data?.type !== "pf-activity" || document.hidden) return;
+      if (event.data.title) {
+        showInAppAlert(event.data.title, event.data.body || "");
+        playAlertSound();
+      }
       loadDashboard({ skipCachePaint: true, silent: true });
     });
     startLiveAlerts();

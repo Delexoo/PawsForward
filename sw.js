@@ -1,5 +1,5 @@
 /* PawsForward — installability only; never pin HTML/CSS/JS behind a stale cache */
-const CACHE = "pawsforward-shell-v9";
+const CACHE = "pawsforward-shell-v10";
 const PRECACHE = [
   "./manifest.webmanifest",
   "./icons/favicon.png",
@@ -60,18 +60,9 @@ self.addEventListener("push", (event) => {
   const tag = String(data.tag || data.kind || "paws-forward");
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clients) => {
-      const lookingAtDashboard = clients.some((client) => {
-        try {
-          const path = new URL(client.url).pathname;
-          return (path === "/admin" || path.startsWith("/admin/")) && client.visibilityState === "visible";
-        } catch {
-          return false;
-        }
-      });
       clients.forEach((client) => {
-        client.postMessage({ type: "pf-activity", kind: data.kind || "" });
+        client.postMessage({ type: "pf-activity", kind: data.kind || "", title, body });
       });
-      if (lookingAtDashboard) return;
       await self.registration.showNotification(title, {
         body,
         icon: "/icons/icon-192.png",

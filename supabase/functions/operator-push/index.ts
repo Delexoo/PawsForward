@@ -55,11 +55,12 @@ function alertCopy(payload: Record<string, unknown>) {
     const amount = Number(payload.amount);
     const money = Number.isFinite(amount)
       ? amount.toLocaleString("en-US", { style: "currency", currency: "USD" })
-      : "A";
+      : "";
+    const gift = money || "A gift";
     return {
       kind,
-      title: "New donation",
-      body: `${money} gift${name ? ` for ${name}` : ""}.`,
+      title: money ? `New donation · ${money}` : "New donation",
+      body: `${gift}${name ? ` for ${name}` : ""}.`,
       tag: `gift-${id}`,
     };
   }
