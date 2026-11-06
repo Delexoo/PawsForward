@@ -8,6 +8,8 @@
 
   const STORAGE_KEY = "pf-admin-auth";
   const HANDOFF_PREFIX = "pf_auth_handoff_v1:";
+  const AUTO_KEY = "pf_auto_login_v1";
+  const AUTO_MS = 7 * 24 * 60 * 60 * 1000;
 
   let client = null;
   /** In-memory auth storage — cleared on full page reload. */
@@ -61,7 +63,82 @@
         storageKey: STORAGE_KEY,
       },
     });
+    client.auth.onAuthStateChange((_event, session) => {
+      if (!session?.refresh_token) return;
+      const saved = readAutoRecord();
+      if (!saved) return;
+      writeAutoRecord(saved.until, session);
+    });
     return client;
+  }
+
+  function readAutoRecord() {
+    try {
+      const parsed = JSON.parse(global.localStorage.getItem(AUTO_KEY) || "null");
+      const until = Number(parsed?.until) || 0;
+      if (!parsed?.refresh_token || until <= Date.now()) {
+        if (parsed) global.localStorage.removeItem(AUTO_KEY);
+        return null;
+      }
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeAutoRecord(until, session) {
+    global.localStorage.setItem(
+      AUTO_KEY,
+      JSON.stringify({
+        until,
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+      })
+    );
+  }
+
+  function autoLoginUntil() {
+    return readAutoRecord()?.until || 0;
+  }
+
+  function clearAutoSession() {
+    try {
+      global.localStorage.removeItem(AUTO_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  async function persistAutoSession(session) {
+    const sb = getClient();
+    let current = session;
+    if (!current?.refresh_token && sb) {
+      const { data } = await sb.auth.getSession();
+      current = data?.session;
+    }
+    if (!current?.access_token || !current?.refresh_token) return 0;
+    const until = Date.now() + AUTO_MS;
+    try {
+      writeAutoRecord(until, current);
+    } catch {
+      return 0;
+    }
+    return until;
+  }
+
+  async function restoreAutoSession() {
+    const saved = readAutoRecord();
+    const sb = getClient();
+    if (!saved || !sb) return false;
+    const { error } = await sb.auth.setSession({
+      access_token: saved.access_token,
+      refresh_token: saved.refresh_token,
+    });
+    if (error) {
+      clearAutoSession();
+      return false;
+    }
+    return true;
   }
 
   function stashSessionHandoff(session) {
@@ -101,7 +178,11 @@
     const sb = getClient();
     if (!sb) return { ok: false, reason: "config" };
     await consumeSessionHandoff();
-    const { data, error } = await sb.auth.getSession();
+    let { data, error } = await sb.auth.getSession();
+    if (!data?.session) {
+      const restored = await restoreAutoSession();
+      if (restored) ({ data, error } = await sb.auth.getSession());
+    }
     if (error) return { ok: false, reason: "error", error };
     if (!data?.session) return { ok: false, reason: "signed_out" };
     return { ok: true, session: data.session, user: data.session.user, client: sb };
@@ -109,6 +190,7 @@
 
   async function signOut() {
     const sb = getClient();
+    clearAutoSession();
     try {
       global.name = "";
     } catch {
@@ -130,6 +212,10 @@
     requireAdminSession,
     stashSessionHandoff,
     consumeSessionHandoff,
+    persistAutoSession,
+    restoreAutoSession,
+    clearAutoSession,
+    autoLoginUntil,
     signOut,
   };
 })(window);
