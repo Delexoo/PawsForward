@@ -183,6 +183,13 @@
     }
     tabs.classList.add("is-ready");
     dockIndicatorReady = true;
+    const dock = tabs.closest(".pf-dock");
+    if (dock) {
+      const top = dock.getBoundingClientRect().top;
+      if (top > 0) {
+        document.body.style.setProperty("--pf-dock-space", `${Math.ceil(window.innerHeight - top + 18)}px`);
+      }
+    }
   }
 
   function syncAdminNav(next) {
@@ -1475,8 +1482,17 @@
   }
 
   function setLoading(isLoading) {
-    if (els.skeleton) els.skeleton.hidden = !isLoading;
+    if (els.skeleton && !document.documentElement.classList.contains("pf-admin-booting")) {
+      els.skeleton.hidden = !isLoading;
+    }
     if (els.content) els.content.classList.toggle("is-loading", isLoading);
+  }
+
+  function finishAdminBoot() {
+    document.documentElement.classList.remove("pf-admin-booting");
+    if (els.skeleton) els.skeleton.hidden = true;
+    if (els.content) els.content.classList.remove("is-loading");
+    requestAnimationFrame(() => moveDockIndicator(false));
   }
 
   async function openQrDialog(employee) {
@@ -2551,8 +2567,20 @@
     });
   }
 
+  function clearHardRefreshNote() {
+    const el = document.getElementById("admin-status");
+    if (el && /hard refreshing/i.test(el.textContent || "")) {
+      el.hidden = true;
+      el.textContent = "";
+      el.removeAttribute("data-kind");
+    }
+    document.body.classList.remove("pf-pull-refreshing", "pf-pulling", "pf-pull-ready");
+    document.body.style.removeProperty("--pf-pull");
+    document.body.style.removeProperty("--pf-pull-progress");
+    document.body.style.removeProperty("--pf-pull-reveal");
+  }
+
   async function hardRefresh() {
-    setBanner("Hard refreshing…");
     document.body.classList.add("pf-pull-refreshing");
     try {
       if ("caches" in window) {
@@ -2575,49 +2603,106 @@
   function wirePullToHardRefresh() {
     const indicator = els.pullIndicator;
     const THRESHOLD = 96;
-    const MAX_PULL = 140;
+    const MAX_PULL = 148;
+    const HOLD_PULL = 64;
     let startY = 0;
     let pulling = false;
     let armed = false;
     let triggered = false;
+    let settleFrame = 0;
+    let labelReady = false;
 
     function scrollTop() {
       return window.scrollY || document.documentElement.scrollTop || 0;
     }
 
-    function sectionScroller(target) {
-      return target?.closest?.(".pf-employee-list, .pf-donation-list, .site-leave-dialog-panel");
+    function sectionIsScrolled(target) {
+      let node = target instanceof Element ? target : null;
+      while (node && node !== document.body) {
+        const overflowY = getComputedStyle(node).overflowY;
+        if (
+          (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") &&
+          node.scrollTop > 1
+        ) {
+          return true;
+        }
+        node = node.parentElement;
+      }
+      return false;
+    }
+
+    function resisted(delta) {
+      const stretched = Math.max(0, delta) * 0.62;
+      return MAX_PULL * (1 - Math.exp(-stretched / 110));
     }
 
     function setPull(distance) {
-      const progress = Math.min(1, distance / THRESHOLD);
-      document.body.style.setProperty("--pf-pull", `${Math.min(MAX_PULL, distance)}px`);
+      const clamped = Math.max(0, Math.min(MAX_PULL, distance));
+      const progress = Math.min(1, clamped / THRESHOLD);
+      const reveal = clamped <= 1 ? 0 : Math.min(1, 0.55 + progress * 0.45);
+      const ready = clamped >= THRESHOLD;
+      document.body.style.setProperty("--pf-pull", `${clamped}px`);
       document.body.style.setProperty("--pf-pull-progress", String(progress));
-      document.body.classList.toggle("pf-pulling", distance > 8);
-      document.body.classList.toggle("pf-pull-ready", distance >= THRESHOLD);
-      if (indicator) {
+      document.body.style.setProperty("--pf-pull-reveal", String(reveal));
+      document.body.classList.toggle("pf-pulling", clamped > 0.5);
+      document.body.classList.toggle("pf-pull-ready", ready);
+      if (indicator && ready !== labelReady) {
+        labelReady = ready;
         const label = indicator.querySelector(".pf-pull-indicator-label");
-        if (label) {
-          label.textContent =
-            distance >= THRESHOLD ? "Release to hard reset" : "Pull to hard reset";
-        }
+        if (label) label.textContent = ready ? "Release to hard reset" : "Pull to hard reset";
       }
     }
 
-    function endPull() {
+    function cancelSettle() {
+      if (!settleFrame) return;
+      cancelAnimationFrame(settleFrame);
+      settleFrame = 0;
+    }
+
+    function settlePull(to) {
+      cancelSettle();
+      if (prefersReducedMotion()) {
+        setPull(to);
+        if (to <= 0) endPull(true);
+        return;
+      }
+      const from = Number.parseFloat(document.body.style.getPropertyValue("--pf-pull")) || 0;
+      const start = performance.now();
+      const duration = 480;
+      const ease = (t) => 1 - Math.pow(1 - t, 3);
+      const step = (now) => {
+        const t = Math.min(1, (now - start) / duration);
+        setPull(from + (to - from) * ease(t));
+        if (t < 1) {
+          settleFrame = requestAnimationFrame(step);
+          return;
+        }
+        settleFrame = 0;
+        if (to <= 0) endPull(true);
+      };
+      settleFrame = requestAnimationFrame(step);
+    }
+
+    function endPull(immediate) {
       pulling = false;
       armed = false;
+      if (!immediate && !triggered) {
+        settlePull(0);
+        return;
+      }
+      labelReady = false;
+      cancelSettle();
       document.body.classList.remove("pf-pulling", "pf-pull-ready");
       document.body.style.removeProperty("--pf-pull");
       document.body.style.removeProperty("--pf-pull-progress");
+      document.body.style.removeProperty("--pf-pull-reveal");
     }
 
     const onStart = (clientY, event) => {
       if (triggered || scrollTop() > 2) return;
       if (document.querySelector("dialog[open]")) return;
-      const scroller = sectionScroller(event?.target);
-      // Never steal touch scrolling from in-panel lists.
-      if (scroller) return;
+      if (sectionIsScrolled(event?.target)) return;
+      cancelSettle();
       startY = clientY;
       pulling = true;
       armed = false;
@@ -2625,34 +2710,37 @@
 
     const onMove = (clientY, event) => {
       if (!pulling || triggered) return;
-      if (sectionScroller(event?.target)) {
-        endPull();
-        return;
-      }
-      if (scrollTop() > 2 && !armed) {
-        endPull();
+      if (sectionIsScrolled(event?.target) || (scrollTop() > 2 && !armed)) {
+        pulling = false;
+        armed = false;
+        setPull(0);
         return;
       }
       const delta = clientY - startY;
-      if (delta <= 0) {
+      if (delta <= 8) {
         setPull(0);
         return;
       }
       armed = true;
       if (event?.cancelable) event.preventDefault();
-      setPull(delta * 0.55);
+      setPull(resisted(delta - 8));
     };
 
     const onEnd = () => {
       if (!pulling || triggered) return;
+      pulling = false;
+      armed = false;
       const distance = Number.parseFloat(document.body.style.getPropertyValue("--pf-pull")) || 0;
       if (distance >= THRESHOLD) {
         triggered = true;
-        document.body.classList.add("pf-pull-refreshing");
-        void hardRefresh();
+        settlePull(HOLD_PULL);
+        window.setTimeout(() => {
+          document.body.classList.add("pf-pull-refreshing");
+          void hardRefresh();
+        }, 220);
         return;
       }
-      endPull();
+      settlePull(0);
     };
 
     window.addEventListener(
@@ -2675,7 +2763,10 @@
     window.addEventListener("touchcancel", endPull, { passive: true });
   }
 
+  window.addEventListener("pageshow", clearHardRefreshNote);
+
   document.addEventListener("DOMContentLoaded", async () => {
+    clearHardRefreshNote();
     if (!window.SitePin?.requireUnlock?.()) return;
 
     const auth = await window.SiteSupabase?.requireAdminSession?.();
@@ -2696,6 +2787,7 @@
     window.PfShell?.renderShell("dashboard");
     wireDialogs();
     window.SiteIcons?.initIcons?.();
+    requestAnimationFrame(() => finishAdminBoot());
     await loadDashboard();
   });
 })();

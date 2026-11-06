@@ -20,14 +20,18 @@
     /* Admin console is light-only — dark OS theme was hiding hardcoded dark text. */
     document.documentElement.setAttribute("data-theme", "light");
     document.documentElement.setAttribute("data-ui-color", "white");
+    document.documentElement.classList.add("pf-admin-booting");
   </script>
   <script src="js/theme.js?v=20261111e"></script>
   <link rel="stylesheet" href="css/site.css?v=20261111e">
-  <link rel="stylesheet" href="css/paws.css?v=20261111g">
+  <link rel="stylesheet" href="css/paws.css?v=20261111r">
   <style>
     /* Critical: keep Edit menus closed until .is-open (beats stale CDN CSS) */
     .pf-emp-menu-panel { display: none !important; }
     .pf-emp-menu.is-open .pf-emp-menu-panel { display: grid !important; }
+    body[data-page="admin"] #shell:empty { display: none !important; }
+    html.pf-admin-booting #dashboard-content { display: none !important; }
+    html.pf-admin-booting #dashboard-skeleton { display: flex !important; } }
   </style>
   <script src="js/config.js?v=20261109n"></script>
   <script src="js/canonical.js?v=20261108v"></script>
@@ -65,13 +69,9 @@
   <a class="skip-link" href="#page-body">Skip to content</a>
   <div id="shell"></div>
   <div id="page-body" class="dashboard-redesign owner-console-page pf-admin-minimal">
-    <div id="dashboard-skeleton" class="dashboard-skeleton" hidden>
-      <div class="skeleton-stats" aria-hidden="true">
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-      </div>
+    <div id="dashboard-skeleton" class="dashboard-skeleton" role="status" aria-live="polite">
+      <div class="skeleton-row" aria-hidden="true"></div>
+      <div class="skeleton-row skeleton-row--short" aria-hidden="true"></div>
       <p class="sr-only">Loading dashboard…</p>
     </div>
 
@@ -476,6 +476,6 @@
   <script src="js/shell.js?v=20261108v"></script>
   <script src="js/vendor/qrcode.min.js?v=20261108v"></script>
   <script src="js/qr.js?v=20261108v"></script>
-  <script src="js/admin.js?v=20261111h"></script>
+  <script src="js/admin.js?v=20261111p"></script>
 </body>
 </html>
