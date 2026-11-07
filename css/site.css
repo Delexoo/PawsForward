@@ -882,12 +882,12 @@ html.site-lock-active body[data-legal-page="1"] #main-content {
   justify-content: center;
 }
 .site-lock-input {
-  width: 148px;
+  width: 11rem;
   max-width: 100%;
   padding: 11px 16px;
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: 0.32em;
+  letter-spacing: normal;
   text-align: center;
   font-family: var(--font, system-ui, sans-serif);
   color: #111827 !important;
@@ -897,8 +897,10 @@ html.site-lock-active body[data-legal-page="1"] #main-content {
   box-shadow: none !important;
   outline: none;
   color-scheme: light;
+  caret-color: #111827;
   transition: border-color 0.2s ease;
   -webkit-text-fill-color: #111827;
+  touch-action: manipulation;
 }
 .site-lock-input::placeholder {
   letter-spacing: 0.06em;

@@ -187,6 +187,14 @@
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
+        if (res.status === 429) {
+          return {
+            ok: false,
+            reason: "locked",
+            remainingMs: Math.max(lockoutRemainingMs(), 15000),
+            message: body.error || "Try again in a few minutes.",
+          };
+        }
         const fail = recordFailure();
         if (fail.lockedUntil > Date.now()) {
           return { ok: false, reason: "locked", remainingMs: fail.lockedUntil - Date.now() };
@@ -202,10 +210,11 @@
         refresh_token: body.refresh_token,
       });
       if (error) return { ok: false, reason: "session" };
-      global.SiteSupabase?.stashSessionHandoff?.({
-        access_token: body.access_token,
-        refresh_token: body.refresh_token,
-      });
+      await global.PfSession?.publish?.(
+        { access_token: body.access_token, refresh_token: body.refresh_token },
+        "operator",
+        autoLoginEnabled()
+      );
       unlock();
       if (autoLoginEnabled()) await global.SiteSupabase?.persistAutoSession?.();
       return { ok: true };
@@ -215,15 +224,59 @@
     }
   }
 
+  let loginSettled = false;
+
+  function settleLogin() {
+    if (loginSettled) return;
+    loginSettled = true;
+    document.documentElement.classList.remove("site-lock-active");
+    document.body?.classList.remove("site-unlocked");
+    const goAdmin = () => {
+      const bust = String(global.SITE_CONFIG?.assetVersion || Date.now());
+      location.replace(`/admin?v=${encodeURIComponent(bust)}`);
+    };
+
+    // Fast path: bypass is on — jump to admin immediately. Middleware + admin hydrate own the cookie.
+    if (autoLoginActive()) {
+      unlock();
+      goAdmin();
+      return;
+    }
+
+    const pending = global.PfSession?.hydrate?.();
+    if (!pending || typeof pending.then !== "function") {
+      try {
+        sessionStorage.removeItem(UNLOCK_KEY);
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
+    pending
+      .then((session) => {
+        if (session?.role === "operator" && session.access_token) {
+          unlock();
+          goAdmin();
+          return;
+        }
+        try {
+          sessionStorage.removeItem(UNLOCK_KEY);
+        } catch {
+          /* ignore */
+        }
+      })
+      .catch(() => {
+        try {
+          sessionStorage.removeItem(UNLOCK_KEY);
+        } catch {
+          /* ignore */
+        }
+      });
+  }
+
   function requireUnlock() {
     if (isLoginPage()) {
-      if (isUnlocked()) {
-        const bust = String(global.SITE_CONFIG?.assetVersion || Date.now());
-        location.replace(`/admin?v=${encodeURIComponent(bust)}`);
-        return false;
-      }
-      document.documentElement.classList.remove("site-lock-active");
-      document.body?.classList.remove("site-unlocked");
+      settleLogin();
       return true;
     }
     if (isUnlocked()) {
@@ -254,12 +307,12 @@
   }
 
   function bootUi() {
+    if (isLoginPage()) {
+      settleLogin();
+      return;
+    }
     if (isUnlocked()) {
       applyUnlockedUi();
-      if (isLoginPage()) requireUnlock();
-    } else if (isLoginPage()) {
-      document.documentElement.classList.remove("site-lock-active");
-      document.body?.classList.remove("site-unlocked");
     } else if (isAdminPage()) applyLockedUi();
   }
 

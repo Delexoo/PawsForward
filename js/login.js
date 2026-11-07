@@ -82,9 +82,22 @@
 
     input?.addEventListener("input", () => {
       setBanner("");
-      input.value = String(input.value || "").replace(/\D/g, "").slice(0, 4);
-      if (input.value.length === 4) attempt();
+      const next = String(input.value || "").replace(/\D/g, "").slice(0, 4);
+      // Rewriting the value on every keystroke drops digits on iPhone.
+      if (next !== input.value) input.value = next;
+      if (next.length === 4) attempt();
     });
+
+    input?.addEventListener("focus", () => {
+      window.setTimeout(() => {
+        input.scrollIntoView({ block: "center" });
+      }, 280);
+    });
+
+    const remaining = window.SitePin?.lockoutRemainingMs?.() || 0;
+    if (remaining > 0) {
+      setBanner(`Too many attempts. Try again in ${Math.ceil(remaining / 1000)}s.`);
+    }
 
     input?.focus();
   });

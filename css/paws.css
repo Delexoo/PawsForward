@@ -1711,18 +1711,25 @@ body[data-page="login"] {
 }
 
 body[data-page="login"] #site-lock {
-  position: fixed;
-  inset: 0;
-  z-index: 100000;
+  position: relative;
+  inset: auto;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  width: 100%;
+  min-height: 100svh;
+  min-height: 100dvh;
   padding: 24px 16px 0;
   background: #ffffff !important;
   color: #111827 !important;
   pointer-events: auto !important;
   visibility: visible !important;
+}
+
+html.site-lock-active:has(body[data-page="login"]) {
+  overflow: auto;
 }
 
 html.site-lock-active body[data-page="login"] #site-lock,
@@ -1950,7 +1957,7 @@ h1,
   /* Bottom sheets must stay square at the screen edge */
   @media (max-width: 900px) {
     body[data-page="admin"] dialog.pf-dialog .site-leave-dialog-panel {
-      corner-shape: initial;
+      corner-shape: squircle;
     }
   }
 }
@@ -1988,6 +1995,11 @@ h1,
   margin: 0;
 }
 
+html.pf-admin-booting body[data-page="admin"] #dashboard-skeleton {
+  animation: skel-in 0s linear 150ms forwards;
+  opacity: 0;
+}
+@keyframes skel-in { to { opacity: 1; } }
 html.pf-admin-booting body[data-page="admin"] #dashboard-skeleton {
   display: flex !important;
   flex: 0 0 auto;
@@ -2985,6 +2997,12 @@ body[data-page="admin"] .pf-employee-identity {
 .pf-employee-row .pf-avatar {
   width: 36px;
   height: 36px;
+  background: #e4e0da;
+  filter: blur(8px);
+}
+.pf-employee-row .pf-avatar.is-ready,
+.pf-avatar.is-ready {
+  filter: none;
 }
 
 body[data-page="admin"] .pf-employee-row .pf-avatar {
@@ -3784,7 +3802,7 @@ button.pf-info-row:focus-visible {
     border-radius: 22px 22px 0 0 !important;
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
-    corner-shape: initial !important;
+    corner-shape: squircle !important;
     border: 1px solid var(--border, #e2e8f0);
     border-bottom: 0 !important;
     background: var(--surface, #fff) !important;
