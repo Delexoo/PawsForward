@@ -68,7 +68,7 @@
       return;
     }
     input.value = "";
-    input.focus();
+    document.querySelectorAll("#pin-dots i").forEach((dot) => dot.classList.remove("is-on"));
     setBanner(result.message || "Incorrect PIN.");
   }
 
@@ -80,25 +80,61 @@
       attempt();
     });
 
-    input?.addEventListener("input", () => {
+    const dots = [...document.querySelectorAll("#pin-dots i")];
+
+    function digits() {
+      return String(input?.value || "").replace(/\D/g, "").slice(0, 4);
+    }
+
+    function paint(next) {
+      const value = String(next ?? digits()).replace(/\D/g, "").slice(0, 4);
+      if (input && input.value !== value) input.value = value;
+      dots.forEach((dot, index) => dot.classList.toggle("is-on", index < value.length));
+      return value;
+    }
+
+    function pushDigit(digit) {
+      if (busy) return;
       setBanner("");
-      const next = String(input.value || "").replace(/\D/g, "").slice(0, 4);
-      // Rewriting the value on every keystroke drops digits on iPhone.
-      if (next !== input.value) input.value = next;
-      if (next.length === 4) attempt();
+      const value = paint(digits() + digit);
+      if (value.length === 4) attempt();
+    }
+
+    function popDigit() {
+      if (busy) return;
+      setBanner("");
+      paint(digits().slice(0, -1));
+    }
+
+    document.querySelectorAll("[data-digit]").forEach((button) => {
+      button.addEventListener("click", () => pushDigit(button.getAttribute("data-digit") || ""));
+    });
+    document.querySelector("[data-pin='delete']")?.addEventListener("click", popDigit);
+    document.querySelector("[data-pin='clear']")?.addEventListener("click", () => {
+      if (busy) return;
+      setBanner("");
+      paint("");
     });
 
-    input?.addEventListener("focus", () => {
-      window.setTimeout(() => {
-        input.scrollIntoView({ block: "center" });
-      }, 280);
+    document.addEventListener("keydown", (event) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target;
+      if (target && target !== input && target.closest && target.closest("input, textarea")) return;
+      if (/^\d$/.test(event.key)) {
+        event.preventDefault();
+        pushDigit(event.key);
+        return;
+      }
+      if (event.key === "Backspace") {
+        event.preventDefault();
+        popDigit();
+      }
     });
 
     const remaining = window.SitePin?.lockoutRemainingMs?.() || 0;
     if (remaining > 0) {
       setBanner(`Too many attempts. Try again in ${Math.ceil(remaining / 1000)}s.`);
     }
-
-    input?.focus();
+    paint("");
   });
 })();
