@@ -210,11 +210,14 @@
         refresh_token: body.refresh_token,
       });
       if (error) return { ok: false, reason: "session" };
-      await global.PfSession?.publish?.(
+      const published = await global.PfSession?.publish?.(
         { access_token: body.access_token, refresh_token: body.refresh_token },
         "operator",
         autoLoginEnabled()
       );
+      if (!published) {
+        return { ok: false, reason: "session", message: "Could not start the session. Try again." };
+      }
       unlock();
       if (autoLoginEnabled()) await global.SiteSupabase?.persistAutoSession?.();
       return { ok: true };

@@ -17,35 +17,39 @@
   <link rel="manifest" href="manifest.webmanifest?v=20261106a">
   <link rel="stylesheet" href="css/fonts.css?v=20261107m">
   <script src="js/theme.js?v=20261111e"></script>
-  <link rel="stylesheet" href="css/site.css?v=20261114b">
-  <link rel="stylesheet" href="css/paws.css?v=20261114d">
+  <link rel="stylesheet" href="css/site.css?v=20261114e">
+  <link rel="stylesheet" href="css/paws.css?v=20261114e">
   <script src="js/config.js?v=20261109n"></script>
   <script src="js/canonical.js?v=20261107m"></script>
 </head>
 <body data-page="login">
-  <div id="site-lock" role="dialog" aria-modal="true" aria-labelledby="pin-hint">
+  <div id="site-lock" aria-labelledby="pin-hint">
     <div class="site-lock-inner">
       <img class="site-lock-logo" src="doc/brand-mark.png" width="72" height="72" alt="PawsForward" />
       <p class="site-lock-hint" id="pin-hint">Portal. Enter your PIN.</p>
       <p id="status-banner" class="site-lock-error" hidden role="status"></p>
       <form id="pin-form" class="site-lock-form" autocomplete="off" novalidate>
-        <div class="pin-dots" id="pin-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         <label class="sr-only" for="pin-input">Your PIN</label>
-        <input id="pin-input" class="pin-native" name="pin" type="text" inputmode="none" maxlength="4" autocomplete="off" aria-describedby="pin-hint">
-        <div class="pin-pad" role="group" aria-label="PIN keypad">
-          <button type="button" data-digit="1">1</button>
-          <button type="button" data-digit="2">2</button>
-          <button type="button" data-digit="3">3</button>
-          <button type="button" data-digit="4">4</button>
-          <button type="button" data-digit="5">5</button>
-          <button type="button" data-digit="6">6</button>
-          <button type="button" data-digit="7">7</button>
-          <button type="button" data-digit="8">8</button>
-          <button type="button" data-digit="9">9</button>
-          <button type="button" data-pin="clear">Clear</button>
-          <button type="button" data-digit="0">0</button>
-          <button type="button" data-pin="delete" aria-label="Delete">Del</button>
-        </div>
+        <input
+          id="pin-input"
+          class="site-lock-input"
+          name="pin"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="4"
+          minlength="4"
+          required
+          autofocus
+          placeholder="PIN"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          enterkeyhint="go"
+          aria-describedby="pin-hint"
+        />
+        <button class="pin-go" type="submit">Continue</button>
       </form>
     </div>
   </div>
@@ -53,7 +57,7 @@
   <script src="js/vendor/supabase.js?v=20261107m"></script>
   <script src="js/pf-session.js?v=20261106g"></script>
   <script src="js/supabase-client.js?v=20261113c"></script>
-  <script src="js/pin-lock.js?v=20261114a"></script>
-  <script src="js/login.js?v=20261114c"></script>
+  <script src="js/pin-lock.js?v=20261114e"></script>
+  <script src="js/login.js?v=20261114e"></script>
 </body>
 </html>
